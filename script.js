@@ -12,10 +12,10 @@ document.addEventListener('DOMContentLoaded', function() {
     const youtubeLink = document.getElementById('youtubeLink');
     
     const phoneNumber = '+91 7333574759';
-    const CACHE_KEY = 'ips_cache_v1';
+    const CACHE_KEY = 'ips_cache_v2';
     
-    // 1. Auto-optimize on load
-    autoOptimize();
+    // 1. Initialize everything
+    initAll();
     
     // 2. Call Button
     callBtn.addEventListener('click', function() {
@@ -43,14 +43,14 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // 6. Logo animation
     logo.addEventListener('click', function() {
-        this.style.transform = 'scale(1.1) rotate(360deg)';
-        this.style.transition = 'transform 0.8s';
+        this.style.transform = 'scale(1.05) rotate(360deg)';
+        this.style.transition = 'transform 0.6s';
         
         createColorBurst();
         
         setTimeout(() => {
             this.style.transform = 'scale(1)';
-        }, 800);
+        }, 600);
     });
     
     // 7. YouTube link confirmation
@@ -60,35 +60,231 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Functions
+    // Initialize all functions
+    function initAll() {
+        autoOptimize();
+        optimizeScrolling();
+        fixAdmissionOverflow(); // NEW: Fix admission box
+        initAppDownloadAlert();
+        initServiceWorker();
+        checkOfficeHours();
+        
+        // Add floating animation to school name
+        const schoolNameWords = document.querySelectorAll('.indian, .public, .school-text');
+        schoolNameWords.forEach((word, index) => {
+            word.style.animation = `floatWord ${3 + index * 0.5}s ease-in-out infinite`;
+        });
+        
+        // Add CSS for animations and fixes
+        const style = document.createElement('style');
+        style.textContent = `
+            /* Fix Admission Box Overflow */
+            .admission-box {
+                position: relative;
+                overflow: visible !important;
+            }
+            
+            .badge {
+                position: absolute;
+                top: 15px;
+                right: 10px !important; /* Changed from -25px */
+                background: #efa12e;
+                color: #004aad;
+                padding: 8px 20px !important; /* Reduced padding */
+                transform: rotate(0deg) !important; /* No rotation */
+                font-weight: bold;
+                font-size: 13px;
+                border-radius: 20px;
+                border: 2px solid white;
+                z-index: 10;
+                white-space: nowrap;
+                box-shadow: 0 3px 10px rgba(239, 161, 46, 0.4);
+            }
+            
+            /* Responsive badge fix */
+            @media (max-width: 768px) {
+                .badge {
+                    position: relative !important;
+                    top: auto !important;
+                    right: auto !important;
+                    display: inline-block;
+                    margin-bottom: 10px;
+                    transform: none !important;
+                }
+            }
+            
+            @keyframes floatWord {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-3px); }
+            }
+            
+            /* App Alert Styles */
+            .app-download-alert {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+            }
+            
+            .app-download-alert.show {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .app-alert-content {
+                background: linear-gradient(135deg, #004aad, #0066cc);
+                border-radius: 20px;
+                padding: 25px;
+                max-width: 380px;
+                width: 90%;
+                text-align: center;
+                position: relative;
+                border: 3px solid #00bf62;
+                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+                animation: alertPop 0.4s ease-out;
+            }
+            
+            @keyframes alertPop {
+                0% { transform: scale(0.9); opacity: 0; }
+                100% { transform: scale(1); opacity: 1; }
+            }
+            
+            .app-alert-close {
+                position: absolute;
+                top: 10px;
+                right: 15px;
+                background: none;
+                border: none;
+                color: white;
+                font-size: 28px;
+                cursor: pointer;
+                line-height: 1;
+                padding: 5px;
+            }
+            
+            .app-alert-icon {
+                font-size: 50px;
+                color: #00bf62;
+                margin-bottom: 10px;
+            }
+            
+            .app-alert-content h3 {
+                color: white;
+                margin-bottom: 10px;
+                font-size: 22px;
+            }
+            
+            .app-alert-content p {
+                color: #e0e0e0;
+                margin-bottom: 20px;
+                line-height: 1.5;
+            }
+            
+            .app-alert-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .app-install-btn, .app-later-btn {
+                flex: 1;
+                padding: 12px;
+                border: none;
+                border-radius: 10px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.2s;
+            }
+            
+            .app-install-btn {
+                background: linear-gradient(135deg, #00bf62, #00d46e);
+                color: white;
+            }
+            
+            .app-later-btn {
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .app-install-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.3);
+            }
+            
+            .app-later-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+            }
+            
+            .app-alert-note {
+                color: #90caf9;
+                font-size: 12px;
+                margin-top: 10px;
+            }
+            
+            /* Performance optimizations */
+            .header-content,
+            .admission-box,
+            .contact-box,
+            .info-box,
+            .youtube-box,
+            .footer {
+                transform: translateZ(0);
+                backface-visibility: hidden;
+            }
+        `;
+        document.head.appendChild(style);
+    }
+    
+    // NEW: Fix admission overflow
+    function fixAdmissionOverflow() {
+        const badge = document.querySelector('.badge');
+        if (badge) {
+            // Remove rotation and fix position
+            badge.style.transform = 'rotate(0deg)';
+            badge.style.right = '10px';
+            badge.style.top = '15px';
+            badge.style.padding = '8px 20px';
+            badge.style.borderRadius = '20px';
+            
+            // Make it responsive
+            if (window.innerWidth < 768) {
+                badge.style.position = 'relative';
+                badge.style.top = 'auto';
+                badge.style.right = 'auto';
+                badge.style.display = 'inline-block';
+                badge.style.marginBottom = '10px';
+            }
+        }
+    }
+    
+    // Auto-optimization
     function autoOptimize() {
-        // 1. Check and load from cache
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             const cacheData = JSON.parse(cached);
             const age = Date.now() - cacheData.timestamp;
             
-            // Use cache if less than 1 hour old
             if (age < 60 * 60 * 1000) {
-                console.log('Loaded from cache (age:', Math.floor(age/1000), 'seconds)');
-                
-                // Update office hours from cache if available
+                console.log('Loaded from cache');
                 if (cacheData.officeStatus) {
                     updateOfficeDisplay(cacheData.officeStatus);
                 }
-                
-                // Schedule background refresh
-                setTimeout(refreshCache, 5000);
+                setTimeout(refreshCache, 3000);
                 return;
             }
         }
         
-        // 2. Fresh load - cache in background
-        console.log('Fresh load - caching in background');
         refreshCache();
-        
-        // 3. Check current office hours
-        checkOfficeHours();
     }
     
     function refreshCache() {
@@ -100,33 +296,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         try {
             localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-            console.log('Cache updated at:', new Date().toLocaleTimeString());
         } catch (e) {
-            console.log('Cache update failed:', e.message);
+            console.log('Cache update failed');
         }
-        
-        // Preload resources for next visit
-        preloadResources();
-    }
-    
-    function preloadResources() {
-        // Preload critical resources in background
-        const resources = [
-            'logo.jpg',
-            'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
-            'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap'
-        ];
-        
-        resources.forEach(resource => {
-            const link = document.createElement('link');
-            link.rel = 'preload';
-            link.as = resource.endsWith('.css') ? 'style' : resource.endsWith('.jpg') ? 'image' : 'font';
-            link.href = resource;
-            document.head.appendChild(link);
-            
-            // Remove after preload
-            setTimeout(() => link.remove(), 3000);
-        });
     }
     
     function checkOfficeHours(returnStatus = false) {
@@ -150,12 +322,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         if (returnStatus) {
-            return {
-                isOpen: isOpen,
-                checkedAt: now.toISOString(),
-                nextCheck: isOpen ? (12 * 60 - (hours * 60 + minutes)) : 
-                                    (9 * 60 + 24 * 60 - (hours * 60 + minutes))
-            };
+            return { isOpen, checkedAt: now.toISOString() };
         }
         
         return isOpen;
@@ -182,7 +349,6 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(() => {
                 showToast('Phone number copied!');
                 
-                // Visual feedback
                 if (phone) {
                     phone.style.background = 'linear-gradient(135deg, #00bf62, #00d46e)';
                     phone.style.color = 'white';
@@ -191,27 +357,24 @@ document.addEventListener('DOMContentLoaded', function() {
                         phone.style.background = '';
                         phone.style.color = '';
                         phone.style.borderColor = '';
-                    }, 500);
+                    }, 400);
                 }
                 
-                // Button feedback
                 if (copyBtn) {
                     const originalHTML = copyBtn.innerHTML;
                     copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
                     setTimeout(() => {
                         copyBtn.innerHTML = originalHTML;
-                    }, 2000);
+                    }, 1500);
                 }
             })
             .catch(() => {
-                // Fallback
                 const textArea = document.createElement('textarea');
                 textArea.value = text;
                 document.body.appendChild(textArea);
                 textArea.select();
                 document.execCommand('copy');
                 document.body.removeChild(textArea);
-                
                 showToast('Number copied to clipboard!');
             });
     }
@@ -224,57 +387,201 @@ document.addEventListener('DOMContentLoaded', function() {
         
         setTimeout(() => {
             toast.classList.remove('show');
-        }, 3000);
+        }, 2500);
     }
     
     function createColorBurst() {
         const colors = ['#efa12e', '#00bf62', '#004aad', '#ffffff'];
         
-        for (let i = 0; i < 8; i++) {
+        for (let i = 0; i < 6; i++) {
             setTimeout(() => {
                 const burst = document.createElement('div');
                 burst.style.position = 'fixed';
-                burst.style.width = '10px';
-                burst.style.height = '10px';
+                burst.style.width = '8px';
+                burst.style.height = '8px';
                 burst.style.borderRadius = '50%';
                 burst.style.background = colors[i % colors.length];
                 burst.style.top = '50%';
                 burst.style.left = '50%';
                 burst.style.zIndex = '9999';
                 burst.style.pointerEvents = 'none';
-                burst.style.opacity = '0.8';
+                burst.style.opacity = '0.7';
                 burst.style.transform = 'translate(-50%, -50%)';
                 
                 document.body.appendChild(burst);
                 
                 const angle = Math.random() * Math.PI * 2;
-                const distance = 50 + Math.random() * 100;
+                const distance = 40 + Math.random() * 60;
                 
                 burst.animate([
-                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.8 },
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.7 },
                     { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0)`, opacity: 0 }
                 ], {
-                    duration: 600,
+                    duration: 500,
                     easing: 'ease-out'
                 });
                 
-                setTimeout(() => burst.remove(), 600);
-            }, i * 50);
+                setTimeout(() => burst.remove(), 500);
+            }, i * 80);
         }
     }
     
-    // Auto-refresh cache every 30 minutes
-    setInterval(refreshCache, 30 * 60 * 1000);
+    function optimizeScrolling() {
+        // Force GPU acceleration
+        const elements = [
+            '.header-content',
+            '.admission-box', 
+            '.contact-box',
+            '.info-box',
+            '.youtube-box',
+            '.footer'
+        ];
+        
+        elements.forEach(selector => {
+            const el = document.querySelector(selector);
+            if (el) {
+                el.style.transform = 'translateZ(0)';
+            }
+        });
+        
+        // Debounce scroll
+        let ticking = false;
+        window.addEventListener('scroll', () => {
+            if (!ticking) {
+                window.requestAnimationFrame(() => {
+                    ticking = false;
+                });
+                ticking = true;
+            }
+        }, { passive: true });
+    }
     
-    // Check office hours every minute
+    // App Download Alert
+    function initAppDownloadAlert() {
+        const hasSeenAlert = localStorage.getItem('hasSeenAppAlert');
+        
+        if (!hasSeenAlert) {
+            setTimeout(() => {
+                createAppAlert();
+            }, 1500);
+        }
+    }
+    
+    function createAppAlert() {
+        const appAlert = document.createElement('div');
+        appAlert.className = 'app-download-alert';
+        appAlert.innerHTML = `
+            <div class="app-alert-content">
+                <button class="app-alert-close">&times;</button>
+                <div class="app-alert-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>📱 Get School App</h3>
+                <p>Install for faster access, notifications, and offline features</p>
+                <div class="app-alert-buttons">
+                    <button class="app-install-btn" id="installAppBtn">
+                        <i class="fas fa-download"></i> Install Now
+                    </button>
+                    <button class="app-later-btn" id="laterBtn">
+                        Later
+                    </button>
+                </div>
+                <div class="app-alert-note">
+                    <small><i class="fas fa-info-circle"></i> PWA - No store required</small>
+                </div>
+            </div>
+        `;
+        
+        document.body.appendChild(appAlert);
+        
+        setTimeout(() => {
+            appAlert.classList.add('show');
+        }, 100);
+        
+        const closeBtn = appAlert.querySelector('.app-alert-close');
+        const laterBtn = appAlert.querySelector('#laterBtn');
+        const installBtn = appAlert.querySelector('#installAppBtn');
+        
+        const closeAlert = () => {
+            appAlert.classList.remove('show');
+            localStorage.setItem('hasSeenAppAlert', 'true');
+            setTimeout(() => {
+                if (appAlert.parentNode) {
+                    appAlert.remove();
+                }
+            }, 300);
+        };
+        
+        closeBtn.addEventListener('click', closeAlert);
+        laterBtn.addEventListener('click', closeAlert);
+        
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            installBtn.addEventListener('click', async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    
+                    if (outcome === 'accepted') {
+                        showToast('App install started! 🎉');
+                        localStorage.setItem('appInstalled', 'true');
+                    }
+                    closeAlert();
+                }
+            });
+        });
+        
+        installBtn.addEventListener('click', () => {
+            if (!deferredPrompt) {
+                showToast('Check browser menu for "Install" option');
+                closeAlert();
+            }
+        });
+        
+        setTimeout(() => {
+            if (appAlert.parentNode) {
+                closeAlert();
+            }
+        }, 10000);
+    }
+    
+    // Service Worker Registration
+    function initServiceWorker() {
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('service-worker.js?v=2.0')
+                .then(registration => {
+                    console.log('Service Worker v2.0 registered');
+                    
+                    // Check for updates every hour
+                    setInterval(() => {
+                        registration.update();
+                    }, 60 * 60 * 1000);
+                })
+                .catch(error => {
+                    console.log('Service Worker registration failed:', error);
+                });
+        }
+    }
+    
+    // Make badge responsive on window resize
+    window.addEventListener('resize', fixAdmissionOverflow);
+    
+    // Schedule regular updates
     setInterval(() => {
         const status = checkOfficeHours(true);
         const cacheData = JSON.parse(localStorage.getItem(CACHE_KEY) || '{}');
         cacheData.officeStatus = status;
         localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
-    }, 60 * 1000);
+    }, 5 * 60 * 1000);
     
-    // Clean old cache on startup
+    // Auto-refresh cache every hour
+    setInterval(refreshCache, 60 * 60 * 1000);
+    
+    // Clean old cache
     function cleanOldCache() {
         const cacheKeys = Object.keys(localStorage);
         cacheKeys.forEach(key => {
@@ -285,20 +592,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     cleanOldCache();
-    
-    // Add floating animation to school name
-    const schoolNameWords = document.querySelectorAll('.indian, .public, .school-text');
-    schoolNameWords.forEach((word, index) => {
-        word.style.animation = `floatWord ${3 + index * 0.5}s ease-in-out infinite`;
-    });
-    
-    // Add CSS for animations
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes floatWord {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-5px); }
-        }
-    `;
-    document.head.appendChild(style);
 });
