@@ -1,5 +1,5 @@
 // Service Worker for Indian Public School Khandwa
-const CACHE_NAME = 'ips-khandwa-v1';
+const CACHE_NAME = 'ips-khandwa-v2';
 const urlsToCache = [
   './',
   './index.html',
