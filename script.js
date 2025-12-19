@@ -465,7 +465,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
- function createAppAlert() {
+   function createAppAlert() {
     const appAlert = document.createElement('div');
     appAlert.className = 'app-download-alert';
     appAlert.innerHTML = `
@@ -474,25 +474,25 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="app-alert-icon">
                 <i class="fas fa-mobile-alt"></i>
             </div>
-            <h3>📱 Get School App</h3>
-            <p>Install for faster access, notifications, and offline features</p>
+            <h3>📱 Install School App</h3>
+            <p>Add to home screen for instant access & offline use</p>
             <div class="app-alert-buttons">
                 <button class="app-install-btn" id="installAppBtn">
-                    <i class="fas fa-download"></i> Install Now
+                    <i class="fas fa-plus-circle"></i> Add to Home Screen
                 </button>
                 <button class="app-later-btn" id="laterBtn">
                     Cancel
                 </button>
             </div>
             <div class="app-alert-note">
-                <small><i class="fas fa-info-circle"></i> PWA - No store required</small>
+                <small><i class="fas fa-info-circle"></i> Works offline • No downloads needed</small>
             </div>
         </div>
     `;
     
     document.body.appendChild(appAlert);
     
-    // Update CSS for button sizes
+    // Add CSS for button sizes
     const styleFix = document.createElement('style');
     styleFix.textContent = `
         /* Button size fix - Install 80%, Cancel 20% */
@@ -503,63 +503,61 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         .app-install-btn {
-            flex: 4; /* 80% (4/5) */
-            min-width: 0; /* Allow shrinking */
-            padding: 12px;
+            flex: 4; /* 80% width */
+            min-width: 0;
+            padding: 14px;
             border: none;
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             background: linear-gradient(135deg, #00bf62, #00d46e);
             color: white;
-            font-size: 15px;
+            font-size: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: 10px;
         }
         
         .app-later-btn {
-            flex: 1; /* 20% (1/5) */
-            min-width: 60px; /* Minimum width */
-            padding: 12px 8px;
+            flex: 1; /* 20% width */
+            min-width: 70px;
+            padding: 14px 10px;
             border: none;
             border-radius: 10px;
             font-weight: bold;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.3s;
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border: 2px solid rgba(255, 255, 255, 0.3);
             font-size: 14px;
         }
         
-        /* Responsive adjustments */
-        @media (max-width: 480px) {
-            .app-install-btn {
-                font-size: 14px;
-                padding: 10px;
-                gap: 6px;
-            }
-            
-            .app-later-btn {
-                font-size: 13px;
-                padding: 10px 6px;
-                min-width: 50px;
-            }
-        }
-        
         /* Hover effects */
         .app-install-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 191, 98, 0.3);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 191, 98, 0.4);
             background: linear-gradient(135deg, #00d46e, #00bf62);
         }
         
         .app-later-btn:hover {
             background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-1px);
+            transform: translateY(-2px);
+        }
+        
+        @media (max-width: 480px) {
+            .app-install-btn {
+                font-size: 14px;
+                padding: 12px;
+            }
+            
+            .app-later-btn {
+                font-size: 13px;
+                padding: 12px 8px;
+                min-width: 60px;
+            }
         }
     `;
     document.head.appendChild(styleFix);
@@ -585,40 +583,97 @@ document.addEventListener('DOMContentLoaded', function() {
     closeBtn.addEventListener('click', closeAlert);
     laterBtn.addEventListener('click', closeAlert);
     
+    // PWA Installation Logic
     let deferredPrompt;
     
+    // Listen for the beforeinstallprompt event
     window.addEventListener('beforeinstallprompt', (e) => {
+        // Prevent Chrome 67 and earlier from automatically showing the prompt
         e.preventDefault();
+        // Stash the event so it can be triggered later
         deferredPrompt = e;
         
-        installBtn.addEventListener('click', async () => {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                const { outcome } = await deferredPrompt.userChoice;
-                
-                if (outcome === 'accepted') {
-                    showToast('App install started! 🎉');
-                    localStorage.setItem('appInstalled', 'true');
-                }
-                closeAlert();
-            }
-        });
+        console.log('PWA install prompt available');
+        
+        // Update button text to indicate PWA is available
+        installBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Install App';
     });
     
-    installBtn.addEventListener('click', () => {
-        if (!deferredPrompt) {
-            showToast('Check browser menu for "Install" option');
+    // Handle Install button click
+    installBtn.addEventListener('click', async () => {
+        if (deferredPrompt) {
+            // Show the install prompt
+            deferredPrompt.prompt();
+            
+            // Wait for the user to respond to the prompt
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            // Log the outcome
+            console.log(`User ${outcome}ed the PWA installation`);
+            
+            if (outcome === 'accepted') {
+                showToast('🎉 School app installing... Check your home screen!');
+                localStorage.setItem('appInstalled', 'true');
+                localStorage.setItem('installTime', new Date().toISOString());
+                
+                // Track installation
+                trackEvent('pwa_installed');
+            } else {
+                showToast('Installation cancelled. You can install later from browser menu.');
+                localStorage.setItem('installCancelled', 'true');
+            }
+            
+            // We've used the prompt, and can't use it again, so discard it
+            deferredPrompt = null;
+            
+            closeAlert();
+        } else {
+            // PWA install prompt not available
+            showToast('📱 Check browser menu (⋮ or ⋯) → "Install" or "Add to Home Screen"');
+            
+            // Provide manual installation instructions
+            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+            const isAndroid = /Android/.test(navigator.userAgent);
+            
+            if (isIOS) {
+                showToast('For iOS: Tap Share → Add to Home Screen');
+            } else if (isAndroid) {
+                showToast('For Android: Tap Menu (⋮) → Install App');
+            }
+            
             closeAlert();
         }
     });
     
+    // Also listen for app installed event
+    window.addEventListener('appinstalled', () => {
+        console.log('PWA was successfully installed');
+        localStorage.setItem('appInstalled', 'true');
+        localStorage.setItem('installTime', new Date().toISOString());
+    });
+    
+    // Auto-close after 15 seconds
     setTimeout(() => {
         if (appAlert.parentNode) {
             closeAlert();
         }
-    }, 10000);
+    }, 15000);
 }
-    
+
+// Add this helper function for tracking
+function trackEvent(eventName) {
+    try {
+        const cacheData = JSON.parse(localStorage.getItem('ips_cache_v2') || '{}');
+        cacheData.events = cacheData.events || [];
+        cacheData.events.push({
+            name: eventName,
+            timestamp: new Date().toISOString()
+        });
+        localStorage.setItem('ips_cache_v2', JSON.stringify(cacheData));
+    } catch (e) {
+        // Silent fail
+    }
+} 
     // Service Worker Registration
     function initServiceWorker() {
         if ('serviceWorker' in navigator) {
