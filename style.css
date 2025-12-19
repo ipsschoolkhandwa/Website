@@ -42,9 +42,9 @@ img {
     pointer-events: none;
 }
 
-/* Base styles - REMOVED HEAVY GRADIENTS */
+/* Base styles */
 body {
-    background: #004aad; /* Solid color instead of gradient */
+    background: #004aad;
     color: var(--white);
     min-height: 100vh;
     padding: 20px;
@@ -52,7 +52,7 @@ body {
     position: relative;
 }
 
-/* Simple animated background (lightweight) */
+/* Simple animated background */
 body::before {
     content: '';
     position: fixed;
@@ -74,7 +74,7 @@ body::before {
     z-index: 1;
 }
 
-/* Header - REMOVED BACKDROP-FILTER */
+/* Header */
 .header {
     margin-bottom: 30px;
     animation: fadeIn 0.5s ease-out;
@@ -84,12 +84,11 @@ body::before {
     display: flex;
     align-items: center;
     gap: 30px;
-    background: rgba(255, 255, 255, 0.08); /* Lighter opacity */
+    background: rgba(255, 255, 255, 0.08);
     padding: 25px;
     border-radius: 20px;
     border: 2px solid rgba(0, 191, 98, 0.2);
-    /* REMOVED: backdrop-filter: blur(10px); */
-    box-shadow: 0 5px 15px rgba(0, 74, 173, 0.2); /* Lighter shadow */
+    box-shadow: 0 5px 15px rgba(0, 74, 173, 0.2);
 }
 
 .logo-section {
@@ -99,23 +98,26 @@ body::before {
     height: 140px;
 }
 
-.logo {
-    /* Base size */
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    border: 5px solid #efa12e;
+.logo-section picture {
+    display: block;
+    width: 100%;
+    height: 100%;
 }
 
-/* High-res devices get better logo */
-@media (-webkit-min-device-pixel-ratio: 2), 
-       (min-resolution: 192dpi) {
-    .logo {
-        background-image: url('logo-hq.png');
-        background-size: contain;
-        background-repeat: no-repeat;
-        background-position: center;
-    }
+.logo {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 5px solid var(--orange);
+    box-shadow: 0 0 15px rgba(239, 161, 46, 0.4);
+    position: relative;
+    z-index: 2;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    -ms-interpolation-mode: bicubic;
 }
 
 .logo:hover {
@@ -129,8 +131,9 @@ body::before {
     right: -8px;
     bottom: -8px;
     border-radius: 50%;
-    border: 2px solid var(--green); /* Thinner border */
-    animation: rotateRing 40s linear infinite; /* Slower animation */
+    border: 2px solid var(--green);
+    animation: rotateRing 40s linear infinite;
+    pointer-events: none;
 }
 
 .logo-glow {
@@ -141,7 +144,8 @@ body::before {
     bottom: -10px;
     border-radius: 50%;
     background: radial-gradient(circle, rgba(0, 191, 98, 0.1) 0%, transparent 50%);
-    animation: pulseGlow 6s infinite alternate; /* Slower animation */
+    animation: pulseGlow 6s infinite alternate;
+    pointer-events: none;
 }
 
 /* School Name */
@@ -204,7 +208,7 @@ body::before {
     border-radius: 20px;
     display: inline-block;
     border: 2px solid var(--green);
-    animation: floatTagline 4s ease-in-out infinite; /* Slower animation */
+    animation: floatTagline 4s ease-in-out infinite;
 }
 
 /* Admission Box */
@@ -217,7 +221,7 @@ body::before {
     margin-bottom: 25px;
     position: relative;
     animation: slideUp 0.6s ease-out;
-    box-shadow: 0 8px 20px rgba(0, 191, 98, 0.3); /* Reduced shadow */
+    box-shadow: 0 8px 20px rgba(0, 191, 98, 0.3);
     border: 3px solid var(--white);
     overflow: hidden;
 }
@@ -235,15 +239,18 @@ body::before {
 .badge {
     position: absolute;
     top: 15px;
-    right: -20px;
+    right: 10px !important;
     background: var(--orange);
     color: var(--navy-blue);
-    padding: 8px 30px;
-    transform: rotate(45deg);
+    padding: 8px 20px !important;
+    transform: rotate(0deg) !important;
     font-weight: bold;
     font-size: 13px;
-    box-shadow: 0 3px 10px rgba(239, 161, 46, 0.4);
+    border-radius: 20px;
     border: 2px solid var(--white);
+    z-index: 10;
+    white-space: nowrap;
+    box-shadow: 0 3px 10px rgba(239, 161, 46, 0.4);
 }
 
 .admission-box h2 {
@@ -254,7 +261,7 @@ body::before {
 
 .icon {
     font-size: 50px;
-    animation: bounce 3s infinite; /* Slower animation */
+    animation: bounce 3s infinite;
     color: var(--navy-blue);
     background: var(--white);
     width: 80px;
@@ -373,12 +380,12 @@ button:hover {
     align-items: center;
     gap: 12px;
     color: #e65100;
-    animation: pulseWarning 4s infinite; /* Slower animation */
+    animation: pulseWarning 4s infinite;
     font-weight: 600;
     margin-bottom: 15px;
 }
 
-/* Info Box - REMOVED BACKDROP-FILTER */
+/* Info Box */
 .info-box {
     background: rgba(255, 255, 255, 0.1);
     padding: 20px;
@@ -386,7 +393,6 @@ button:hover {
     margin-bottom: 25px;
     animation: fadeIn 0.8s ease-out;
     border: 2px solid rgba(0, 191, 98, 0.2);
-    /* REMOVED: backdrop-filter: blur(10px); */
 }
 
 .info-item {
@@ -541,7 +547,7 @@ button:hover {
     transform: translateX(-50%) translateY(0);
 }
 
-/* Optimized Animations */
+/* Animations */
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -560,12 +566,12 @@ button:hover {
 
 @keyframes bounce {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); } /* Reduced bounce */
+    50% { transform: translateY(-8px); }
 }
 
 @keyframes floatTagline {
     0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); } /* Reduced float */
+    50% { transform: translateY(-3px); }
 }
 
 @keyframes rotateRing {
@@ -684,6 +690,10 @@ button:hover {
         height: 100px;
     }
     
+    .logo {
+        border-width: 4px;
+    }
+    
     .admission-box,
     .contact-box,
     .info-box,
@@ -709,7 +719,7 @@ button:hover {
     }
 }
 
-/* Reduced motion preference */
+/* Reduced motion */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -720,7 +730,7 @@ button:hover {
     }
 }
 
-/* Force GPU acceleration for smooth scrolling */
+/* Performance optimizations */
 .header-content,
 .admission-box,
 .contact-box,
@@ -729,5 +739,4 @@ button:hover {
 .footer {
     transform: translateZ(0);
     backface-visibility: hidden;
-    perspective: 1000px;
 }
