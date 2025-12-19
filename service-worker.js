@@ -5,7 +5,7 @@ const urlsToCache = [
   './index.html',
   './style.css',
   './script.js',
-  './logo.jpg',
+  './logo.png',
   './manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap'
@@ -16,7 +16,7 @@ self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(cache => {
-        console.log('Caching essential files');
+        console.log('Caching essential files for Indian Public School');
         return cache.addAll(urlsToCache);
       })
       .then(() => self.skipWaiting())
@@ -76,6 +76,10 @@ self.addEventListener('fetch', event => {
             if (event.request.headers.get('accept').includes('text/html')) {
               return caches.match('./index.html');
             }
+            // If it's an image, return the logo
+            if (event.request.destination === 'image') {
+              return caches.match('./logo.png');
+            }
           });
       })
   );
@@ -88,31 +92,26 @@ self.addEventListener('sync', event => {
   }
 });
 
-// Push notifications (optional - for future use)
+// Push notifications support
 self.addEventListener('push', event => {
   const options = {
-    body: event.data ? event.data.text() : 'New update from Indian Public School',
-    icon: './logo.jpg',
-    badge: './logo.jpg',
+    body: 'New update from Indian Public School Khandwa',
+    icon: './logo.png',
+    badge: './logo.png',
     vibrate: [100, 50, 100],
     data: {
-      dateOfArrival: Date.now(),
-      primaryKey: 1
+      url: './index.html'
     },
     actions: [
       {
         action: 'open',
         title: 'Open Website'
-      },
-      {
-        action: 'close',
-        title: 'Close'
       }
     ]
   };
   
   event.waitUntil(
-    self.registration.showNotification('Indian Public School Khandwa', options)
+    self.registration.showNotification('Indian Public School', options)
   );
 });
 
@@ -125,3 +124,11 @@ self.addEventListener('notificationclick', event => {
     );
   }
 });
+
+// Helper function for form submission (for future use)
+async function submitFormData() {
+  // This function would handle offline form submissions
+  // For now, it's a placeholder for future functionality
+  console.log('Background sync for form submission');
+  return Promise.resolve();
+}
