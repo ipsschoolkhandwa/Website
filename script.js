@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Performance tracking
     const startTime = performance.now();
-    
+
     // Elements
     const callBtn = document.getElementById('callBtn');
     const copyBtn = document.getElementById('copyBtn');
@@ -10,56 +10,56 @@ document.addEventListener('DOMContentLoaded', function() {
     const warning = document.getElementById('officeHours');
     const logo = document.querySelector('.logo');
     const youtubeLink = document.getElementById('youtubeLink');
-    
+
     const phoneNumber = '+91 7333574759';
     const CACHE_KEY = 'ips_cache_v2';
-    
+
     // 1. Initialize everything
     initAll();
-    
+
     // 2. Call Button
     callBtn.addEventListener('click', function() {
         window.location.href = 'tel:+917333574759';
-        
+
         setTimeout(() => {
             showToast('If call not started, dial: ' + phoneNumber);
         }, 1000);
     });
-    
+
     // 3. Copy Button
     copyBtn.addEventListener('click', function() {
         copyToClipboard(phoneNumber);
     });
-    
+
     // 4. Phone number click to copy
     phone.addEventListener('click', function() {
         copyToClipboard(phoneNumber);
     });
-    
+
     // 5. Warning click
     warning.addEventListener('click', function() {
         showToast('Office hours: 9 AM to 12 Noon only');
     });
-    
+
     // 6. Logo animation
     logo.addEventListener('click', function() {
         this.style.transform = 'scale(1.05) rotate(360deg)';
         this.style.transition = 'transform 0.6s';
-        
+
         createColorBurst();
-        
+
         setTimeout(() => {
             this.style.transform = 'scale(1)';
         }, 600);
     });
-    
+
     // 7. YouTube link confirmation
     youtubeLink.addEventListener('click', function(e) {
         if (!confirm('Opening YouTube channel in new tab. Continue?')) {
             e.preventDefault();
         }
     });
-    
+
     // Initialize all functions
     function initAll() {
         autoOptimize();
@@ -68,13 +68,13 @@ document.addEventListener('DOMContentLoaded', function() {
         initAppDownloadAlert();
         initServiceWorker();
         checkOfficeHours();
-        
+
         // Add floating animation to school name
         const schoolNameWords = document.querySelectorAll('.indian, .public, .school-text');
         schoolNameWords.forEach((word, index) => {
             word.style.animation = `floatWord ${3 + index * 0.5}s ease-in-out infinite`;
         });
-        
+
         // Add CSS for animations and fixes
         const style = document.createElement('style');
         style.textContent = `
@@ -244,7 +244,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
         document.head.appendChild(style);
     }
-    
+
     // NEW: Fix admission overflow
     function fixAdmissionOverflow() {
         const badge = document.querySelector('.badge');
@@ -255,7 +255,7 @@ document.addEventListener('DOMContentLoaded', function() {
             badge.style.top = '15px';
             badge.style.padding = '8px 20px';
             badge.style.borderRadius = '20px';
-            
+
             // Make it responsive
             if (window.innerWidth < 768) {
                 badge.style.position = 'relative';
@@ -266,14 +266,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     }
-    
+
     // Auto-optimization
     function autoOptimize() {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             const cacheData = JSON.parse(cached);
             const age = Date.now() - cacheData.timestamp;
-            
+
             if (age < 60 * 60 * 1000) {
                 console.log('Loaded from cache');
                 if (cacheData.officeStatus) {
@@ -283,30 +283,30 @@ document.addEventListener('DOMContentLoaded', function() {
                 return;
             }
         }
-        
+
         refreshCache();
     }
-    
+
     function refreshCache() {
         const cacheData = {
             timestamp: Date.now(),
             loadTime: Math.round(performance.now() - startTime),
             officeStatus: checkOfficeHours(true)
         };
-        
+
         try {
             localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
         } catch (e) {
             console.log('Cache update failed');
         }
     }
-    
+
     function checkOfficeHours(returnStatus = false) {
         const now = new Date();
         const hours = now.getHours();
         const minutes = now.getMinutes();
         const isOpen = hours >= 9 && (hours < 12 || (hours === 12 && minutes === 0));
-        
+
         if (warning) {
             if (isOpen) {
                 warning.innerHTML = '<i class="fas fa-check-circle"></i><p>Office is OPEN - Call Now!</p>';
@@ -320,17 +320,17 @@ document.addEventListener('DOMContentLoaded', function() {
                 warning.style.color = '#e65100';
             }
         }
-        
+
         if (returnStatus) {
             return { isOpen, checkedAt: now.toISOString() };
         }
-        
+
         return isOpen;
     }
-    
+
     function updateOfficeDisplay(status) {
         if (!warning || !status) return;
-        
+
         if (status.isOpen) {
             warning.innerHTML = '<i class="fas fa-check-circle"></i><p>Office is OPEN - Call Now!</p>';
             warning.style.background = 'linear-gradient(135deg, #d4edda, #c3e6cb)';
@@ -343,12 +343,12 @@ document.addEventListener('DOMContentLoaded', function() {
             warning.style.color = '#e65100';
         }
     }
-    
+
     function copyToClipboard(text) {
         navigator.clipboard.writeText(text)
             .then(() => {
                 showToast('Phone number copied!');
-                
+
                 if (phone) {
                     phone.style.background = 'linear-gradient(135deg, #00bf62, #00d46e)';
                     phone.style.color = 'white';
@@ -359,7 +359,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         phone.style.borderColor = '';
                     }, 400);
                 }
-                
+
                 if (copyBtn) {
                     const originalHTML = copyBtn.innerHTML;
                     copyBtn.innerHTML = '<i class="fas fa-check"></i> Copied!';
@@ -378,21 +378,20 @@ document.addEventListener('DOMContentLoaded', function() {
                 showToast('Number copied to clipboard!');
             });
     }
-    
+
     function showToast(message) {
         if (!toast) return;
-        
-        toast.textContent = message;
+       toast.textContent = message;
         toast.classList.add('show');
-        
+
         setTimeout(() => {
             toast.classList.remove('show');
         }, 2500);
     }
-    
+
     function createColorBurst() {
         const colors = ['#efa12e', '#00bf62', '#004aad', '#ffffff'];
-        
+
         for (let i = 0; i < 6; i++) {
             setTimeout(() => {
                 const burst = document.createElement('div');
@@ -407,12 +406,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 burst.style.pointerEvents = 'none';
                 burst.style.opacity = '0.7';
                 burst.style.transform = 'translate(-50%, -50%)';
-                
+
                 document.body.appendChild(burst);
-                
+
                 const angle = Math.random() * Math.PI * 2;
                 const distance = 40 + Math.random() * 60;
-                
+
                 burst.animate([
                     { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.7 },
                     { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0)`, opacity: 0 }
@@ -420,12 +419,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     duration: 500,
                     easing: 'ease-out'
                 });
-                
+
                 setTimeout(() => burst.remove(), 500);
             }, i * 80);
         }
     }
-    
+
     function optimizeScrolling() {
         // Force GPU acceleration
         const elements = [
@@ -436,14 +435,13 @@ document.addEventListener('DOMContentLoaded', function() {
             '.youtube-box',
             '.footer'
         ];
-        
         elements.forEach(selector => {
             const el = document.querySelector(selector);
             if (el) {
                 el.style.transform = 'translateZ(0)';
             }
         });
-        
+
         // Debounce scroll
         let ticking = false;
         window.addEventListener('scroll', () => {
@@ -455,99 +453,171 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, { passive: true });
     }
-    
+
     // App Download Alert
     function initAppDownloadAlert() {
         const hasSeenAlert = localStorage.getItem('hasSeenAppAlert');
-        
+
         if (!hasSeenAlert) {
             setTimeout(() => {
                 createAppAlert();
             }, 1500);
         }
     }
-    
-    function createAppAlert() {
-        const appAlert = document.createElement('div');
-        appAlert.className = 'app-download-alert';
-        appAlert.innerHTML = `
-            <div class="app-alert-content">
-                <button class="app-alert-close">&times;</button>
-                <div class="app-alert-icon">
-                    <i class="fas fa-mobile-alt"></i>
-                </div>
-                <h3>📱 Get School App</h3>
-                <p>Install for faster access, notifications, and offline features</p>
-                <div class="app-alert-buttons">
-                    <button class="app-install-btn" id="installAppBtn">
-                        <i class="fas fa-download"></i> Install Now
-                    </button>
-                    <button class="app-later-btn" id="laterBtn">
-                        Later
-                    </button>
-                </div>
-                <div class="app-alert-note">
-                    <small><i class="fas fa-info-circle"></i> PWA - No store required</small>
-                </div>
+
+ function createAppAlert() {
+    const appAlert = document.createElement('div');
+    appAlert.className = 'app-download-alert';
+    appAlert.innerHTML = `
+        <div class="app-alert-content">
+            <button class="app-alert-close">&times;</button>
+            <div class="app-alert-icon">
+                <i class="fas fa-mobile-alt"></i>
             </div>
-        `;
+            <h3>📱 Get School App</h3>
+            <p>Install for faster access, notifications, and offline features</p>
+            <div class="app-alert-buttons">
+                <button class="app-install-btn" id="installAppBtn">
+                    <i class="fas fa-download"></i> Install Now
+                </button>
+                <button class="app-later-btn" id="laterBtn">
+                    Cancel
+                </button>
+            </div>
+            <div class="app-alert-note">
+                <small><i class="fas fa-info-circle"></i> PWA - No store required</small>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(appAlert);
+    
+    // Update CSS for button sizes
+    const styleFix = document.createElement('style');
+    styleFix.textContent = `
+        /* Button size fix - Install 80%, Cancel 20% */
+        .app-alert-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
         
-        document.body.appendChild(appAlert);
+        .app-install-btn {
+            flex: 4; /* 80% (4/5) */
+            min-width: 0; /* Allow shrinking */
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: linear-gradient(135deg, #00bf62, #00d46e);
+            color: white;
+            font-size: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
         
-        setTimeout(() => {
-            appAlert.classList.add('show');
-        }, 100);
+        .app-later-btn {
+            flex: 1; /* 20% (1/5) */
+            min-width: 60px; /* Minimum width */
+            padding: 12px 8px;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            font-size: 14px;
+        }
         
-        const closeBtn = appAlert.querySelector('.app-alert-close');
-        const laterBtn = appAlert.querySelector('#laterBtn');
-        const installBtn = appAlert.querySelector('#installAppBtn');
-        
-        const closeAlert = () => {
-            appAlert.classList.remove('show');
-            localStorage.setItem('hasSeenAppAlert', 'true');
-            setTimeout(() => {
-                if (appAlert.parentNode) {
-                    appAlert.remove();
-                }
-            }, 300);
-        };
-        
-        closeBtn.addEventListener('click', closeAlert);
-        laterBtn.addEventListener('click', closeAlert);
-        
-        let deferredPrompt;
-        
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            
-            installBtn.addEventListener('click', async () => {
-                if (deferredPrompt) {
-                    deferredPrompt.prompt();
-                    const { outcome } = await deferredPrompt.userChoice;
-                    
-                    if (outcome === 'accepted') {
-                        showToast('App install started! 🎉');
-                        localStorage.setItem('appInstalled', 'true');
-                    }
-                    closeAlert();
-                }
-            });
-        });
-        
-        installBtn.addEventListener('click', () => {
-            if (!deferredPrompt) {
-                showToast('Check browser menu for "Install" option');
-                closeAlert();
+        /* Responsive adjustments */
+        @media (max-width: 480px) {
+            .app-install-btn {
+                font-size: 14px;
+                padding: 10px;
+                gap: 6px;
             }
-        });
+            
+            .app-later-btn {
+                font-size: 13px;
+                padding: 10px 6px;
+                min-width: 50px;
+            }
+        }
         
+        /* Hover effects */
+        .app-install-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 191, 98, 0.3);
+            background: linear-gradient(135deg, #00d46e, #00bf62);
+        }
+        
+        .app-later-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+    `;
+    document.head.appendChild(styleFix);
+    
+    setTimeout(() => {
+        appAlert.classList.add('show');
+    }, 100);
+    
+    const closeBtn = appAlert.querySelector('.app-alert-close');
+    const laterBtn = appAlert.querySelector('#laterBtn');
+    const installBtn = appAlert.querySelector('#installAppBtn');
+    
+    const closeAlert = () => {
+        appAlert.classList.remove('show');
+        localStorage.setItem('hasSeenAppAlert', 'true');
         setTimeout(() => {
             if (appAlert.parentNode) {
+                appAlert.remove();
+            }
+        }, 300);
+    };
+    
+    closeBtn.addEventListener('click', closeAlert);
+    laterBtn.addEventListener('click', closeAlert);
+    
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    showToast('App install started! 🎉');
+                    localStorage.setItem('appInstalled', 'true');
+                }
                 closeAlert();
             }
-        }, 10000);
-    }
+        });
+    });
+    
+    installBtn.addEventListener('click', () => {
+        if (!deferredPrompt) {
+            showToast('Check browser menu for "Install" option');
+            closeAlert();
+        }
+    });
+    
+    setTimeout(() => {
+        if (appAlert.parentNode) {
+            closeAlert();
+        }
+    }, 10000);
+}
     
     // Service Worker Registration
     function initServiceWorker() {
@@ -555,7 +625,7 @@ document.addEventListener('DOMContentLoaded', function() {
             navigator.serviceWorker.register('service-worker.js?v=2.0')
                 .then(registration => {
                     console.log('Service Worker v2.0 registered');
-                    
+
                     // Check for updates every hour
                     setInterval(() => {
                         registration.update();
@@ -566,10 +636,10 @@ document.addEventListener('DOMContentLoaded', function() {
                 });
         }
     }
-    
+
     // Make badge responsive on window resize
     window.addEventListener('resize', fixAdmissionOverflow);
-    
+
     // Schedule regular updates
     setInterval(() => {
         const status = checkOfficeHours(true);
@@ -577,10 +647,10 @@ document.addEventListener('DOMContentLoaded', function() {
         cacheData.officeStatus = status;
         localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     }, 5 * 60 * 1000);
-    
+
     // Auto-refresh cache every hour
     setInterval(refreshCache, 60 * 60 * 1000);
-    
+
     // Clean old cache
     function cleanOldCache() {
         const cacheKeys = Object.keys(localStorage);
@@ -590,6 +660,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     }
-    
+
     cleanOldCache();
 });
