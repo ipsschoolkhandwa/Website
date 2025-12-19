@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function initAll() {
         autoOptimize();
         optimizeScrolling();
-        fixAdmissionOverflow(); // NEW: Fix admission box
+        fixAdmissionOverflow();
         initAppDownloadAlert();
         initServiceWorker();
         checkOfficeHours();
@@ -87,11 +87,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .badge {
                 position: absolute;
                 top: 15px;
-                right: 10px !important; /* Changed from -25px */
+                right: 10px !important;
                 background: #efa12e;
                 color: #004aad;
-                padding: 8px 20px !important; /* Reduced padding */
-                transform: rotate(0deg) !important; /* No rotation */
+                padding: 8px 20px !important;
+                transform: rotate(0deg) !important;
                 font-weight: bold;
                 font-size: 13px;
                 border-radius: 20px;
@@ -187,48 +187,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 color: #e0e0e0;
                 margin-bottom: 20px;
                 line-height: 1.5;
-            }
-            
-            .app-alert-buttons {
-                display: flex;
-                gap: 10px;
-                margin-bottom: 15px;
-            }
-            
-            .app-install-btn, .app-later-btn {
-                flex: 1;
-                padding: 12px;
-                border: none;
-                border-radius: 10px;
-                font-weight: bold;
-                cursor: pointer;
-                transition: all 0.2s;
-            }
-            
-            .app-install-btn {
-                background: linear-gradient(135deg, #00bf62, #00d46e);
-                color: white;
-            }
-            
-            .app-later-btn {
-                background: rgba(255, 255, 255, 0.1);
-                color: white;
-                border: 2px solid rgba(255, 255, 255, 0.3);
-            }
-            
-            .app-install-btn:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.3);
-            }
-            
-            .app-later-btn:hover {
-                background: rgba(255, 255, 255, 0.2);
-            }
-            
-            .app-alert-note {
-                color: #90caf9;
-                font-size: 12px;
-                margin-top: 10px;
             }
             
             /* Performance optimizations */
@@ -453,7 +411,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }, { passive: true });
     }
-
     // App Download Alert
     function initAppDownloadAlert() {
         const hasSeenAlert = localStorage.getItem('hasSeenAppAlert');
@@ -465,236 +422,213 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-   function createAppAlert() {
-    const appAlert = document.createElement('div');
-    appAlert.className = 'app-download-alert';
-    appAlert.innerHTML = `
-        <div class="app-alert-content">
-            <button class="app-alert-close">&times;</button>
-            <div class="app-alert-icon">
-                <i class="fas fa-mobile-alt"></i>
+    function createAppAlert() {
+        const appAlert = document.createElement('div');
+        appAlert.className = 'app-download-alert';
+        appAlert.innerHTML = `
+            <div class="app-alert-content">
+                <button class="app-alert-close">&times;</button>
+                <div class="app-alert-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3>📱 Install School App</h3>
+                <p>Add to home screen for instant access & offline use</p>
+                <div class="app-alert-buttons">
+                    <button class="app-install-btn" id="installAppBtn">
+                        <i class="fas fa-plus-circle"></i> Add to Home Screen
+                    </button>
+                    <button class="app-later-btn" id="laterBtn">
+                        Cancel
+                    </button>
+                </div>
+                <div class="app-alert-note">
+                    <small><i class="fas fa-info-circle"></i> Works offline • No downloads needed</small>
+                </div>
             </div>
-            <h3>📱 Install School App</h3>
-            <p>Add to home screen for instant access & offline use</p>
-            <div class="app-alert-buttons">
-                <button class="app-install-btn" id="installAppBtn">
-                    <i class="fas fa-plus-circle"></i> Add to Home Screen
-                </button>
-                <button class="app-later-btn" id="laterBtn">
-                    Cancel
-                </button>
-            </div>
-            <div class="app-alert-note">
-                <small><i class="fas fa-info-circle"></i> Works offline • No downloads needed</small>
-            </div>
-        </div>
-    `;
-    
-    document.body.appendChild(appAlert);
-    
-    // Add CSS for button sizes
-    const styleFix = document.createElement('style');
-    styleFix.textContent = `
-        /* Button size fix - Install 80%, Cancel 20% */
-        .app-alert-buttons {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
+        `;
         
-        .app-install-btn {
-            flex: 4; /* 80% width */
-            min-width: 0;
-            padding: 14px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: linear-gradient(135deg, #00bf62, #00d46e);
-            color: white;
-            font-size: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+        document.body.appendChild(appAlert);
         
-        .app-later-btn {
-            flex: 1; /* 20% width */
-            min-width: 70px;
-            padding: 14px 10px;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 2px solid rgba(255, 255, 255, 0.3);
-            font-size: 14px;
-        }
-        
-        /* Hover effects */
-        .app-install-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 20px rgba(0, 191, 98, 0.4);
-            background: linear-gradient(135deg, #00d46e, #00bf62);
-        }
-        
-        .app-later-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-        
-        @media (max-width: 480px) {
+        // Add CSS for button sizes (80% Install, 20% Cancel)
+        const styleFix = document.createElement('style');
+        styleFix.textContent = `
+            .app-alert-buttons {
+                display: flex;
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+            
             .app-install-btn {
-                font-size: 14px;
-                padding: 12px;
+                flex: 4; /* 80% width */
+                min-width: 0;
+                padding: 14px;
+                border: none;
+                border-radius: 10px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s;
+                background: linear-gradient(135deg, #00bf62, #00d46e);
+                color: white;
+                font-size: 16px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
             }
             
             .app-later-btn {
-                font-size: 13px;
-                padding: 12px 8px;
-                min-width: 60px;
+                flex: 1; /* 20% width */
+                min-width: 70px;
+                padding: 14px 10px;
+                border: none;
+                border-radius: 10px;
+                font-weight: bold;
+                cursor: pointer;
+                transition: all 0.3s;
+                background: rgba(255, 255, 255, 0.1);
+                color: white;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+                font-size: 14px;
             }
-        }
-    `;
-    document.head.appendChild(styleFix);
-    
-    setTimeout(() => {
-        appAlert.classList.add('show');
-    }, 100);
-    
-    const closeBtn = appAlert.querySelector('.app-alert-close');
-    const laterBtn = appAlert.querySelector('#laterBtn');
-    const installBtn = appAlert.querySelector('#installAppBtn');
-    
-    const closeAlert = () => {
-        appAlert.classList.remove('show');
-        localStorage.setItem('hasSeenAppAlert', 'true');
+            
+            .app-install-btn:hover {
+                transform: translateY(-3px);
+                box-shadow: 0 8px 20px rgba(0, 191, 98, 0.4);
+                background: linear-gradient(135deg, #00d46e, #00bf62);
+            }
+            
+            .app-later-btn:hover {
+                background: rgba(255, 255, 255, 0.2);
+                transform: translateY(-2px);
+            }
+            
+            @media (max-width: 480px) {
+                .app-install-btn {
+                    font-size: 14px;
+                    padding: 12px;
+                }
+                
+                .app-later-btn {
+                    font-size: 13px;
+                    padding: 12px 8px;
+                    min-width: 60px;
+                }
+            }
+        `;
+        document.head.appendChild(styleFix);
+        
+        setTimeout(() => {
+            appAlert.classList.add('show');
+        }, 100);
+        
+        const closeBtn = appAlert.querySelector('.app-alert-close');
+        const laterBtn = appAlert.querySelector('#laterBtn');
+        const installBtn = appAlert.querySelector('#installAppBtn');
+        
+        const closeAlert = () => {
+            appAlert.classList.remove('show');
+            localStorage.setItem('hasSeenAppAlert', 'true');
+            setTimeout(() => {
+                if (appAlert.parentNode) {
+                    appAlert.remove();
+                }
+            }, 300);
+        };
+        
+        closeBtn.addEventListener('click', closeAlert);
+        laterBtn.addEventListener('click', closeAlert);
+        
+        // PWA Installation Logic
+        let deferredPrompt;
+        
+        // Listen for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            console.log('PWA install prompt available');
+            installBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Install App';
+        });
+        
+        // Handle Install button click
+        installBtn.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                // Show the install prompt
+                deferredPrompt.prompt();
+                
+                // Wait for user response
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    showToast('🎉 School app installing... Check home screen!');
+                    localStorage.setItem('appInstalled', 'true');
+                    localStorage.setItem('installTime', new Date().toISOString());
+                } else {
+                    showToast('Installation cancelled. Install later from browser menu.');
+                    localStorage.setItem('installCancelled', 'true');
+                }
+                
+                deferredPrompt = null;
+                closeAlert();
+            } else {
+                // Manual installation instructions
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+                const isAndroid = /Android/.test(navigator.userAgent);
+                
+                if (isIOS) {
+                    showToast('For iOS: Tap Share → Add to Home Screen');
+                } else if (isAndroid) {
+                    showToast('For Android: Tap Menu (⋮) → Install App');
+                } else {
+                    showToast('Check browser menu (⋮ or ⋯) → "Install App"');
+                }
+                closeAlert();
+            }
+        });
+        
+        // Listen for successful installation
+        window.addEventListener('appinstalled', () => {
+            console.log('PWA successfully installed');
+            localStorage.setItem('appInstalled', 'true');
+            localStorage.setItem('installTime', new Date().toISOString());
+        });
+        
+        // Auto-close after 15 seconds
         setTimeout(() => {
             if (appAlert.parentNode) {
-                appAlert.remove();
+                closeAlert();
             }
-        }, 300);
-    };
-    
-    closeBtn.addEventListener('click', closeAlert);
-    laterBtn.addEventListener('click', closeAlert);
-    
-    // PWA Installation Logic
-    let deferredPrompt;
-    
-    // Listen for the beforeinstallprompt event
-    window.addEventListener('beforeinstallprompt', (e) => {
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        e.preventDefault();
-        // Stash the event so it can be triggered later
-        deferredPrompt = e;
-        
-        console.log('PWA install prompt available');
-        
-        // Update button text to indicate PWA is available
-        installBtn.innerHTML = '<i class="fas fa-plus-circle"></i> Install App';
-    });
-    
-    // Handle Install button click
-    installBtn.addEventListener('click', async () => {
-        if (deferredPrompt) {
-            // Show the install prompt
-            deferredPrompt.prompt();
-            
-            // Wait for the user to respond to the prompt
-            const { outcome } = await deferredPrompt.userChoice;
-            
-            // Log the outcome
-            console.log(`User ${outcome}ed the PWA installation`);
-            
-            if (outcome === 'accepted') {
-                showToast('🎉 School app installing... Check your home screen!');
-                localStorage.setItem('appInstalled', 'true');
-                localStorage.setItem('installTime', new Date().toISOString());
-                
-                // Track installation
-                trackEvent('pwa_installed');
-            } else {
-                showToast('Installation cancelled. You can install later from browser menu.');
-                localStorage.setItem('installCancelled', 'true');
-            }
-            
-            // We've used the prompt, and can't use it again, so discard it
-            deferredPrompt = null;
-            
-            closeAlert();
-        } else {
-            // PWA install prompt not available
-            showToast('📱 Check browser menu (⋮ or ⋯) → "Install" or "Add to Home Screen"');
-            
-            // Provide manual installation instructions
-            const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
-            const isAndroid = /Android/.test(navigator.userAgent);
-            
-            if (isIOS) {
-                showToast('For iOS: Tap Share → Add to Home Screen');
-            } else if (isAndroid) {
-                showToast('For Android: Tap Menu (⋮) → Install App');
-            }
-            
-            closeAlert();
-        }
-    });
-    
-    // Also listen for app installed event
-    window.addEventListener('appinstalled', () => {
-        console.log('PWA was successfully installed');
-        localStorage.setItem('appInstalled', 'true');
-        localStorage.setItem('installTime', new Date().toISOString());
-    });
-    
-    // Auto-close after 15 seconds
-    setTimeout(() => {
-        if (appAlert.parentNode) {
-            closeAlert();
-        }
-    }, 15000);
-}
-
-// Add this helper function for tracking
-function trackEvent(eventName) {
-    try {
-        const cacheData = JSON.parse(localStorage.getItem('ips_cache_v2') || '{}');
-        cacheData.events = cacheData.events || [];
-        cacheData.events.push({
-            name: eventName,
-            timestamp: new Date().toISOString()
-        });
-        localStorage.setItem('ips_cache_v2', JSON.stringify(cacheData));
-    } catch (e) {
-        // Silent fail
+        }, 15000);
     }
-} 
+
     // Service Worker Registration
     function initServiceWorker() {
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js?v=2.0')
-                .then(registration => {
-                    console.log('Service Worker v2.0 registered');
-
-                    // Check for updates every hour
-                    setInterval(() => {
-                        registration.update();
-                    }, 60 * 60 * 1000);
-                })
-                .catch(error => {
-                    console.log('Service Worker registration failed:', error);
+            navigator.serviceWorker.register('service-worker.js', {
+                scope: './',
+                updateViaCache: 'none'
+            })
+            .then(registration => {
+                console.log('Service Worker v2.0 registered');
+                
+                // Check for updates periodically
+                setInterval(() => {
+                    registration.update();
+                }, 2 * 60 * 60 * 1000);
+                
+                // Listen for updates
+                navigator.serviceWorker.addEventListener('controllerchange', () => {
+                    console.log('New Service Worker activated!');
                 });
+            })
+            .catch(error => {
+                console.log('Service Worker registration failed:', error);
+            });
         }
     }
 
     // Make badge responsive on window resize
     window.addEventListener('resize', fixAdmissionOverflow);
-
+    
     // Schedule regular updates
     setInterval(() => {
         const status = checkOfficeHours(true);
@@ -702,10 +636,10 @@ function trackEvent(eventName) {
         cacheData.officeStatus = status;
         localStorage.setItem(CACHE_KEY, JSON.stringify(cacheData));
     }, 5 * 60 * 1000);
-
+    
     // Auto-refresh cache every hour
     setInterval(refreshCache, 60 * 60 * 1000);
-
+    
     // Clean old cache
     function cleanOldCache() {
         const cacheKeys = Object.keys(localStorage);
@@ -715,6 +649,6 @@ function trackEvent(eventName) {
             }
         });
     }
-
+    
     cleanOldCache();
 });
