@@ -1,0 +1,27 @@
+{
+  "name": "Indian Public School Khandwa",
+  "short_name": "IPS Khandwa",
+  "description": "Official admission portal for Indian Public School Khandwa - Creating Good Humans",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#004aad",
+  "theme_color": "#004aad",
+  "orientation": "portrait-primary",
+  "scope": "./",
+  "lang": "en",
+  "categories": ["education", "school"],
+  "icons": [
+    {
+      "src": "./logo.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "./logo.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
+}
