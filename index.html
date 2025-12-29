@@ -174,7 +174,54 @@
             });
         }
     </script>
+    <!-- Add this near the contact buttons (around line 74) -->
+<button class="notify-btn" id="subscribeNotifications">
+    <i class="fas fa-bell"></i> Get School Updates
+</button>
+
+<!-- Add CSS for the button in your style.css or in the existing <style> block -->
+<style>
+    .notify-btn {
+        background: linear-gradient(135deg, #efa12e, #ff9800);
+        color: white;
+        border: none;
+        padding: 14px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px auto;
+        width: 90%;
+        max-width: 280px;
+        box-shadow: 0 5px 15px rgba(239, 161, 46, 0.3);
+    }
     
+    .notify-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(239, 161, 46, 0.4);
+        background: linear-gradient(135deg, #ff9800, #ffb74d);
+    }
+    
+    .notify-btn:active {
+        transform: translateY(0);
+    }
+    
+    .notify-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .notify-btn i {
+        font-size: 18px;
+    }
+</style>
     <!-- Main Script -->
     <script src="script.js"></script>
 </body>
