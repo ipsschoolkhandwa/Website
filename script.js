@@ -652,3 +652,197 @@ document.addEventListener('DOMContentLoaded', function() {
     
     cleanOldCache();
 });
+
+
+
+
+// ========== PUSH NOTIFICATION SYSTEM ==========
+// Add this code after your existing event listeners (around line 200)
+
+// Generate VAPID keys: https://web-push-codelab.glitch.me/
+const VAPID_PUBLIC_KEY = 'BCqyvwEdH6jLlMn5j_HNrcXhU1zX1v1v-Q4YV2ScH2DTSm71qz_mgQh8Uq3Pm4BItGjhNp3c0nSlVJq8NnGgDGs';
+
+// Convert VAPID key for browser
+function urlBase64ToUint8Array(base64String) {
+    const padding = '='.repeat((4 - base64String.length % 4) % 4);
+    const base64 = (base64String + padding)
+        .replace(/-/g, '+')
+        .replace(/_/g, '/');
+    const rawData = window.atob(base64);
+    const outputArray = new Uint8Array(rawData.length);
+    for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+    }
+    return outputArray;
+}
+
+// Subscribe to push notifications
+async function subscribeToPush() {
+    if (!('serviceWorker' in navigator)) {
+        showToast('Push notifications not supported in your browser.');
+        return false;
+    }
+
+    try {
+        // Get service worker registration
+        const registration = await navigator.serviceWorker.ready;
+        
+        // Check existing subscription
+        let subscription = await registration.pushManager.getSubscription();
+        
+        if (subscription) {
+            showToast('✓ You are already subscribed to updates!');
+            updateSubscribeButton(true);
+            return subscription;
+        }
+        
+        // Request permission
+        const permission = await Notification.requestPermission();
+        
+        if (permission !== 'granted') {
+            showToast('Please allow notifications to receive school updates.');
+            return false;
+        }
+        
+        // Subscribe with VAPID key
+        subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
+        });
+        
+        // Display success
+        showToast('✅ Successfully subscribed! You will now receive school updates.');
+        updateSubscribeButton(true);
+        
+        // Log subscription (for now - later send to backend)
+        console.log('Push Subscription:', JSON.stringify(subscription));
+        saveSubscriptionLocal(subscription);
+        
+        return subscription;
+        
+    } catch (error) {
+        console.error('Push subscription error:', error);
+        showToast('Failed to subscribe: ' + error.message);
+        return false;
+    }
+}
+
+// Save subscription locally
+function saveSubscriptionLocal(subscription) {
+    try {
+        localStorage.setItem('pushSubscription', JSON.stringify(subscription));
+        localStorage.setItem('pushSubscribedAt', new Date().toISOString());
+    } catch (e) {
+        console.log('Local save failed:', e);
+    }
+}
+
+// Update button state
+function updateSubscribeButton(isSubscribed) {
+    const btn = document.getElementById('subscribeNotifications');
+    if (!btn) return;
+    
+    if (isSubscribed) {
+        btn.innerHTML = '<i class="fas fa-bell-slash"></i> Unsubscribe';
+        btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+        btn.onclick = unsubscribeFromPush;
+    } else {
+        btn.innerHTML = '<i class="fas fa-bell"></i> Get School Updates';
+        btn.style.background = 'linear-gradient(135deg, #efa12e, #ff9800)';
+        btn.onclick = subscribeToPush;
+    }
+}
+
+// Unsubscribe from push
+async function unsubscribeFromPush() {
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        
+        if (subscription) {
+            await subscription.unsubscribe();
+            localStorage.removeItem('pushSubscription');
+            localStorage.removeItem('pushSubscribedAt');
+            
+            showToast('Unsubscribed from notifications.');
+            updateSubscribeButton(false);
+        }
+    } catch (error) {
+        console.error('Unsubscribe error:', error);
+        showToast('Failed to unsubscribe.');
+    }
+}
+
+// Check subscription status on load
+async function checkPushSubscription() {
+    if (!('serviceWorker' in navigator) || !Notification.permission) return;
+    
+    try {
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.getSubscription();
+        
+        if (subscription && Notification.permission === 'granted') {
+            updateSubscribeButton(true);
+        } else {
+            updateSubscribeButton(false);
+        }
+    } catch (error) {
+        console.log('Subscription check failed:', error);
+    }
+}
+
+// Initialize push notifications
+function initPushNotifications() {
+    const subscribeBtn = document.getElementById('subscribeNotifications');
+    
+    if (!subscribeBtn) return;
+    
+    // Set initial button state
+    if (Notification.permission === 'granted') {
+        checkPushSubscription();
+    } else if (Notification.permission === 'denied') {
+        subscribeBtn.disabled = true;
+        subscribeBtn.innerHTML = '<i class="fas fa-bell-slash"></i> Notifications Blocked';
+        subscribeBtn.style.background = '#cccccc';
+    }
+    
+    // Add click handler
+    subscribeBtn.addEventListener('click', subscribeToPush);
+    
+    // Listen for permission changes
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            checkPushSubscription();
+        } else if (permission === 'denied') {
+            subscribeBtn.disabled = true;
+            subscribeBtn.innerHTML = '<i class="fas fa-bell-slash"></i> Notifications Blocked';
+            subscribeBtn.style.background = '#cccccc';
+        }
+    });
+}
+
+// ========== TEST NOTIFICATION FUNCTION ==========
+// Add this function to test notifications manually
+function testNotificationManually() {
+    if (Notification.permission === 'granted') {
+        new Notification('IPS Khandwa Test', {
+            body: '✅ School update notification is working!',
+            icon: './logo.png',
+            badge: './logo.png',
+            vibrate: [100, 50, 100]
+        });
+    } else {
+        showToast('Please allow notifications first.');
+    }
+}
+
+// Add to your initAll() function
+// Find the initAll() function in your script.js and add:
+function initAll() {
+    // ... your existing code ...
+    
+    // Add this line:
+    initPushNotifications();
+    
+    // ... rest of your code ...
+}
