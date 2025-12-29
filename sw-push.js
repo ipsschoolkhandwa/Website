@@ -1,33 +1,16 @@
-// Service Worker for Indian Public School Push Notifications - v2.0
+// Service Worker for Indian Public School - Enhanced Version
 const CACHE_NAME = 'ips-push-v2';
-const urlsToCache = [
-    './',
-    './index.html',
-    './admin.html',
-    './style.css',
-    './logo.png',
-    './manifest.json'
-];
+const SUBSCRIBERS_KEY = 'ips_subscribers';
 
 // Install event
 self.addEventListener('install', event => {
-    console.log('✅ IPS Push Service Worker installing...');
-    
-    event.waitUntil(
-        caches.open(CACHE_NAME)
-            .then(cache => {
-                console.log('📦 Caching essential files for offline use');
-                return cache.addAll(urlsToCache);
-            })
-            .then(() => self.skipWaiting())
-    );
+    console.log('✅ Push Service Worker v2 installing...');
+    self.skipWaiting();
 });
 
 // Activate event
 self.addEventListener('activate', event => {
-    console.log('✅ IPS Push Service Worker activated!');
-    
-    // Clean old caches
+    console.log('✅ Push Service Worker v2 activated!');
     event.waitUntil(
         caches.keys().then(cacheNames => {
             return Promise.all(
@@ -40,19 +23,33 @@ self.addEventListener('activate', event => {
             );
         }).then(() => self.clients.claim())
     );
-    
-    // Notify all clients that SW is ready
-    self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-            client.postMessage({
-                type: 'SW_READY',
-                message: 'Push notifications are ready'
-            });
-        });
-    });
 });
 
-// Push notification event
+// Sync subscribers across devices (when online)
+async function syncSubscribers() {
+    try {
+        const subscribers = await getAllSubscribers();
+        
+        // In a real backend, you would send to server here
+        // For now, we'll store in IndexedDB for better persistence
+        await storeSubscribersInIDB(subscribers);
+        
+        // Broadcast to all open tabs
+        const allClients = await self.clients.matchAll();
+        allClients.forEach(client => {
+            client.postMessage({
+                type: 'SYNC_SUBSCRIBERS',
+                count: subscribers.length
+            });
+        });
+        
+        console.log('🔄 Synced', subscribers.length, 'subscribers');
+    } catch (error) {
+        console.error('Sync failed:', error);
+    }
+}
+
+// Handle push notifications
 self.addEventListener('push', event => {
     console.log('🔔 Push notification received!');
     
@@ -61,304 +58,205 @@ self.addEventListener('push', event => {
         body: 'New update from school',
         icon: './logo.png',
         badge: './logo.png',
-        url: './index.html',
-        timestamp: new Date().toISOString(),
-        tag: 'school-update-' + Date.now()
+        url: './index.html'
     };
 
-    // Parse incoming data
+    // Parse data if available
     if (event.data) {
         try {
             const data = event.data.json();
             notificationData = { ...notificationData, ...data };
-            console.log('📨 Custom push data:', data);
         } catch (e) {
-            // If not JSON, try as text
             const text = event.data.text();
-            if (text) {
-                notificationData.body = text;
-                console.log('📨 Text push data:', text);
-            }
+            if (text) notificationData.body = text;
         }
     }
 
-    // Notification options
     const options = {
         body: notificationData.body,
         icon: notificationData.icon,
         badge: notificationData.badge,
-        vibrate: [100, 50, 100, 50, 100],
-        timestamp: new Date(notificationData.timestamp).getTime(),
-        tag: notificationData.tag,
-        renotify: true,
-        requireInteraction: false,
-        silent: false,
+        vibrate: [100, 50, 100],
         data: {
             url: notificationData.url,
-            id: notificationData.id || Date.now().toString(),
-            tag: notificationData.tag,
-            timestamp: notificationData.timestamp,
-            source: 'ips-khandwa'
+            timestamp: new Date().toISOString(),
+            id: 'notif_' + Date.now()
         },
         actions: [
             {
                 action: 'open',
-                title: '📱 Open School App'
+                title: '📱 Open School Site'
             },
             {
-                action: 'call',
-                title: '📞 Call School'
+                action: 'youtube',
+                title: '🎥 Watch Videos'
             }
         ]
     };
 
-    // Show the notification
     event.waitUntil(
         self.registration.showNotification(notificationData.title, options)
-            .then(() => {
-                console.log('✅ Notification shown:', notificationData.title);
-                // Send analytics
-                sendAnalytics('notification_shown', notificationData);
-            })
-            .catch(error => {
-                console.error('❌ Failed to show notification:', error);
+    );
+});
+
+// Handle notification click
+self.addEventListener('notificationclick', event => {
+    console.log('🖱️ Notification clicked:', event.action);
+    event.notification.close();
+
+    let urlToOpen = event.notification.data.url || './index.html';
+    
+    // Handle action buttons
+    if (event.action === 'youtube') {
+        urlToOpen = 'https://youtube.com/@indianpublicschoolkhandwa5876';
+    } else if (event.action === 'open') {
+        urlToOpen = event.notification.data.url || './index.html';
+    }
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true })
+            .then(windowClients => {
+                // Check if there's already a window open
+                for (const client of windowClients) {
+                    if (client.url.includes(urlToOpen) && 'focus' in client) {
+                        return client.focus();
+                    }
+                }
+                // If not, open a new window
+                if (clients.openWindow) {
+                    return clients.openWindow(urlToOpen);
+                }
             })
     );
 });
 
-// Notification click handler
-self.addEventListener('notificationclick', event => {
-    console.log('🖱️ Notification clicked:', event.notification.tag);
-    
-    // Close the notification
-    event.notification.close();
-    
-    const notificationData = event.notification.data || {};
-    
-    // Handle different actions
-    switch (event.action) {
-        case 'open':
-            event.waitUntil(
-                clients.openWindow(notificationData.url || './index.html')
-            );
-            break;
-            
-        case 'call':
-            event.waitUntil(
-                clients.openWindow('tel:+917333574759')
-            );
-            break;
-            
-        default:
-            // Default click - open website
-            if (notificationData.url) {
-                event.waitUntil(
-                    clients.openWindow(notificationData.url)
-                );
-            } else {
-                event.waitUntil(
-                    clients.openWindow('./index.html')
-                );
-            }
-    }
-    
-    // Send click analytics
-    sendAnalytics('notification_clicked', notificationData);
-});
-
-// Notification close handler
-self.addEventListener('notificationclose', event => {
-    console.log('❌ Notification closed:', event.notification.tag);
-    const notificationData = event.notification.data || {};
-    sendAnalytics('notification_dismissed', notificationData);
-});
-
-// Handle messages from web pages
+// Handle messages from admin panel
 self.addEventListener('message', event => {
-    console.log('📨 Message from page:', event.data);
-    
-    if (!event.data) return;
+    console.log('📨 Message received in Service Worker:', event.data);
     
     switch (event.data.type) {
         case 'ADMIN_NOTIFICATION':
-            console.log('🎯 Admin sending notification to all users');
-            
-            // Send to all clients
-            event.waitUntil(
-                self.clients.matchAll().then(clients => {
-                    // Store notification for offline users
-                    storeNotificationForOffline(event.data);
-                    
-                    // Show notification immediately
-                    return self.registration.showNotification(
-                        event.data.title || 'Indian Public School',
-                        {
-                            body: event.data.body,
-                            icon: event.data.icon || './logo.png',
-                            badge: './logo.png',
-                            vibrate: [100, 50, 100],
-                            data: {
-                                url: event.data.url || './index.html',
-                                timestamp: event.data.timestamp || new Date().toISOString(),
-                                adminSent: true
-                            },
-                            tag: 'admin-' + Date.now(),
-                            renotify: true
-                        }
-                    );
-                })
-            );
-            break;
-            
-        case 'SEND_TEST':
-            // Test notification
-            self.registration.showNotification('Test from Service Worker', {
-                body: 'This is a test notification',
-                icon: './logo.png',
-                tag: 'test'
-            });
-            break;
-            
-        case 'GET_SUBSCRIPTION':
-            // Get current subscription
-            self.registration.pushManager.getSubscription()
-                .then(subscription => {
-                    event.ports[0].postMessage({
-                        type: 'SUBSCRIPTION_INFO',
-                        subscription: subscription
-                    });
-                });
-            break;
-            
-        case 'SKIP_WAITING':
-            self.skipWaiting();
-            break;
-    }
-});
-
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', event => {
-    if (event.request.method !== 'GET') return;
-    
-    event.respondWith(
-        caches.match(event.request)
-            .then(cachedResponse => {
-                // Return cached if available
-                if (cachedResponse) {
-                    return cachedResponse;
+            // Send notification to all
+            self.registration.showNotification(event.data.title, {
+                body: event.data.body,
+                icon: event.data.icon || './logo.png',
+                badge: './logo.png',
+                data: {
+                    url: event.data.url || './index.html',
+                    fromAdmin: true
                 }
-                
-                // Otherwise fetch from network
-                return fetch(event.request)
-                    .then(response => {
-                        // Cache successful responses
-                        if (response.ok) {
-                            const responseToCache = response.clone();
-                            caches.open(CACHE_NAME)
-                                .then(cache => {
-                                    cache.put(event.request, responseToCache);
-                                });
-                        }
-                        return response;
-                    })
-                    .catch(() => {
-                        // Network failed - return offline page
-                        if (event.request.destination === 'document') {
-                            return caches.match('./index.html');
-                        }
-                        return new Response('Offline - Indian Public School', {
-                            status: 503,
-                            headers: { 'Content-Type': 'text/plain' }
-                        });
-                    });
-            })
-    );
-});
-
-// Background sync for offline notifications
-self.addEventListener('sync', event => {
-    if (event.tag === 'sync-offline-notifications') {
-        console.log('🔄 Syncing offline notifications');
-        event.waitUntil(syncOfflineNotifications());
-    }
-});
-
-// ========== HELPER FUNCTIONS ==========
-
-// Store notification for offline users
-function storeNotificationForOffline(data) {
-    const notifications = JSON.parse(localStorage.getItem('offline_notifications') || '[]');
-    notifications.push({
-        data: data,
-        storedAt: new Date().toISOString(),
-        delivered: false
-    });
-    
-    // Store in IndexedDB or send to all clients
-    self.clients.matchAll().then(clients => {
-        clients.forEach(client => {
-            client.postMessage({
-                type: 'NEW_NOTIFICATION_STORED',
-                notification: data
             });
-        });
-    });
-    
-    console.log('💾 Notification stored for offline users:', data);
-}
-
-// Sync offline notifications when back online
-async function syncOfflineNotifications() {
-    try {
-        // Implementation for when you add a backend
-        console.log('Syncing notifications with backend...');
-        return Promise.resolve();
-    } catch (error) {
-        console.error('Sync failed:', error);
-        return Promise.reject(error);
+            break;
+            
+        case 'GET_SUBSCRIBERS':
+            // Return subscriber count
+            getAllSubscribers().then(subscribers => {
+                event.ports[0].postMessage({
+                    type: 'SUBSCRIBERS_COUNT',
+                    count: subscribers.length,
+                    subscribers: subscribers
+                });
+            });
+            break;
+            
+        case 'SYNC_REQUEST':
+            // Sync across devices
+            syncSubscribers();
+            break;
     }
-}
+});
 
-// Send analytics (for future use)
-function sendAnalytics(action, data) {
-    console.log(`📊 Analytics: ${action}`, {
-        id: data.id,
-        tag: data.tag,
-        timestamp: data.timestamp,
-        action: action
-    });
-    
-    // In production, send to your analytics server
-    // Example: fetch('/api/analytics', { method: 'POST', body: JSON.stringify({action, data}) });
-}
+// Background sync for offline support
+self.addEventListener('sync', event => {
+    if (event.tag === 'sync-subscribers') {
+        console.log('🔄 Background sync triggered');
+        event.waitUntil(syncSubscribers());
+    }
+});
 
 // Periodic sync (if supported)
 if ('periodicSync' in self.registration) {
     self.addEventListener('periodicsync', event => {
-        if (event.tag === 'update-content') {
-            console.log('🔄 Periodic content update');
-            event.waitUntil(updateCachedContent());
+        if (event.tag === 'update-subscribers') {
+            event.waitUntil(syncSubscribers());
         }
     });
 }
 
-// Update cached content
-async function updateCachedContent() {
+// Helper function to get all subscribers
+async function getAllSubscribers() {
+    // Try to get from IndexedDB first
     try {
-        const cache = await caches.open(CACHE_NAME);
-        const updatePromises = urlsToCache.map(url => {
-            return fetch(url).then(response => {
-                if (response.ok) {
-                    return cache.put(url, response);
-                }
-            });
-        });
-        
-        await Promise.all(updatePromises);
-        console.log('✅ Content updated successfully');
+        const db = await openIDB();
+        const tx = db.transaction('subscribers', 'readonly');
+        const store = tx.objectStore('subscribers');
+        const subscribers = await store.getAll();
+        return subscribers;
     } catch (error) {
-        console.error('❌ Content update failed:', error);
+        // Fallback to localStorage
+        const response = await self.clients.matchAll();
+        let allSubscribers = [];
+        
+        for (const client of response) {
+            try {
+                const result = await client.postMessage({
+                    type: 'GET_LOCAL_SUBSCRIBERS'
+                });
+                if (result && result.subscribers) {
+                    allSubscribers = [...allSubscribers, ...result.subscribers];
+                }
+            } catch (e) {
+                console.log('Could not get subscribers from client:', client.id);
+            }
+        }
+        
+        // Remove duplicates
+        const uniqueSubscribers = Array.from(
+            new Map(allSubscribers.map(sub => [sub.id, sub])).values()
+        );
+        
+        return uniqueSubscribers;
     }
 }
 
-console.log('🚀 IPS Push Service Worker v2.0 loaded successfully!');
+// IndexedDB for better subscriber storage
+async function openIDB() {
+    return new Promise((resolve, reject) => {
+        const request = indexedDB.open('IPS_Subscribers', 1);
+        
+        request.onupgradeneeded = function(event) {
+            const db = event.target.result;
+            if (!db.objectStoreNames.contains('subscribers')) {
+                const store = db.createObjectStore('subscribers', { keyPath: 'id' });
+                store.createIndex('subscribedAt', 'subscribedAt', { unique: false });
+            }
+        };
+        
+        request.onsuccess = function(event) {
+            resolve(event.target.result);
+        };
+        
+        request.onerror = function(event) {
+            reject(event.target.error);
+        };
+    });
+}
+
+async function storeSubscribersInIDB(subscribers) {
+    try {
+        const db = await openIDB();
+        const tx = db.transaction('subscribers', 'readwrite');
+        const store = tx.objectStore('subscribers');
+        
+        for (const subscriber of subscribers) {
+            await store.put(subscriber);
+        }
+        
+        await tx.complete;
+        console.log('💾 Saved', subscribers.length, 'subscribers to IndexedDB');
+    } catch (error) {
+        console.error('IndexedDB error:', error);
+    }
+}
+
+console.log('🚀 Enhanced Push Service Worker v2 loaded!');
