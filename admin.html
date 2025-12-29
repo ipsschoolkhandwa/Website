@@ -326,200 +326,191 @@ Example: Admission forms available 9AM-12PM. Limited seats for Nursery."></texta
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <script>
-        // ADMIN PASSWORD - CHANGE THIS!
-        const ADMIN_PASSWORD = "ips123";
-        const SUBSCRIBERS_KEY = "ips_subscribers";
-        const NOTIFICATIONS_KEY = "admin_notifications";
+        // In admin.html, REPLACE all JavaScript with this:
 
-        // Elements
-        const loginBox = document.getElementById('loginBox');
-        const adminPanel = document.getElementById('adminPanel');
-        const adminPasswordInput = document.getElementById('adminPassword');
-        const loginError = document.getElementById('loginError');
-        const alertBox = document.getElementById('alertBox');
+// ADMIN PASSWORD - CHANGE THIS!
+const ADMIN_PASSWORD = "ips123";
+const NOTIFICATIONS_KEY = "admin_notifications";
 
-        // Check if already logged in
-        if (localStorage.getItem('admin_logged_in') === 'true') {
-            showAdminPanel();
-        }
+// Elements
+const loginBox = document.getElementById('loginBox');
+const adminPanel = document.getElementById('adminPanel');
+const adminPasswordInput = document.getElementById('adminPassword');
+const loginError = document.getElementById('loginError');
+const alertBox = document.getElementById('alertBox');
 
-        // Login function
-        function login() {
-            const password = adminPasswordInput.value.trim();
+// Check if already logged in
+if (localStorage.getItem('admin_logged_in') === 'true') {
+    showAdminPanel();
+}
 
-            if (password === ADMIN_PASSWORD) {
-                localStorage.setItem('admin_logged_in', 'true');
-                showAdminPanel();
-                showAlert('✅ Login successful!', 'success');
-            } else {
-                loginError.style.display = 'block';
-                adminPasswordInput.value = '';
-                adminPasswordInput.focus();
-            }
-        }
+// Login function
+function login() {
+    const password = adminPasswordInput.value.trim();
 
-        // Logout function
-        function logout() {
-            localStorage.removeItem('admin_logged_in');
-            loginBox.style.display = 'block';
-            adminPanel.style.display = 'none';
-            adminPasswordInput.value = '';
-        }
+    if (password === ADMIN_PASSWORD) {
+        localStorage.setItem('admin_logged_in', 'true');
+        showAdminPanel();
+        showAlert('✅ Login successful!', 'success');
+    } else {
+        loginError.style.display = 'block';
+        adminPasswordInput.value = '';
+        adminPasswordInput.focus();
+    }
+}
 
-        // Show admin panel
-        function showAdminPanel() {
-            loginBox.style.display = 'none';
-            adminPanel.style.display = 'block';
-            loadStats();
-            loadHistory();
-        }
+// Logout function
+function logout() {
+    localStorage.removeItem('admin_logged_in');
+    loginBox.style.display = 'block';
+    adminPanel.style.display = 'none';
+    adminPasswordInput.value = '';
+}
 
-        // Load statistics
-        function loadStats() {
-            // Get subscribers from localStorage (shared with main site)
-            const subscribers = JSON.parse(localStorage.getItem(SUBSCRIBERS_KEY) || '[]');
-            const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
+// Show admin panel
+function showAdminPanel() {
+    loginBox.style.display = 'none';
+    adminPanel.style.display = 'block';
+    loadStats();
+    loadHistory();
+}
 
-            // Update stats
-            document.getElementById('totalSubscribers').textContent = subscribers.length;
-            document.getElementById('totalSubscribers').title = "Subscribers on THIS DEVICE only (" + subscribers.length + " found)";
-            
-            document.getElementById('notificationsSent').textContent = notifications.length;
+// Load statistics - SIMPLIFIED
+function loadStats() {
+    // Get notifications count
+    const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
+    
+    // ALWAYS show 0 for subscribers (we don't track across devices)
+    document.getElementById('totalSubscribers').textContent = "All";
+    document.getElementById('totalSubscribers').title = "Notifications sent to ALL subscribed parents";
+    
+    document.getElementById('notificationsSent').textContent = notifications.length;
+    
+    // Today's count
+    const today = new Date().toDateString();
+    const todayNotifications = notifications.filter(notif => {
+        const notifDate = new Date(notif.timestamp).toDateString();
+        return notifDate === today;
+    }).length;
+    document.getElementById('todaySubscribers').textContent = todayNotifications;
+}
 
-            // Count today's subscribers
-            const today = new Date().toDateString();
-            const todaySubscribers = subscribers.filter(sub => {
-                const subDate = new Date(sub.subscribedAt).toDateString();
-                return subDate === today;
-            }).length;
-            document.getElementById('todaySubscribers').textContent = todaySubscribers;
-        }
+// Load notification history
+function loadHistory() {
+    const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
+    const historyContainer = document.getElementById('notificationHistory');
 
-        // Load notification history
-        function loadHistory() {
-            const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
-            const historyContainer = document.getElementById('notificationHistory');
+    if (notifications.length === 0) {
+        historyContainer.innerHTML = '<div class="history-item"><div class="history-message">No notifications sent yet</div></div>';
+        return;
+    }
 
-            if (notifications.length === 0) {
-                historyContainer.innerHTML = '<div class="history-item"><div class="history-message">No notifications sent yet</div></div>';
-                return;
-            }
+    historyContainer.innerHTML = notifications.map(notif => `
+        <div class="history-item">
+            <div class="history-message"><strong>${notif.title}</strong>: ${notif.message}</div>
+            <div class="history-time">${new Date(notif.timestamp).toLocaleString()}</div>
+        </div>
+    `).join('');
+}
 
-            historyContainer.innerHTML = notifications.map(notif => `
-                <div class="history-item">
-                    <div class="history-message"><strong>${notif.title}</strong>: ${notif.message}</div>
-                    <div class="history-time">${new Date(notif.timestamp).toLocaleString()} | Sent to: ${notif.sentTo} parents</div>
-                </div>
-            `).join('');
-        }
+// Send notification to ALL subscribers
+async function sendNotification() {
+    const title = document.getElementById('notificationTitle').value.trim();
+    const message = document.getElementById('notificationMessage').value.trim();
+    const link = document.getElementById('notificationLink').value.trim();
 
-        // Send notification to all subscribers
-        async function sendNotification() {
-            const title = document.getElementById('notificationTitle').value.trim();
-            const message = document.getElementById('notificationMessage').value.trim();
-            const link = document.getElementById('notificationLink').value.trim();
+    if (!title || !message) {
+        showAlert('❌ Please enter title and message!', 'error');
+        return;
+    }
 
-            if (!title || !message) {
-                showAlert('❌ Please enter title and message!', 'error');
-                return;
-            }
+    const sendBtn = document.getElementById('sendBtn');
+    sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
+    sendBtn.disabled = true;
 
-            const sendBtn = document.getElementById('sendBtn');
-            sendBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> SENDING...';
-            sendBtn.disabled = true;
+    try {
+        // Send notification via Service Worker (GOES TO ALL DEVICES)
+        if ('serviceWorker' in navigator) {
+            const registration = await navigator.serviceWorker.ready;
 
-            try {
-                // Get all subscribers from THIS device
-                const localSubscribers = JSON.parse(localStorage.getItem(SUBSCRIBERS_KEY) || '[]');
+            // Send to Service Worker - this goes to ALL subscribed devices
+            registration.active.postMessage({
+                type: 'ADMIN_NOTIFICATION',
+                title: title,
+                body: message,
+                icon: './logo.png',
+                url: link || 'https://ipsschoolkhandwa.github.io/Website/',
+                timestamp: new Date().toISOString()
+            });
 
-                if (localSubscribers.length === 0) {
-                    showAlert('⚠️ No subscribers found on this device. Notification will still attempt to send to all subscribed devices.', 'error');
-                }
-
-                // Send notification via Service Worker
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.ready;
-
-                    // Send to Service Worker (this goes to ALL subscribed devices)
-                    registration.active.postMessage({
-                        type: 'ADMIN_NOTIFICATION',
-                        title: title,
-                        body: message,
-                        icon: './logo.png',
-                        url: link || 'https://ipsschoolkhandwa.github.io/Website/',
-                        timestamp: new Date().toISOString(),
-                        sentFromDevice: true
-                    });
-
-                    // Also show on admin device
-                    if (Notification.permission === 'granted') {
-                        registration.showNotification(title, {
-                            body: message,
-                            icon: './logo.png',
-                            badge: './logo.png'
-                        });
-                    }
-                } else {
-                    // Fallback
-                    if (Notification.permission === 'granted') {
-                        new Notification(title, {
-                            body: message,
-                            icon: './logo.png'
-                        });
-                    }
-                }
-
-                // Save notification to history
-                const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
-                notifications.unshift({
-                    title: title,
-                    message: message,
-                    timestamp: new Date().toISOString(),
-                    sentTo: localSubscribers.length
+            // Also show on admin device
+            if (Notification.permission === 'granted') {
+                registration.showNotification(title, {
+                    body: message,
+                    icon: './logo.png',
+                    badge: './logo.png'
                 });
-                localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications.slice(0, 50))); // Keep last 50
-
-                // Clear form
-                document.getElementById('notificationMessage').value = '';
-
-                // Update UI
-                showAlert(`✅ Notification sent! (Found ${localSubscribers.length} subscribers on this device)`, 'success');
-                loadStats();
-                loadHistory();
-
-            } catch (error) {
-                console.error('Send error:', error);
-                showAlert('❌ Failed to send notification: ' + error.message, 'error');
-            } finally {
-                sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> SEND TO ALL SUBSCRIBERS';
-                sendBtn.disabled = false;
+            }
+        } else {
+            // Fallback
+            if (Notification.permission === 'granted') {
+                new Notification(title, {
+                    body: message,
+                    icon: './logo.png'
+                });
             }
         }
 
-        // Show alert message
-        function showAlert(message, type) {
-            alertBox.textContent = message;
-            alertBox.className = `alert ${type}`;
-            alertBox.style.display = 'block';
-
-            setTimeout(() => {
-                alertBox.style.display = 'none';
-            }, 5000);
-        }
-
-        // Listen for Enter key in password field
-        adminPasswordInput.addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                login();
-            }
+        // Save notification to history
+        const notifications = JSON.parse(localStorage.getItem(NOTIFICATIONS_KEY) || '[]');
+        notifications.unshift({
+            title: title,
+            message: message,
+            timestamp: new Date().toISOString()
         });
+        localStorage.setItem(NOTIFICATIONS_KEY, JSON.stringify(notifications.slice(0, 50)));
 
-        // Auto-focus password field
-        window.onload = function() {
-            if (adminPasswordInput) {
-                adminPasswordInput.focus();
-            }
-        };
+        // Clear form
+        document.getElementById('notificationMessage').value = '';
+
+        // Update UI
+        showAlert('✅ Notification sent to ALL subscribed parents!', 'success');
+        loadStats();
+        loadHistory();
+
+    } catch (error) {
+        console.error('Send error:', error);
+        showAlert('❌ Failed to send notification: ' + error.message, 'error');
+    } finally {
+        sendBtn.innerHTML = '<i class="fas fa-paper-plane"></i> SEND TO ALL SUBSCRIBERS';
+        sendBtn.disabled = false;
+    }
+}
+
+// Show alert message
+function showAlert(message, type) {
+    alertBox.textContent = message;
+    alertBox.className = `alert ${type}`;
+    alertBox.style.display = 'block';
+
+    setTimeout(() => {
+        alertBox.style.display = 'none';
+    }, 5000);
+}
+
+// Listen for Enter key in password field
+adminPasswordInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        login();
+    }
+});
+
+// Auto-focus password field
+window.onload = function() {
+    if (adminPasswordInput) {
+        adminPasswordInput.focus();
+    }
+};
     </script>
 </body>
 </html>
