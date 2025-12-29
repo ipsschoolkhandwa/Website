@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html><body style="text-align:center;padding:20px;">
+<h2>📱 Force Subscribe</h2>
+<button onclick="subscribe()" style="padding:20px;background:#004aad;color:white;border-radius:10px;font-size:20px;">
+    CLICK TO SUBSCRIBE YOURSELF
+</button>
+<script>
+function subscribe() {
+    // 1. Request permission
+    Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+            alert('✅ Permission granted! Now registering...');
+            
+            // 2. Load OneSignal manually
+            const script = document.createElement('script');
+            script.src = 'https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js';
+            script.onload = function() {
+                window.OneSignalDeferred = window.OneSignalDeferred || [];
+                OneSignalDeferred.push(async function(OneSignal) {
+                    await OneSignal.init({
+                        appId: "23a6c9c3-11a6-435b-9207-111572d9058a",
+                        autoRegister: true
+                    });
+                    
+                    // Force registration
+                    OneSignal.registerForPushNotifications();
+                    
+                    alert('🎉 You are now subscribed! Check OneSignal dashboard.');
+                });
+            };
+            document.head.appendChild(script);
+            
+        } else {
+            alert('❌ You must allow notifications first!');
+        }
+    });
+}
+// Auto-run after 2 seconds
+setTimeout(subscribe, 2000);
+</script>
+</body></html>
