@@ -95,7 +95,7 @@
         .subscribe-btn {
             background: linear-gradient(135deg, #004aad, #0066cc);
             color: white;
-            flex: 3; /* Bigger - 75% width */
+            flex: 3;
         }
 
         .subscribe-btn:hover {
@@ -106,7 +106,7 @@
         .later-btn {
             background: #f0f0f0;
             color: #333;
-            flex: 1; /* Smaller - 25% width */
+            flex: 1;
         }
 
         .later-btn:hover {
@@ -163,6 +163,14 @@
             opacity: 1;
         }
 
+        .toast.success {
+            background: linear-gradient(135deg, #00bf62, #00d46e);
+        }
+
+        .toast.error {
+            background: linear-gradient(135deg, #ff4757, #ff6b81);
+        }
+
         /* ========== ADMIN LINK ========== */
         .admin-link {
             position: fixed;
@@ -184,7 +192,6 @@
         }
 
         /* ========== UPDATED SITE BUTTONS ========== */
-        /* Contact Box Buttons */
         .buttons {
             display: flex;
             gap: 10px;
@@ -226,7 +233,6 @@
             box-shadow: 0 5px 15px rgba(0, 74, 173, 0.3);
         }
 
-        /* YouTube Button */
         .youtube-box a {
             display: inline-block;
             background: linear-gradient(135deg, #ff0000, #ff3333);
@@ -244,7 +250,6 @@
             box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
         }
 
-        /* Phone Number */
         .phone {
             background: linear-gradient(135deg, #f8f9fa, #e9ecef);
             padding: 12px;
@@ -261,7 +266,6 @@
             cursor: pointer;
         }
 
-        /* ========== EXISTING STYLES ========== */
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
@@ -413,12 +417,39 @@
         </div>
     </div>
 
-    <!-- Service Worker -->
+    <!-- Service Worker Registration -->
     <script>
+        // VAPID Public Key for cross-device push
+        const VAPID_PUBLIC_KEY = 'BCqyvwEdH6jLlMn5j_HNrcXhU1zX1v1v-Q4YV2ScH2DTSm71qz_mgQh8Uq3Pm4BItGjhNp3c0nSlVJq8NnGgDGs';
+        
+        // Convert VAPID key
+        function urlBase64ToUint8Array(base64String) {
+            const padding = '='.repeat((4 - base64String.length % 4) % 4);
+            const base64 = (base64String + padding)
+                .replace(/-/g, '+')
+                .replace(/_/g, '/');
+            const rawData = window.atob(base64);
+            const outputArray = new Uint8Array(rawData.length);
+            for (let i = 0; i < rawData.length; ++i) {
+                outputArray[i] = rawData.charCodeAt(i);
+            }
+            return outputArray;
+        }
+
+        // Register Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw-push.js')
-                .then(() => console.log('Service Worker registered'))
-                .catch(e => console.log('SW error:', e));
+            navigator.serviceWorker.register('service-worker.js?v=9')
+                .then(registration => {
+                    console.log('✅ Service Worker registered:', registration);
+                    
+                    // Listen for controller change
+                    navigator.serviceWorker.addEventListener('controllerchange', () => {
+                        console.log('🔄 New Service Worker activated!');
+                    });
+                })
+                .catch(error => {
+                    console.log('❌ Service Worker registration failed:', error);
+                });
         }
     </script>
 
@@ -437,12 +468,13 @@
             const ytLink = document.querySelector('.youtube-box a');
 
             const PHONE = '+91 7333574759';
-            const SUBSCRIBERS_KEY = 'ips_subscribers';
+            const VAPID_PUBLIC_KEY = 'BCqyvwEdH6jLlMn5j_HNrcXhU1zX1v1v-Q4YV2ScH2DTSm71qz_mgQh8Uq3Pm4BItGjhNp3c0nSlVJq8NnGgDGs';
             const DECISION_KEY = 'ips_notif_decision';
+            const SUBSCRIBED_KEY = 'ips_subscribed';
 
             // Check existing decision
             const decision = localStorage.getItem(DECISION_KEY);
-            const isSubscribed = localStorage.getItem('ips_subscribed') === 'true';
+            const isSubscribed = localStorage.getItem(SUBSCRIBED_KEY) === 'true';
 
             // Show popup if no decision
             if (!decision) {
@@ -455,44 +487,53 @@
                 if (decision === 'subscribed') bell.classList.add('subscribed');
             }
 
-            // Subscribe button
+            // Subscribe button - FIXED FOR CROSS-DEVICE
             subscribeBtn.addEventListener('click', async () => {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    // Save data
-                    localStorage.setItem(DECISION_KEY, 'subscribed');
-                    localStorage.setItem('ips_subscribed', 'true');
+                try {
+                    const permission = await Notification.requestPermission();
                     
-                    // Add to subscribers
-                    const subs = JSON.parse(localStorage.getItem(SUBSCRIBERS_KEY) || '[]');
-                    subs.push({
-                        id: 'user_' + Date.now(),
-                        date: new Date().toISOString()
-                    });
-                    localStorage.setItem(SUBSCRIBERS_KEY, JSON.stringify(subs));
-
-                    // Update UI
-                    popup.classList.remove('active');
-                    bell.classList.add('active', 'subscribed');
-                    
-                    // Show success
-                    showToast('✅ Subscribed! You will get school updates.', 'success');
-                    
-                    // Welcome notification
-                    if ('serviceWorker' in navigator) {
-                        navigator.serviceWorker.ready.then(sw => {
-                            sw.showNotification('Welcome!', {
-                                body: 'You will now receive school updates.',
-                                icon: './logo.png'
-                            });
+                    if (permission === 'granted') {
+                        // Get Service Worker registration
+                        const registration = await navigator.serviceWorker.ready;
+                        
+                        // Subscribe with VAPID key for cross-device
+                        const subscription = await registration.pushManager.subscribe({
+                            userVisibleOnly: true,
+                            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
                         });
+                        
+                        console.log('✅ Subscribed with VAPID:', subscription);
+                        
+                        // Save data
+                        localStorage.setItem(DECISION_KEY, 'subscribed');
+                        localStorage.setItem(SUBSCRIBED_KEY, 'true');
+                        localStorage.setItem('subscription_data', JSON.stringify(subscription));
+
+                        // Update UI
+                        popup.classList.remove('active');
+                        bell.classList.add('active', 'subscribed');
+
+                        // Show success
+                        showToast('✅ Subscribed! You will get school updates.', 'success');
+
+                        // Welcome notification
+                        registration.showNotification('Welcome to Indian Public School!', {
+                            body: 'You will now receive admission updates and announcements.',
+                            icon: './logo.png',
+                            badge: './logo.png',
+                            vibrate: [100, 50, 100]
+                        });
+                        
+                    } else {
+                        showToast('Please allow notifications to get updates.', 'error');
                     }
-                } else {
-                    showToast('Please allow notifications.', 'error');
+                } catch (error) {
+                    console.error('Subscription error:', error);
+                    showToast('Failed to subscribe. Please try again.', 'error');
                 }
             });
 
-            // Later button (SMALLER BUTTON)
+            // Later button
             laterBtn.addEventListener('click', () => {
                 localStorage.setItem(DECISION_KEY, 'later');
                 popup.classList.remove('active');
@@ -501,9 +542,9 @@
             });
 
             // Bell click
-            bell.addEventListener('click', () => {
+            bell.addEventListener('click', async () => {
                 if (isSubscribed) {
-                    showToast('You are subscribed to updates.');
+                    showToast('You are subscribed to school updates.', 'success');
                 } else {
                     popup.classList.add('active');
                 }
@@ -517,7 +558,7 @@
 
             copyBtn.addEventListener('click', () => copyText(PHONE));
             phone.addEventListener('click', () => copyText(PHONE));
-
+            
             // YouTube link
             ytLink.addEventListener('click', (e) => {
                 if (!confirm('Open YouTube channel?')) e.preventDefault();
@@ -528,7 +569,7 @@
                 const warning = document.getElementById('officeHours');
                 const hours = new Date().getHours();
                 const isOpen = hours >= 9 && hours < 12;
-                
+
                 if (warning) {
                     warning.innerHTML = isOpen 
                         ? '<i class="fas fa-check-circle"></i><p>Office OPEN - Call Now!</p>'
@@ -544,7 +585,7 @@
             // Helper functions
             function copyText(text) {
                 navigator.clipboard.writeText(text)
-                    .then(() => showToast('📋 Phone number copied!'))
+                    .then(() => showToast('📋 Phone number copied!', 'success'))
                     .catch(() => {
                         const el = document.createElement('textarea');
                         el.value = text;
@@ -552,15 +593,26 @@
                         el.select();
                         document.execCommand('copy');
                         document.body.removeChild(el);
-                        showToast('Copied to clipboard!');
+                        showToast('Copied to clipboard!', 'success');
                     });
             }
 
             function showToast(msg, type = '') {
                 toast.textContent = msg;
-                toast.className = 'toast' + (type ? ' show' : '');
-                setTimeout(() => toast.className = 'toast', 3000);
+                toast.className = `toast ${type} show`;
+                setTimeout(() => {
+                    toast.className = 'toast';
+                }, 3000);
             }
+
+            // Debug: Check subscription status
+            setTimeout(async () => {
+                if ('serviceWorker' in navigator) {
+                    const registration = await navigator.serviceWorker.ready;
+                    const subscription = await registration.pushManager.getSubscription();
+                    console.log('🔍 Current subscription:', subscription ? 'YES' : 'NO');
+                }
+            }, 2000);
         });
     </script>
 </body>
