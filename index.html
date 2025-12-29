@@ -4,28 +4,88 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indian Public School Khandwa - Admissions Open</title>
-    
+
     <!-- Manifest for PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#004aad">
-    
+
     <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="logo-hq.png">
-    
+
     <!-- PWA Mobile Config -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+
     <!-- Preload HQ logo for better performance -->
     <link rel="preload" href="logo-hq.png" as="image" type="image/png">
     <link rel="preload" href="logo.png" as="image" type="image/png">
     <link rel="preload" href="style.css" as="style">
-    
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
-    
+
+    <!-- OneSignal Web Push SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "23a6c9c3-11a6-435b-9207-111572d9058a",
+          
+          // Auto-prompt settings
+          promptOptions: {
+            slidedown: {
+              enabled: true,
+              autoPrompt: true,
+              timeDelay: 3,
+              pageViews: 1,
+              actionMessage: "Get instant school updates on admission, office timings, and new YouTube videos",
+              acceptButtonText: "ALLOW",
+              cancelButtonText: "NO THANKS"
+            }
+          },
+          
+          // Allow HTTP for local testing (GitHub Pages uses HTTPS)
+          allowLocalhostAsSecureOrigin: true,
+          
+          // Auto-register if already subscribed
+          autoRegister: true,
+          
+          // Show notification badge
+          notifyButton: {
+            enable: true,
+            position: 'bottom-right',
+            theme: 'default',
+            prenotify: true,
+            showCredit: false,
+            text: {
+              'tip.state.unsubscribed': 'Get school updates',
+              'tip.state.subscribed': 'You\'re subscribed!',
+              'tip.state.blocked': 'Notifications blocked',
+              'message.prenotify': 'Click to subscribe',
+              'message.action.subscribed': 'Thanks for subscribing!',
+              'message.action.resubscribed': 'You\'re subscribed!',
+              'message.action.unsubscribed': 'You won\'t receive updates',
+              'dialog.main.title': 'Manage Notifications',
+              'dialog.main.button.subscribe': 'SUBSCRIBE',
+              'dialog.main.button.unsubscribe': 'UNSUBSCRIBE',
+              'dialog.blocked.title': 'Unblock Notifications',
+              'dialog.blocked.message': 'Follow instructions to enable notifications'
+            }
+          },
+          
+          // Service worker settings (will use OneSignal's SW)
+          serviceWorkerParam: { scope: '/' },
+          serviceWorkerPath: 'OneSignalSDKWorker.js'
+        });
+        
+        // Show UI after init
+        OneSignal.Slidedown.promptPush();
+      });
+    </script>
+
     <!-- Disable selection -->
     <style>
         * {
@@ -34,18 +94,81 @@
             -ms-user-select: none;
             user-select: none;
         }
-        
+
         .phone, .phone *, .toast {
             -webkit-user-select: text;
             -moz-user-select: text;
             -ms-user-select: text;
             user-select: text;
         }
-        
+
         img {
             -webkit-user-drag: none;
             user-drag: none;
             pointer-events: none;
+        }
+
+        /* OneSignal notification bell customization */
+        #onesignal-bell-container .onesignal-bell-launcher {
+            background: linear-gradient(135deg, #efa12e, #ff9800) !important;
+            border: 2px solid white !important;
+            box-shadow: 0 4px 12px rgba(239, 161, 46, 0.4) !important;
+        }
+        
+        #onesignal-bell-container .onesignal-bell-launcher .onesignal-bell-launcher-button {
+            background: transparent !important;
+        }
+        
+        #onesignal-bell-container .onesignal-bell-launcher .onesignal-bell-launcher-dialog {
+            border: 2px solid #004aad !important;
+            border-radius: 10px !important;
+        }
+
+        /* Custom notification button (backup) */
+        .notify-btn {
+            background: linear-gradient(135deg, #efa12e, #ff9800);
+            color: white;
+            border: none;
+            padding: 14px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 15px auto;
+            width: 90%;
+            max-width: 280px;
+            box-shadow: 0 5px 15px rgba(239, 161, 46, 0.3);
+        }
+
+        .notify-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(239, 161, 46, 0.4);
+            background: linear-gradient(135deg, #ff9800, #ffb74d);
+        }
+
+        .notify-btn:active {
+            transform: translateY(0);
+        }
+
+        .notify-btn:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .notify-btn i {
+            font-size: 18px;
+        }
+        
+        /* Hide custom button when OneSignal is working */
+        .onesignal-active .notify-btn {
+            display: none;
         }
     </style>
 </head>
@@ -97,7 +220,7 @@
 
         <div class="contact-box">
             <h3><i class="fas fa-phone"></i> Contact for Admission</h3>
-            
+
             <div class="phone">
                 <i class="fas fa-mobile-alt"></i>
                 <span>+91 7333574759</span>
@@ -111,6 +234,11 @@
                     <i class="far fa-copy"></i> Copy Number
                 </button>
             </div>
+
+            <!-- Custom notification button (backup if OneSignal doesn't show) -->
+            <button class="notify-btn" id="subscribeNotifications">
+                <i class="fas fa-bell"></i> Get School Updates
+            </button>
 
             <div class="warning" id="officeHours">
                 <i class="fas fa-exclamation-triangle"></i>
@@ -166,63 +294,45 @@
         <div class="toast" id="toast"></div>
     </div>
 
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js?v=2.0');
-            });
-        }
-    </script>
-    <!-- Add this near the contact buttons (around line 74) -->
-<button class="notify-btn" id="subscribeNotifications">
-    <i class="fas fa-bell"></i> Get School Updates
-</button>
-
-<!-- Add CSS for the button in your style.css or in the existing <style> block -->
-<style>
-    .notify-btn {
-        background: linear-gradient(135deg, #efa12e, #ff9800);
-        color: white;
-        border: none;
-        padding: 14px 25px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        margin: 15px auto;
-        width: 90%;
-        max-width: 280px;
-        box-shadow: 0 5px 15px rgba(239, 161, 46, 0.3);
-    }
-    
-    .notify-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(239, 161, 46, 0.4);
-        background: linear-gradient(135deg, #ff9800, #ffb74d);
-    }
-    
-    .notify-btn:active {
-        transform: translateY(0);
-    }
-    
-    .notify-btn:disabled {
-        background: #cccccc;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .notify-btn i {
-        font-size: 18px;
-    }
-</style>
     <!-- Main Script -->
     <script src="script.js"></script>
+    
+    <!-- Backup script for custom notifications if OneSignal fails -->
+    <script>
+        // Check if OneSignal loaded after 5 seconds
+        setTimeout(() => {
+            if (!window.OneSignal) {
+                console.log('OneSignal not loaded, showing custom button');
+                document.body.classList.remove('onesignal-active');
+                
+                // Add custom button functionality
+                const customBtn = document.getElementById('subscribeNotifications');
+                if (customBtn) {
+                    customBtn.addEventListener('click', function() {
+                        if ('serviceWorker' in navigator && 'PushManager' in window) {
+                            navigator.serviceWorker.ready.then(reg => {
+                                Notification.requestPermission().then(permission => {
+                                    if (permission === 'granted') {
+                                        reg.showNotification('Indian Public School', {
+                                            body: 'You are now subscribed to school updates!',
+                                            icon: './logo.png'
+                                        });
+                                        alert('✅ Subscribed to school updates!');
+                                        customBtn.innerHTML = '<i class="fas fa-bell"></i> ✓ Subscribed';
+                                        customBtn.disabled = true;
+                                    }
+                                });
+                            });
+                        } else {
+                            alert('Push notifications not supported in this browser.');
+                        }
+                    });
+                }
+            } else {
+                console.log('OneSignal loaded successfully');
+                document.body.classList.add('onesignal-active');
+            }
+        }, 5000);
+    </script>
 </body>
 </html>
