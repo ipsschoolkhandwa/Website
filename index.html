@@ -395,7 +395,115 @@
         </div>
 
         <!-- YouTube -->
-        showToast('You are subscribed to updates.');
+        <div class="youtube-box">
+            <i class="fab fa-youtube"></i>
+            <p>Watch School Videos</p>
+            <a href="https://youtube.com/@indianpublicschoolkhandwa5876" target="_blank">
+                Visit YouTube Channel
+            </a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2024 Indian Public School Khandwa</p>
+            <p class="seats">Limited seats available</p>
+            <p class="tech-note">
+                <i class="fas fa-bell"></i> Tap bell icon for updates
+            </p>
+        </div>
+    </div>
+
+    <!-- Service Worker -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw-push.js')
+                .then(() => console.log('Service Worker registered'))
+                .catch(e => console.log('SW error:', e));
+        }
+    </script>
+
+    <!-- Main Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Elements
+            const popup = document.getElementById('notificationPopup');
+            const subscribeBtn = document.getElementById('subscribeBtn');
+            const laterBtn = document.getElementById('laterBtn');
+            const bell = document.getElementById('bellStatus');
+            const toast = document.getElementById('toast');
+            const callBtn = document.getElementById('callBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const phone = document.querySelector('.phone');
+            const ytLink = document.querySelector('.youtube-box a');
+
+            const PHONE = '+91 7333574759';
+            const SUBSCRIBERS_KEY = 'ips_subscribers';
+            const DECISION_KEY = 'ips_notif_decision';
+
+            // Check existing decision
+            const decision = localStorage.getItem(DECISION_KEY);
+            const isSubscribed = localStorage.getItem('ips_subscribed') === 'true';
+
+            // Show popup if no decision
+            if (!decision) {
+                setTimeout(() => popup.classList.add('active'), 1500);
+            }
+
+            // Update bell
+            if (decision) {
+                bell.classList.add('active');
+                if (decision === 'subscribed') bell.classList.add('subscribed');
+            }
+
+            // Subscribe button
+            subscribeBtn.addEventListener('click', async () => {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    // Save data
+                    localStorage.setItem(DECISION_KEY, 'subscribed');
+                    localStorage.setItem('ips_subscribed', 'true');
+                    
+                    // Add to subscribers
+                    const subs = JSON.parse(localStorage.getItem(SUBSCRIBERS_KEY) || '[]');
+                    subs.push({
+                        id: 'user_' + Date.now(),
+                        date: new Date().toISOString()
+                    });
+                    localStorage.setItem(SUBSCRIBERS_KEY, JSON.stringify(subs));
+
+                    // Update UI
+                    popup.classList.remove('active');
+                    bell.classList.add('active', 'subscribed');
+                    
+                    // Show success
+                    showToast('✅ Subscribed! You will get school updates.', 'success');
+                    
+                    // Welcome notification
+                    if ('serviceWorker' in navigator) {
+                        navigator.serviceWorker.ready.then(sw => {
+                            sw.showNotification('Welcome!', {
+                                body: 'You will now receive school updates.',
+                                icon: './logo.png'
+                            });
+                        });
+                    }
+                } else {
+                    showToast('Please allow notifications.', 'error');
+                }
+            });
+
+            // Later button (SMALLER BUTTON)
+            laterBtn.addEventListener('click', () => {
+                localStorage.setItem(DECISION_KEY, 'later');
+                popup.classList.remove('active');
+                bell.classList.add('active');
+                showToast('Click the bell icon anytime to subscribe.');
+            });
+
+            // Bell click
+            bell.addEventListener('click', () => {
+                if (isSubscribed) {
+                    showToast('You are subscribed to updates.');
                 } else {
                     popup.classList.add('active');
                 }
