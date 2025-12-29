@@ -93,38 +93,73 @@ self.addEventListener('sync', event => {
 });
 
 // Push notifications support
+// Replace your existing push event (lines 98-118) with:
 self.addEventListener('push', event => {
-  const options = {
-    body: 'New update from Indian Public School Khandwa',
-    icon: './logo.png',
-    badge: './logo.png',
-    vibrate: [100, 50, 100],
-    data: {
-      url: './index.html'
-    },
-    actions: [
-      {
-        action: 'open',
-        title: 'Open Website'
-      }
-    ]
-  };
-  
-  event.waitUntil(
-    self.registration.showNotification('Indian Public School', options)
-  );
-});
+    let data = {
+        title: 'Indian Public School',
+        body: 'New update from Indian Public School Khandwa',
+        icon: './logo.png',
+        badge: './logo.png',
+        url: './index.html'
+    };
+    
+    // Try to parse custom data if available
+    if (event.data) {
+        try {
+            const customData = event.data.json();
+            data = { ...data, ...customData };
+        } catch (e) {
+            // If not JSON, try as text
+            const textData = event.data.text();
+            if (textData) data.body = textData;
+        }
+    }
+    
+    const options = {
+        body: data.body,
+        icon: data.icon,
+        badge: data.badge,
+        vibrate: [100, 50, 100],
+        data: {
+            url: data.url || './index.html',
+            timestamp: new Date().toISOString()
+        },
+        actions: [
+            {
+                action: 'open',
+                title: 'Open Website'
+            },
+            {
+                action: 'youtube',
+                title: 'Watch Videos'
+            }
+        ]
+    };
 
-self.addEventListener('notificationclick', event => {
-  event.notification.close();
-  
-  if (event.action === 'open') {
     event.waitUntil(
-      clients.openWindow('./index.html')
+        self.registration.showNotification(data.title, options)
     );
-  }
 });
 
+// Enhanced notification click handler
+self.addEventListener('notificationclick', event => {
+    event.notification.close();
+    
+    if (event.action === 'open') {
+        event.waitUntil(
+            clients.openWindow(event.notification.data.url)
+        );
+    } else if (event.action === 'youtube') {
+        event.waitUntil(
+            clients.openWindow('https://youtube.com/@indianpublicschoolkhandwa5876')
+        );
+    } else {
+        // Default click action
+        event.waitUntil(
+            clients.openWindow(event.notification.data.url)
+        );
+    }
+});
 // Helper function for form submission (for future use)
 async function submitFormData() {
   // This function would handle offline form submissions
