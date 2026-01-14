@@ -20,7 +20,8 @@ const events = [
     // }
 ];
 
-// Export for event-install.js to use
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { events };
-}
+// IMPORTANT: Keep this line only if you want to use Node.js module system
+// Remove it for pure front-end use
+// if (typeof module !== 'undefined' && module.exports) {
+//     module.exports = { events };
+// }
