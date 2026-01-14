@@ -28,30 +28,48 @@
                 .replace(/\s/g, '')              // Remove whitespace
                 .replace(/constevents=\[\]/g, ''); // Remove empty array declaration
             
-            if (cleanContent.length < 10) { // Adjust threshold as needed
+            // Check if we have any events content
+            if (cleanContent.length < 30) { // "const events = [{...}]" is about 30+ chars
                 console.log('No events found in event.js');
                 return;
             }
             
-            // Extract events array using regex
-            const eventsMatch = content.match(/const events = (\[[\s\S]*?\]);/);
-            
-            if (!eventsMatch) {
-                console.log('Could not parse events data');
-                return;
-            }
-            
-            // Safely evaluate the events array
-            let events;
+            // Parse events using Function constructor for safety
+            let events = [];
             try {
-                events = eval(`(${eventsMatch[1]})`);
+                // Extract just the events array assignment
+                const eventsScript = content + '; window._tempEvents = events;';
+                const scriptElement = document.createElement('script');
+                scriptElement.textContent = eventsScript;
+                document.head.appendChild(scriptElement);
+                
+                if (window._tempEvents && Array.isArray(window._tempEvents) && window._tempEvents.length > 0) {
+                    events = window._tempEvents;
+                }
+                
+                // Clean up
+                scriptElement.remove();
+                delete window._tempEvents;
+                
             } catch (e) {
-                console.error('Error parsing events:', e);
-                return;
+                console.log('Could not parse events using script method:', e);
+                
+                // Try simple regex method
+                const eventsMatch = content.match(/const events\s*=\s*(\[[\s\S]*?\])\s*;/);
+                if (eventsMatch) {
+                    try {
+                        const parsed = JSON.parse(eventsMatch[1].replace(/'/g, '"'));
+                        if (Array.isArray(parsed)) {
+                            events = parsed;
+                        }
+                    } catch (parseError) {
+                        console.log('JSON parse failed:', parseError);
+                    }
+                }
             }
             
             if (!Array.isArray(events) || events.length === 0) {
-                console.log('No events in array');
+                console.log('No valid events found');
                 return;
             }
             
@@ -83,12 +101,12 @@
                                     ${getEventIcon(event.type)}
                                 </div>
                                 <div class="event-content">
-                                    <h3>${event.title}</h3>
-                                    <p class="event-description">${event.description}</p>
-                                    ${event.details ? `<p class="event-details"><i class="fas fa-info-circle"></i> ${event.details}</p>` : ''}
+                                    <h3>${escapeHtml(event.title)}</h3>
+                                    <p class="event-description">${escapeHtml(event.description)}</p>
+                                    ${event.details ? `<p class="event-details"><i class="fas fa-info-circle"></i> ${escapeHtml(event.details)}</p>` : ''}
                                     <div class="event-footer">
-                                        <span class="event-date"><i class="far fa-calendar"></i> ${event.date}</span>
-                                        <span class="event-type ${event.type}">${event.type}</span>
+                                        <span class="event-date"><i class="far fa-calendar"></i> ${escapeHtml(event.date)}</span>
+                                        <span class="event-type ${event.type}">${escapeHtml(event.type)}</span>
                                     </div>
                                 </div>
                             </div>
@@ -132,6 +150,13 @@
         }
     }
     
+    // Function to escape HTML to prevent XSS
+    function escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    }
+    
     // Function to get appropriate icon for event type
     function getEventIcon(type) {
         switch(type) {
@@ -162,10 +187,10 @@
             }
             
             .events-box {
-                background: linear-gradient(135deg, var(--navy-blue), #0066cc);
+                background: linear-gradient(135deg, #004aad, #0066cc);
                 padding: 25px;
                 border-radius: 20px;
-                border: 3px solid var(--green);
+                border: 3px solid #00bf62;
                 box-shadow: 0 8px 25px rgba(0, 74, 173, 0.3);
                 position: relative;
                 overflow: hidden;
@@ -178,7 +203,7 @@
                 left: 0;
                 right: 0;
                 height: 4px;
-                background: linear-gradient(90deg, var(--orange), var(--green), var(--navy-blue));
+                background: linear-gradient(90deg, #efa12e, #00bf62, #004aad);
             }
             
             /* Events Header */
@@ -190,7 +215,7 @@
             }
             
             .events-header h2 {
-                color: var(--white);
+                color: #ffffff;
                 font-size: 22px;
                 font-weight: 700;
                 display: flex;
@@ -199,14 +224,14 @@
             }
             
             .events-header h2 i {
-                color: var(--orange);
+                color: #efa12e;
                 font-size: 24px;
             }
             
             .events-close {
                 background: rgba(255, 255, 255, 0.1);
-                border: 2px solid var(--orange);
-                color: var(--white);
+                border: 2px solid #efa12e;
+                color: #ffffff;
                 width: 40px;
                 height: 40px;
                 border-radius: 50%;
@@ -219,9 +244,9 @@
             }
             
             .events-close:hover {
-                background: var(--orange);
+                background: #efa12e;
                 transform: rotate(90deg);
-                color: var(--navy-blue);
+                color: #004aad;
             }
             
             /* Events List */
@@ -244,13 +269,13 @@
             
             .event-item:hover {
                 transform: translateY(-3px);
-                border-color: var(--green);
+                border-color: #00bf62;
                 box-shadow: 0 5px 15px rgba(0, 191, 98, 0.2);
             }
             
             .event-important {
                 background: linear-gradient(135deg, rgba(239, 161, 46, 0.15), rgba(255, 183, 77, 0.1));
-                border: 2px solid var(--orange);
+                border: 2px solid #efa12e;
                 animation: pulseImportant 2s infinite;
             }
             
@@ -258,14 +283,14 @@
                 flex-shrink: 0;
                 width: 60px;
                 height: 60px;
-                background: var(--green);
+                background: #00bf62;
                 border-radius: 12px;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 font-size: 24px;
-                color: var(--white);
-                border: 2px solid var(--white);
+                color: #ffffff;
+                border: 2px solid #ffffff;
             }
             
             .event-content {
@@ -273,7 +298,7 @@
             }
             
             .event-content h3 {
-                color: var(--white);
+                color: #ffffff;
                 font-size: 18px;
                 margin-bottom: 8px;
                 font-weight: 600;
@@ -287,7 +312,7 @@
             }
             
             .event-details {
-                color: var(--green-light);
+                color: #00d46e;
                 font-size: 14px;
                 margin-bottom: 12px;
                 display: flex;
@@ -306,7 +331,7 @@
             }
             
             .event-date {
-                color: var(--orange-light);
+                color: #ffb74d;
                 font-size: 14px;
                 display: flex;
                 align-items: center;
@@ -324,28 +349,28 @@
             }
             
             .event-type.admission {
-                background: var(--orange);
-                color: var(--navy-blue);
+                background: #efa12e;
+                color: #004aad;
             }
             
             .event-type.holiday {
-                background: var(--green);
-                color: var(--white);
+                background: #00bf62;
+                color: #ffffff;
             }
             
             .event-type.exam {
                 background: #ff4757;
-                color: var(--white);
+                color: #ffffff;
             }
             
             .event-type.sports {
                 background: #00a8ff;
-                color: var(--white);
+                color: #ffffff;
             }
             
             .event-type.cultural {
                 background: #9c88ff;
-                color: var(--white);
+                color: #ffffff;
             }
             
             /* Events Note */
@@ -357,7 +382,7 @@
                 display: flex;
                 align-items: center;
                 gap: 12px;
-                color: var(--green-light);
+                color: #00d46e;
                 font-size: 14px;
                 border: 1px solid rgba(0, 191, 98, 0.3);
             }
@@ -460,35 +485,22 @@
                 }
             }
         `;
-        document.head.appendChild(style);
-    }
-    
-    // Add CSS variables if they don't exist
-    function ensureCSSVariables() {
-        const root = document.documentElement;
-        const computedStyle = getComputedStyle(root);
         
-        // Check if our CSS variables exist
-        const navyBlue = computedStyle.getPropertyValue('--navy-blue');
-        if (!navyBlue.trim()) {
-            // Add CSS variables to root
-            root.style.setProperty('--navy-blue', '#004aad');
-            root.style.setProperty('--navy-light', '#0066cc');
-            root.style.setProperty('--orange', '#efa12e');
-            root.style.setProperty('--orange-light', '#ffb74d');
-            root.style.setProperty('--green', '#00bf62');
-            root.style.setProperty('--green-light', '#00d46e');
-            root.style.setProperty('--white', '#ffffff');
+        // Only add if not already added
+        if (!document.getElementById('events-styles')) {
+            document.head.appendChild(style);
         }
     }
     
     // Initialize when DOM is loaded
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add a small delay to ensure other scripts have loaded
-        setTimeout(() => {
-            ensureCSSVariables();
-            loadEvents();
-        }, 1000); // 1 second delay to ensure everything else is loaded
-    });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add a small delay to ensure other scripts have loaded
+            setTimeout(loadEvents, 1000);
+        });
+    } else {
+        // DOM already loaded
+        setTimeout(loadEvents, 1000);
+    }
     
 })();
