@@ -1,227 +1,302 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Indian Public School Khandwa - Admissions Open</title>
-    <meta name="google-site-verification" content="4D-EQu61VEgJCrJE2vWp0HtPpX8aGR2jESoRAeD9ysU" />
-<meta name="description" content="Indian Public School Khandwa – Admissions open for Nursery class. Quality education, experienced teachers, and child-friendly environment in Khandwa.">
-    <!-- Manifest for PWA -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#004aad">
-    
-    <!-- Apple Touch Icon -->
-    <link rel="apple-touch-icon" href="logo-hq.png">
-    
-    <!-- PWA Mobile Config -->
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-    <!-- Preload HQ logo for better performance -->
-    <link rel="preload" href="logo-hq.png" as="image" type="image/png">
-    <link rel="preload" href="logo.png" as="image" type="image/png">
-    <link rel="preload" href="style.css" as="style">
-    
-    <!-- Stylesheets -->
-    <link rel="stylesheet" href="style.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
-    
-    <!-- Disable selection -->
-    <style>
-        * {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
-        }
-        
-        .phone, .phone *, .toast {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-        }
-        
-        img {
-            -webkit-user-drag: none;
-            user-drag: none;
-            pointer-events: none;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Indian Public School Khandwa | Nursery Admissions Open</title>
+<meta name="description" content="Indian Public School Khandwa – Nursery admissions open. Quality education and child-friendly environment in Khandwa.">
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#004aad">
+<meta name="apple-mobile-web-app-capable" content="yes">
+
+<!-- Fonts & Icons -->
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<style>
+/* ================= ROOT ================= */
+:root {
+    --navy-blue:#004aad;
+    --orange:#efa12e;
+    --green:#00bf62;
+    --white:#fff;
+}
+
+/* ================= RESET ================= */
+* {
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+    font-family:'Poppins',sans-serif;
+}
+
+/* ================= BODY ================= */
+body {
+    background:var(--navy-blue);
+    color:var(--white);
+    min-height:100vh;
+    padding:20px;
+}
+
+/* ================= CONTAINER ================= */
+.container {
+    max-width:900px;
+    margin:auto;
+}
+
+/* ================= HEADER ================= */
+.header-content {
+    display:flex;
+    gap:30px;
+    align-items:center;
+    background:rgba(255,255,255,0.08);
+    padding:25px;
+    border-radius:20px;
+}
+
+/* ================= LOGO FLIP ================= */
+.logo-section {
+    width:140px;
+    height:140px;
+    perspective:1000px;
+    cursor:pointer;
+}
+
+.logo-flip {
+    width:100%;
+    height:100%;
+    position:relative;
+    transform-style:preserve-3d;
+    transition:transform .8s ease;
+}
+
+.logo-section.flip .logo-flip {
+    transform:rotateY(180deg);
+}
+
+.logo-front,.logo-back {
+    position:absolute;
+    inset:0;
+    backface-visibility:hidden;
+    border-radius:50%;
+}
+
+.logo-front img {
+    width:100%;
+    height:100%;
+    border-radius:50%;
+    border:5px solid var(--orange);
+}
+
+.logo-back {
+    background:var(--white);
+    color:var(--navy-blue);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    transform:rotateY(180deg);
+    border:5px solid var(--green);
+}
+
+.logo-back svg {
+    width:38px;
+    height:38px;
+    margin-bottom:6px;
+}
+
+.logo-back span {
+    font-size:12px;
+    font-weight:700;
+}
+
+/* ================= SCHOOL NAME ================= */
+.school-name span {
+    font-family:'Montserrat',sans-serif;
+    font-weight:900;
+    font-size:2.4rem;
+}
+
+.indian {color:var(--orange);}
+.public {color:#fff;}
+.school-text {color:var(--green);}
+
+.tagline {
+    color:var(--green);
+    font-style:italic;
+    margin-top:6px;
+}
+
+/* ================= ADMISSION ================= */
+.admission-box {
+    background:var(--green);
+    padding:30px 25px 25px;
+    border-radius:20px;
+    margin:30px 0;
+    position:relative;
+    text-align:center;
+    border:3px solid var(--white);
+}
+
+.badge {
+    position:absolute;
+    top:-22px;
+    right:18px;
+    background:var(--orange);
+    color:var(--navy-blue);
+    padding:8px 20px;
+    border-radius:20px;
+    font-size:13px;
+    font-weight:bold;
+    border:2px solid var(--white);
+}
+
+.icon {
+    font-size:40px;
+    background:#fff;
+    color:var(--navy-blue);
+    width:70px;
+    height:70px;
+    border-radius:50%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:10px auto;
+}
+
+/* ================= CONTACT ================= */
+.contact-box {
+    background:#fff;
+    color:#333;
+    padding:25px;
+    border-radius:20px;
+}
+
+.phone {
+    background:#eef5ff;
+    padding:15px;
+    border-radius:10px;
+    font-size:22px;
+    font-weight:700;
+    text-align:center;
+    margin:15px 0;
+}
+
+.buttons {
+    display:flex;
+    gap:15px;
+    flex-wrap:wrap;
+}
+
+button {
+    flex:1;
+    padding:14px;
+    border:none;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+}
+
+.call-btn {background:var(--orange);}
+.copy-btn {background:var(--navy-blue); color:#fff;}
+
+/* ================= FOOTER ================= */
+.footer {
+    text-align:center;
+    margin-top:30px;
+    opacity:.8;
+}
+
+/* ================= MOBILE ================= */
+@media(max-width:480px){
+    .header-content{flex-direction:column;text-align:center}
+    .badge{top:-16px;right:12px;font-size:12px}
+}
+</style>
 </head>
+
 <body>
-    <div class="container">
-        <!-- Header with Logo on left and School Name on right -->
-        <div class="header">
-            <div class="header-content">
-                <div class="logo-section">
-                    <!-- Smart picture element: HQ for good screens, normal for others -->
-                    <picture>
-                        <!-- High-res logo for Retina/4K screens -->
-                        <source srcset="logo-hq.png" media="(min-width: 768px) and (min-resolution: 2dppx)">
-                        <!-- Medium screens -->
-                        <source srcset="logo.png" media="(min-width: 480px)">
-                        <!-- Default/fallback for all -->
-                        <img src="logo.png" 
-                             alt="Indian Public School Logo" 
-                             class="logo" 
-                             crossorigin="anonymous" 
-                             loading="eager" 
-                             width="140" 
-                             height="140"
-                             srcset="logo.png 512w, logo-hq.png 1024w"
-                             sizes="(max-width: 768px) 140px, 140px">
-                    </picture>
-                    <div class="logo-ring"></div>
-                    <div class="logo-glow"></div>
-                </div>
-                <div class="school-info">
-                    <div class="school-name">
-                        <span class="indian">Indian</span>
-                        <span class="public">Public</span>
-                        <span class="school-text">School</span>
-                    </div>
-                    <div class="school-location">
-                        <span class="khandwa">KHANDWA</span>
-                    </div>
-                    <p class="tagline">Creating Good Humans</p>
-                </div>
+<div class="container">
+
+<!-- HEADER -->
+<div class="header-content">
+    <div class="logo-section" id="logoInstall">
+        <div class="logo-flip">
+            <div class="logo-front">
+                <img src="logo.png" alt="Indian Public School Khandwa Logo">
+            </div>
+            <div class="logo-back">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 3v12"></path>
+                    <path d="M7 10l5 5 5-5"></path>
+                    <rect x="3" y="18" width="18" height="3"></rect>
+                </svg>
+                <span>Install</span>
             </div>
         </div>
-
-        <div class="admission-box">
-            <div class="badge">Admissions Open</div>
-            <h2>Registration for Nursery Class</h2>
-            <div class="icon"><i class="fas fa-child"></i></div>
-        </div>
-
-        <div class="contact-box">
-            <h3><i class="fas fa-phone"></i> Contact for Admission</h3>
-            
-            <div class="phone">
-                <i class="fas fa-mobile-alt"></i>
-                <span>+91 7333574759</span>
-            </div>
-
-            <div class="buttons">
-                <button class="call-btn" id="callBtn">
-                    <i class="fas fa-phone"></i> Call Now
-                </button>
-                <button class="copy-btn" id="copyBtn">
-                    <i class="far fa-copy"></i> Copy Number
-                </button>
-            </div>
-
-            <div class="warning" id="officeHours">
-                <i class="fas fa-exclamation-triangle"></i>
-                <p>Office Hours: 9:00 AM to 12:00 Noon</p>
-            </div>
-        </div>
-
-        <div class="info-box">
-            <div class="info-item">
-                <i class="fas fa-map-marker-alt"></i>
-                <div>
-                    <h4>Address</h4>
-                    <p>Housing Board Colony, Nagchun Road, Khandwa</p>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <i class="far fa-clock"></i>
-                <div>
-                    <h4>Form Timing</h4>
-                    <p>Available at school office: 9 AM to 12 Noon</p>
-                </div>
-            </div>
-
-            <div class="info-item">
-                <i class="fas fa-file-alt"></i>
-                <div>
-                    <h4>Registration</h4>
-                    <p>Visit school office for forms</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="youtube-box">
-            <i class="fab fa-youtube"></i>
-            <p>Visit our YouTube Channel</p>
-            <a href="https://youtube.com/@indianpublicschoolkhandwa5876" target="_blank" id="youtubeLink">
-                Watch School Videos
-            </a>
-        </div>
-
-        <div class="footer">
-            <div class="footer-logo">
-                <span class="footer-indian">Indian</span>
-                <span class="footer-public">Public</span>
-                <span class="footer-school">School</span>
-            </div>
-            <p>© 2024 Indian Public School Khandwa</p>
-            <p class="seats">Limited seats available for Nursery Class</p>
-            <p class="tech-note">Built with ❤️ by IPS Student</p>
-        </div>
-
-        <div class="toast" id="toast"></div>
     </div>
 
-    <!-- Service Worker Registration -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js?v=2.0');
-            });
-        }
-    </script>
-    <!-- Add this near the contact buttons (around line 74) -->
+    <div>
+        <div class="school-name">
+            <span class="indian">Indian</span>
+            <span class="public">Public</span>
+            <span class="school-text">School</span>
+        </div>
+        <div class="tagline">Creating Good Humans</div>
+    </div>
+</div>
 
+<!-- ADMISSION -->
+<div class="admission-box">
+    <div class="badge">Admissions Open</div>
+    <h2>Nursery Class Registration</h2>
+    <div class="icon"><i class="fas fa-child"></i></div>
+</div>
 
-<!-- Add CSS for the button in your style.css or in the existing <style> block -->
-<style>
-    .notify-btn {
-        background: linear-gradient(135deg, #efa12e, #ff9800);
-        color: white;
-        border: none;
-        padding: 14px 25px;
-        border-radius: 10px;
-        font-weight: 600;
-        font-size: 16px;
-        cursor: pointer;
-        transition: all 0.3s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 10px;
-        margin: 15px auto;
-        width: 90%;
-        max-width: 280px;
-        box-shadow: 0 5px 15px rgba(239, 161, 46, 0.3);
+<!-- CONTACT -->
+<div class="contact-box">
+    <h3>Contact for Admission</h3>
+    <div class="phone">+91 7333574759</div>
+    <div class="buttons">
+        <button class="call-btn" onclick="location.href='tel:+917333574759'">Call Now</button>
+        <button class="copy-btn" onclick="copyNumber()">Copy Number</button>
+    </div>
+</div>
+
+<div class="footer">
+    © 2024–2026 Indian Public School Khandwa
+</div>
+
+</div>
+
+<!-- ================= INLINE JS ================= -->
+<script>
+let deferredPrompt=null;
+const logo=document.getElementById("logoInstall");
+
+window.addEventListener("beforeinstallprompt",e=>{
+    e.preventDefault();
+    deferredPrompt=e;
+});
+
+logo.addEventListener("click",async()=>{
+    logo.classList.toggle("flip");
+
+    if(deferredPrompt){
+        deferredPrompt.prompt();
+        await deferredPrompt.userChoice;
+        deferredPrompt=null;
     }
-    
-    .notify-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 20px rgba(239, 161, 46, 0.4);
-        background: linear-gradient(135deg, #ff9800, #ffb74d);
-    }
-    
-    .notify-btn:active {
-        transform: translateY(0);
-    }
-    
-    .notify-btn:disabled {
-        background: #cccccc;
-        cursor: not-allowed;
-        transform: none;
-        box-shadow: none;
-    }
-    
-    .notify-btn i {
-        font-size: 18px;
-    }
-</style>
-    <!-- Main Script -->
-    <script src="script.js"></script>
+});
+
+function copyNumber(){
+    navigator.clipboard.writeText("+917333574759");
+    alert("Number copied!");
+}
+</script>
+
 </body>
 </html>
