@@ -4,282 +4,44 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Indian Public School Khandwa - Admissions Open</title>
-
+    
     <!-- Manifest for PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#004aad">
-
+    
     <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="logo-hq.png">
-
+    
     <!-- PWA Mobile Config -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-
+    
+    <!-- Preload HQ logo for better performance -->
+    <link rel="preload" href="logo-hq.png" as="image" type="image/png">
+    <link rel="preload" href="logo.png" as="image" type="image/png">
+    <link rel="preload" href="style.css" as="style">
+    
     <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
-
-    <!-- Push Notification CSS -->
+    
+    <!-- Disable selection -->
     <style>
-        /* ========== NOTIFICATION POPUP ========== */
-        .notification-popup {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 10000;
-        }
-
-        .notification-popup.active {
-            display: flex;
-        }
-
-        .popup-content {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            width: 90%;
-            max-width: 380px;
-            text-align: center;
-            border: 3px solid #004aad;
-        }
-
-        .popup-icon {
-            font-size: 50px;
-            color: #004aad;
-            margin-bottom: 15px;
-        }
-
-        .popup-title {
-            color: #004aad;
-            font-size: 22px;
-            margin-bottom: 10px;
-            font-weight: bold;
-        }
-
-        .popup-message {
-            color: #666;
-            line-height: 1.5;
-            margin-bottom: 20px;
-            font-size: 15px;
-        }
-
-        /* UPDATED BUTTON SIZES */
-        .popup-buttons {
-            display: flex;
-            gap: 10px;
-        }
-
-        .popup-btn {
-            flex: 1;
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .subscribe-btn {
-            background: linear-gradient(135deg, #004aad, #0066cc);
-            color: white;
-            flex: 3;
-        }
-
-        .subscribe-btn:hover {
-            background: linear-gradient(135deg, #0066cc, #004aad);
-            transform: translateY(-2px);
-        }
-
-        .later-btn {
-            background: #f0f0f0;
-            color: #333;
-            flex: 1;
-        }
-
-        .later-btn:hover {
-            background: #e0e0e0;
-        }
-
-        /* ========== PERSISTENT BELL ========== */
-        .bell-status {
-            position: fixed;
-            top: 15px;
-            right: 15px;
-            width: 45px;
-            height: 45px;
-            background: linear-gradient(135deg, #efa12e, #ff9800);
-            border-radius: 50%;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            color: white;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 9999;
-            box-shadow: 0 4px 12px rgba(239, 161, 46, 0.4);
-            border: 2px solid white;
-        }
-
-        .bell-status.active {
-            display: flex;
-        }
-
-        .bell-status.subscribed {
-            background: linear-gradient(135deg, #00bf62, #00d46e);
-        }
-
-        /* ========== TOAST ========== */
-        .toast {
-            position: fixed;
-            bottom: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(100px);
-            background: #004aad;
-            color: white;
-            padding: 12px 25px;
-            border-radius: 25px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-            z-index: 10001;
-            opacity: 0;
-            transition: all 0.3s;
-            font-size: 14px;
-        }
-
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-
-        .toast.success {
-            background: linear-gradient(135deg, #00bf62, #00d46e);
-        }
-
-        .toast.error {
-            background: linear-gradient(135deg, #ff4757, #ff6b81);
-        }
-
-        /* ========== ADMIN LINK ========== */
-        .admin-link {
-            position: fixed;
-            bottom: 15px;
-            left: 15px;
-            background: rgba(0, 74, 173, 0.1);
-            color: #004aad;
-            padding: 6px 12px;
-            border-radius: 15px;
-            font-size: 11px;
-            text-decoration: none;
-            opacity: 0.3;
-            transition: opacity 0.3s;
-            z-index: 9998;
-        }
-
-        .admin-link:hover {
-            opacity: 1;
-        }
-
-        /* ========== UPDATED SITE BUTTONS ========== */
-        .buttons {
-            display: flex;
-            gap: 10px;
-            margin: 15px 0;
-        }
-
-        .call-btn, .copy-btn {
-            flex: 1;
-            padding: 14px;
-            border: none;
-            border-radius: 8px;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .call-btn {
-            background: linear-gradient(135deg, #00bf62, #00d46e);
-            color: white;
-        }
-
-        .call-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 191, 98, 0.3);
-        }
-
-        .copy-btn {
-            background: #004aad;
-            color: white;
-        }
-
-        .copy-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 74, 173, 0.3);
-        }
-
-        .youtube-box a {
-            display: inline-block;
-            background: linear-gradient(135deg, #ff0000, #ff3333);
-            color: white;
-            padding: 12px 25px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 10px;
-            transition: all 0.3s;
-        }
-
-        .youtube-box a:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
-        }
-
-        .phone {
-            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-            padding: 12px;
-            border-radius: 8px;
-            margin: 15px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            font-size: 18px;
-            font-weight: 600;
-            color: #004aad;
-            border: 2px solid #004aad;
-            cursor: pointer;
-        }
-
         * {
             -webkit-user-select: none;
             -moz-user-select: none;
             -ms-user-select: none;
             user-select: none;
         }
-
+        
         .phone, .phone *, .toast {
             -webkit-user-select: text;
             -moz-user-select: text;
             -ms-user-select: text;
             user-select: text;
         }
-
+        
         img {
             -webkit-user-drag: none;
             user-drag: none;
@@ -288,51 +50,30 @@
     </style>
 </head>
 <body>
-    <!-- Notification Popup -->
-    <div class="notification-popup" id="notificationPopup">
-        <div class="popup-content">
-            <div class="popup-icon">
-                <i class="fas fa-bell"></i>
-            </div>
-            <div class="popup-title">Get School Updates</div>
-            <div class="popup-message">
-                Get admission alerts, office timings, and announcements directly on your phone.
-            </div>
-            <div class="popup-buttons">
-                <button class="popup-btn later-btn" id="laterBtn">
-                    <i class="fas fa-clock"></i> Later
-                </button>
-                <button class="popup-btn subscribe-btn" id="subscribeBtn">
-                    <i class="fas fa-check"></i> Subscribe
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Persistent Bell Icon -->
-    <div class="bell-status" id="bellStatus" title="Click for notifications">
-        <i class="fas fa-bell"></i>
-    </div>
-
-    <!-- Admin Link -->
-    <a href="admin.html" class="admin-link" title="Admin Panel">
-        <i class="fas fa-cog"></i> Admin
-    </a>
-
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
-
-    <!-- Main Content -->
     <div class="container">
-        <!-- Header -->
+        <!-- Header with Logo on left and School Name on right -->
         <div class="header">
             <div class="header-content">
                 <div class="logo-section">
+                    <!-- Smart picture element: HQ for good screens, normal for others -->
                     <picture>
+                        <!-- High-res logo for Retina/4K screens -->
                         <source srcset="logo-hq.png" media="(min-width: 768px) and (min-resolution: 2dppx)">
+                        <!-- Medium screens -->
                         <source srcset="logo.png" media="(min-width: 480px)">
-                        <img src="logo.png" alt="Indian Public School Logo" class="logo">
+                        <!-- Default/fallback for all -->
+                        <img src="logo.png" 
+                             alt="Indian Public School Logo" 
+                             class="logo" 
+                             crossorigin="anonymous" 
+                             loading="eager" 
+                             width="140" 
+                             height="140"
+                             srcset="logo.png 512w, logo-hq.png 1024w"
+                             sizes="(max-width: 768px) 140px, 140px">
                     </picture>
+                    <div class="logo-ring"></div>
+                    <div class="logo-glow"></div>
                 </div>
                 <div class="school-info">
                     <div class="school-name">
@@ -348,17 +89,15 @@
             </div>
         </div>
 
-        <!-- Admissions -->
         <div class="admission-box">
             <div class="badge">Admissions Open</div>
             <h2>Registration for Nursery Class</h2>
             <div class="icon"><i class="fas fa-child"></i></div>
         </div>
 
-        <!-- Contact Section -->
         <div class="contact-box">
             <h3><i class="fas fa-phone"></i> Contact for Admission</h3>
-
+            
             <div class="phone">
                 <i class="fas fa-mobile-alt"></i>
                 <span>+91 7333574759</span>
@@ -369,17 +108,16 @@
                     <i class="fas fa-phone"></i> Call Now
                 </button>
                 <button class="copy-btn" id="copyBtn">
-                    <i class="far fa-copy"></i> Copy
+                    <i class="far fa-copy"></i> Copy Number
                 </button>
             </div>
 
             <div class="warning" id="officeHours">
-                <i class="fas fa-clock"></i>
+                <i class="fas fa-exclamation-triangle"></i>
                 <p>Office Hours: 9:00 AM to 12:00 Noon</p>
             </div>
         </div>
 
-        <!-- Info Section -->
         <div class="info-box">
             <div class="info-item">
                 <i class="fas fa-map-marker-alt"></i>
@@ -390,230 +128,101 @@
             </div>
 
             <div class="info-item">
+                <i class="far fa-clock"></i>
+                <div>
+                    <h4>Form Timing</h4>
+                    <p>Available at school office: 9 AM to 12 Noon</p>
+                </div>
+            </div>
+
+            <div class="info-item">
                 <i class="fas fa-file-alt"></i>
                 <div>
-                    <h4>Forms</h4>
-                    <p>Available at school office</p>
+                    <h4>Registration</h4>
+                    <p>Visit school office for forms</p>
                 </div>
             </div>
         </div>
 
-        <!-- YouTube -->
         <div class="youtube-box">
             <i class="fab fa-youtube"></i>
-            <p>Watch School Videos</p>
-            <a href="https://youtube.com/@indianpublicschoolkhandwa5876" target="_blank">
-                Visit YouTube Channel
+            <p>Visit our YouTube Channel</p>
+            <a href="https://youtube.com/@indianpublicschoolkhandwa5876" target="_blank" id="youtubeLink">
+                Watch School Videos
             </a>
         </div>
 
-        <!-- Footer -->
         <div class="footer">
+            <div class="footer-logo">
+                <span class="footer-indian">Indian</span>
+                <span class="footer-public">Public</span>
+                <span class="footer-school">School</span>
+            </div>
             <p>© 2024 Indian Public School Khandwa</p>
-            <p class="seats">Limited seats available</p>
-            <p class="tech-note">
-                <i class="fas fa-bell"></i> Tap bell icon for updates
-            </p>
+            <p class="seats">Limited seats available for Nursery Class</p>
+            <p class="tech-note">Built with ❤️ by IPS Student</p>
         </div>
+
+        <div class="toast" id="toast"></div>
     </div>
 
     <!-- Service Worker Registration -->
     <script>
-        // VAPID Public Key for cross-device push
-        const VAPID_PUBLIC_KEY = 'BCqyvwEdH6jLlMn5j_HNrcXhU1zX1v1v-Q4YV2ScH2DTSm71qz_mgQh8Uq3Pm4BItGjhNp3c0nSlVJq8NnGgDGs';
-        
-        // Convert VAPID key
-        function urlBase64ToUint8Array(base64String) {
-            const padding = '='.repeat((4 - base64String.length % 4) % 4);
-            const base64 = (base64String + padding)
-                .replace(/-/g, '+')
-                .replace(/_/g, '/');
-            const rawData = window.atob(base64);
-            const outputArray = new Uint8Array(rawData.length);
-            for (let i = 0; i < rawData.length; ++i) {
-                outputArray[i] = rawData.charCodeAt(i);
-            }
-            return outputArray;
-        }
-
-        // Register Service Worker
         if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('service-worker.js?v=9')
-                .then(registration => {
-                    console.log('✅ Service Worker registered:', registration);
-                    
-                    // Listen for controller change
-                    navigator.serviceWorker.addEventListener('controllerchange', () => {
-                        console.log('🔄 New Service Worker activated!');
-                    });
-                })
-                .catch(error => {
-                    console.log('❌ Service Worker registration failed:', error);
-                });
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('service-worker.js?v=2.0');
+            });
         }
     </script>
+    <!-- Add this near the contact buttons (around line 74) -->
+<button class="notify-btn" id="subscribeNotifications">
+    <i class="fas fa-bell"></i> Get School Updates
+</button>
 
+<!-- Add CSS for the button in your style.css or in the existing <style> block -->
+<style>
+    .notify-btn {
+        background: linear-gradient(135deg, #efa12e, #ff9800);
+        color: white;
+        border: none;
+        padding: 14px 25px;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 16px;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin: 15px auto;
+        width: 90%;
+        max-width: 280px;
+        box-shadow: 0 5px 15px rgba(239, 161, 46, 0.3);
+    }
+    
+    .notify-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 20px rgba(239, 161, 46, 0.4);
+        background: linear-gradient(135deg, #ff9800, #ffb74d);
+    }
+    
+    .notify-btn:active {
+        transform: translateY(0);
+    }
+    
+    .notify-btn:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .notify-btn i {
+        font-size: 18px;
+    }
+</style>
     <!-- Main Script -->
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // Elements
-            const popup = document.getElementById('notificationPopup');
-            const subscribeBtn = document.getElementById('subscribeBtn');
-            const laterBtn = document.getElementById('laterBtn');
-            const bell = document.getElementById('bellStatus');
-            const toast = document.getElementById('toast');
-            const callBtn = document.getElementById('callBtn');
-            const copyBtn = document.getElementById('copyBtn');
-            const phone = document.querySelector('.phone');
-            const ytLink = document.querySelector('.youtube-box a');
-
-            const PHONE = '+91 7333574759';
-            const VAPID_PUBLIC_KEY = 'BCqyvwEdH6jLlMn5j_HNrcXhU1zX1v1v-Q4YV2ScH2DTSm71qz_mgQh8Uq3Pm4BItGjhNp3c0nSlVJq8NnGgDGs';
-            const DECISION_KEY = 'ips_notif_decision';
-            const SUBSCRIBED_KEY = 'ips_subscribed';
-
-            // Check existing decision
-            const decision = localStorage.getItem(DECISION_KEY);
-            const isSubscribed = localStorage.getItem(SUBSCRIBED_KEY) === 'true';
-
-            // Show popup if no decision
-            if (!decision) {
-                setTimeout(() => popup.classList.add('active'), 1500);
-            }
-
-            // Update bell
-            if (decision) {
-                bell.classList.add('active');
-                if (decision === 'subscribed') bell.classList.add('subscribed');
-            }
-
-            // Subscribe button - FIXED FOR CROSS-DEVICE
-            subscribeBtn.addEventListener('click', async () => {
-                try {
-                    const permission = await Notification.requestPermission();
-                    
-                    if (permission === 'granted') {
-                        // Get Service Worker registration
-                        const registration = await navigator.serviceWorker.ready;
-                        
-                        // Subscribe with VAPID key for cross-device
-                        const subscription = await registration.pushManager.subscribe({
-                            userVisibleOnly: true,
-                            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-                        });
-                        
-                        console.log('✅ Subscribed with VAPID:', subscription);
-                        
-                        // Save data
-                        localStorage.setItem(DECISION_KEY, 'subscribed');
-                        localStorage.setItem(SUBSCRIBED_KEY, 'true');
-                        localStorage.setItem('subscription_data', JSON.stringify(subscription));
-
-                        // Update UI
-                        popup.classList.remove('active');
-                        bell.classList.add('active', 'subscribed');
-
-                        // Show success
-                        showToast('✅ Subscribed! You will get school updates.', 'success');
-
-                        // Welcome notification
-                        registration.showNotification('Welcome to Indian Public School!', {
-                            body: 'You will now receive admission updates and announcements.',
-                            icon: './logo.png',
-                            badge: './logo.png',
-                            vibrate: [100, 50, 100]
-                        });
-                        
-                    } else {
-                        showToast('Please allow notifications to get updates.', 'error');
-                    }
-                } catch (error) {
-                    console.error('Subscription error:', error);
-                    showToast('Failed to subscribe. Please try again.', 'error');
-                }
-            });
-
-            // Later button
-            laterBtn.addEventListener('click', () => {
-                localStorage.setItem(DECISION_KEY, 'later');
-                popup.classList.remove('active');
-                bell.classList.add('active');
-                showToast('Click the bell icon anytime to subscribe.');
-            });
-
-            // Bell click
-            bell.addEventListener('click', async () => {
-                if (isSubscribed) {
-                    showToast('You are subscribed to school updates.', 'success');
-                } else {
-                    popup.classList.add('active');
-                }
-            });
-
-            // Contact buttons
-            callBtn.addEventListener('click', () => {
-                window.location.href = 'tel:+917333574759';
-                setTimeout(() => showToast('Dial: ' + PHONE), 1000);
-            });
-
-            copyBtn.addEventListener('click', () => copyText(PHONE));
-            phone.addEventListener('click', () => copyText(PHONE));
-            
-            // YouTube link
-            ytLink.addEventListener('click', (e) => {
-                if (!confirm('Open YouTube channel?')) e.preventDefault();
-            });
-
-            // Check office hours
-            function updateOfficeHours() {
-                const warning = document.getElementById('officeHours');
-                const hours = new Date().getHours();
-                const isOpen = hours >= 9 && hours < 12;
-
-                if (warning) {
-                    warning.innerHTML = isOpen 
-                        ? '<i class="fas fa-check-circle"></i><p>Office OPEN - Call Now!</p>'
-                        : '<i class="fas fa-clock"></i><p>Office: 9AM-12PM Only</p>';
-                    warning.style.background = isOpen 
-                        ? 'linear-gradient(135deg, #d4edda, #c3e6cb)'
-                        : 'linear-gradient(135deg, #fff8e1, #ffecb3)';
-                }
-            }
-            updateOfficeHours();
-            setInterval(updateOfficeHours, 60000);
-
-            // Helper functions
-            function copyText(text) {
-                navigator.clipboard.writeText(text)
-                    .then(() => showToast('📋 Phone number copied!', 'success'))
-                    .catch(() => {
-                        const el = document.createElement('textarea');
-                        el.value = text;
-                        document.body.appendChild(el);
-                        el.select();
-                        document.execCommand('copy');
-                        document.body.removeChild(el);
-                        showToast('Copied to clipboard!', 'success');
-                    });
-            }
-
-            function showToast(msg, type = '') {
-                toast.textContent = msg;
-                toast.className = `toast ${type} show`;
-                setTimeout(() => {
-                    toast.className = 'toast';
-                }, 3000);
-            }
-
-            // Debug: Check subscription status
-            setTimeout(async () => {
-                if ('serviceWorker' in navigator) {
-                    const registration = await navigator.serviceWorker.ready;
-                    const subscription = await registration.pushManager.getSubscription();
-                    console.log('🔍 Current subscription:', subscription ? 'YES' : 'NO');
-                }
-            }, 2000);
-        });
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
