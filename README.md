@@ -1,31 +1,34 @@
-# Indian Public School Khandwa – Admissions Website
+<p align="center">
+  <img src="logo.png" alt="Indian Public School Khandwa Logo" width="150">
+</p>
 
-This is the official single-page website for **Indian Public School, Khandwa**, created to provide admission information for Nursery class and to serve as a fast, mobile-friendly landing page.
+<h1 align="center">Indian Public School Khandwa – Admissions Website</h1>
 
-The website is optimized for **SEO**, **Google Search Console**, and **Progressive Web App (PWA)** support.
+<p align="center">
+  Official admissions website for <strong>Indian Public School, Khandwa</strong>
+</p>
 
 ---
 
 ## 🌐 Live Website
-https://yourdomain.com  
-_(Replace with your actual domain)_
+🔗 https://ipsschoolkhandwa.github.io/Website/
 
 ---
 
 ## 🎓 About the School
-**Indian Public School Khandwa** focuses on quality education, strong values, and holistic development of children.
+**Indian Public School Khandwa** is dedicated to providing quality education, strong moral values, and a child-friendly learning environment.
 
-**Tagline:** Creating Good Humans
+**Tagline:** *Creating Good Humans*
 
 ---
 
 ## 🚀 Features
-- Single-page, fast loading website
-- Mobile-first responsive design
-- SEO optimized (meta tags, sitemap, schema)
+- Fast, single-page admissions website
+- Fully responsive (mobile, tablet, desktop)
+- SEO optimized for Google Search
 - Google Search Console verified
-- Progressive Web App (PWA) support
-- Contact & admission details clearly displayed
+- Progressive Web App (PWA) enabled
+- Clear admission & contact information
 - YouTube channel integration
 
 ---
