@@ -1,4 +1,4 @@
-/* Performance Optimized CSS - No Scroll Lag */
+/* ================= ROOT ================= */
 :root {
     --navy-blue: #004aad;
     --navy-light: #0066cc;
@@ -9,7 +9,7 @@
     --white: #ffffff;
 }
 
-/* Reset with performance optimizations */
+/* ================= RESET & PERFORMANCE ================= */
 * {
     margin: 0;
     padding: 0;
@@ -17,239 +17,185 @@
     font-family: 'Poppins', sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-}
-
-/* Disable selection globally */
-* {
     -webkit-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
     user-select: none;
 }
 
 /* Enable selection only where needed */
 .phone, .phone *, .toast {
-    -webkit-user-select: text;
-    -moz-user-select: text;
-    -ms-user-select: text;
     user-select: text;
 }
 
 /* Disable image dragging */
 img {
     -webkit-user-drag: none;
-    user-drag: none;
     pointer-events: none;
 }
 
-/* Base styles */
+/* ================= BODY ================= */
 body {
-    background: #004aad;
+    background: var(--navy-blue);
     color: var(--white);
     min-height: 100vh;
     padding: 20px;
     overflow-x: hidden;
-    position: relative;
 }
 
-/* Simple animated background */
+/* Background glow */
 body::before {
     content: '';
     position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: 
-        radial-gradient(circle at 20% 30%, rgba(0, 191, 98, 0.05) 0%, transparent 20%),
-        radial-gradient(circle at 80% 70%, rgba(239, 161, 46, 0.05) 0%, transparent 20%);
+    inset: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(0,191,98,.05), transparent 20%),
+        radial-gradient(circle at 80% 70%, rgba(239,161,46,.05), transparent 20%);
     z-index: -1;
-    pointer-events: none;
 }
 
+/* ================= CONTAINER ================= */
 .container {
     max-width: 900px;
-    margin: 0 auto;
-    position: relative;
-    z-index: 1;
+    margin: auto;
 }
 
-/* Header */
-.header {
-    margin-bottom: 30px;
-    animation: fadeIn 0.5s ease-out;
-}
-
+/* ================= HEADER ================= */
 .header-content {
     display: flex;
     align-items: center;
     gap: 30px;
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(255,255,255,.08);
     padding: 25px;
     border-radius: 20px;
-    border: 2px solid rgba(0, 191, 98, 0.2);
-    box-shadow: 0 5px 15px rgba(0, 74, 173, 0.2);
+    border: 2px solid rgba(0,191,98,.2);
 }
 
+/* ================= LOGO FLIP / INSTALL ================= */
 .logo-section {
-    position: relative;
-    flex-shrink: 0;
     width: 140px;
     height: 140px;
-}
-
-.logo-section picture {
-    display: block;
-    width: 100%;
-    height: 100%;
-}
-
-.logo {
-    width: 100%;
-    height: 100%;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 5px solid var(--orange);
-    box-shadow: 0 0 15px rgba(239, 161, 46, 0.4);
-    position: relative;
-    z-index: 2;
-    transition: transform 0.3s ease;
+    perspective: 1000px;
     cursor: pointer;
-    image-rendering: -webkit-optimize-contrast;
-    image-rendering: crisp-edges;
-    -ms-interpolation-mode: bicubic;
+    flex-shrink: 0;
 }
 
-.logo:hover {
-    transform: scale(1.03);
+.logo-flip {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform .8s ease;
 }
 
-.logo-ring {
+.logo-section.flip .logo-flip {
+    transform: rotateY(180deg);
+}
+
+.logo-front,
+.logo-back {
     position: absolute;
-    top: -8px;
-    left: -8px;
-    right: -8px;
-    bottom: -8px;
+    inset: 0;
+    backface-visibility: hidden;
     border-radius: 50%;
-    border: 2px solid var(--green);
-    animation: rotateRing 40s linear infinite;
-    pointer-events: none;
 }
 
-.logo-glow {
-    position: absolute;
-    top: -10px;
-    left: -10px;
-    right: -10px;
-    bottom: -10px;
+.logo-front img {
+    width: 100%;
+    height: 100%;
     border-radius: 50%;
-    background: radial-gradient(circle, rgba(0, 191, 98, 0.1) 0%, transparent 50%);
-    animation: pulseGlow 6s infinite alternate;
-    pointer-events: none;
+    border: 5px solid var(--orange);
+    box-shadow: 0 0 15px rgba(239,161,46,.4);
 }
 
-/* School Name */
-.school-info {
-    flex: 1;
-    min-width: 0;
+.logo-back {
+    background: var(--white);
+    color: var(--navy-blue);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transform: rotateY(180deg);
+    border: 5px solid var(--green);
 }
 
+.logo-back svg {
+    width: 36px;
+    height: 36px;
+    margin-bottom: 6px;
+}
+
+.logo-back span {
+    font-size: 12px;
+    font-weight: 700;
+}
+
+/* ================= SCHOOL NAME ================= */
 .school-name {
     display: flex;
-    flex-wrap: wrap;
-    align-items: center;
     gap: 8px;
-    margin-bottom: 8px;
+    flex-wrap: wrap;
 }
 
-.indian, .public, .school-text {
+.indian,
+.public,
+.school-text {
     font-family: 'Montserrat', sans-serif;
     font-weight: 900;
-    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    line-height: 1;
     font-size: 2.5rem;
+    line-height: 1;
 }
 
-.indian {
-    color: var(--orange);
-}
-
-.public {
-    color: var(--white);
-}
-
-.school-text {
-    color: var(--green);
-}
-
-.school-location {
-    margin-bottom: 12px;
-}
-
-.khandwa {
-    font-size: 1.8rem;
-    color: var(--white);
-    background: var(--navy-blue);
-    padding: 6px 20px;
-    border-radius: 10px;
-    display: inline-block;
-    border: 2px solid var(--orange);
-    letter-spacing: 2px;
-    font-weight: 900;
-}
+.indian { color: var(--orange); }
+.public { color: var(--white); }
+.school-text { color: var(--green); }
 
 .tagline {
+    margin-top: 8px;
     color: var(--green);
     font-style: italic;
-    font-size: 1.3rem;
     font-weight: 600;
-    padding: 10px 25px;
-    background: rgba(239, 161, 46, 0.15);
+    background: rgba(239,161,46,.15);
+    padding: 8px 20px;
     border-radius: 20px;
     display: inline-block;
-    border: 2px solid var(--green);
-    animation: floatTagline 4s ease-in-out infinite;
 }
 
-/* Admission Box */
+/* ================= ADMISSION BOX ================= */
 .admission-box {
     background: var(--green);
     color: var(--white);
-    padding: 25px;
+    padding: 30px 25px 25px;
     border-radius: 20px;
     text-align: center;
-    margin-bottom: 25px;
+    margin: 30px 0;
     position: relative;
-    animation: slideUp 0.6s ease-out;
-    box-shadow: 0 8px 20px rgba(0, 191, 98, 0.3);
     border: 3px solid var(--white);
-    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,191,98,.3);
+    /* ❌ overflow REMOVED — NO CLIPPING */
 }
 
 .admission-box::before {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
+    inset: 0 0 auto 0;
     height: 4px;
     background: linear-gradient(90deg, var(--orange), var(--green), var(--navy-blue));
 }
 
+/* FIXED BADGE */
 .badge {
     position: absolute;
-    top: -18px;              /* moved UP */
-    right: 15px;
+    top: -22px;
+    right: 18px;
     background: var(--orange);
     color: var(--navy-blue);
     padding: 8px 20px;
-    font-weight: bold;
     font-size: 13px;
+    font-weight: bold;
     border-radius: 20px;
     border: 2px solid var(--white);
-    z-index: 10;
+    z-index: 20;
     white-space: nowrap;
-    box-shadow: 0 3px 10px rgba(239, 161, 46, 0.4);
+    box-shadow: 0 3px 10px rgba(239,161,46,.4);
 }
 
 .admission-box h2 {
@@ -259,267 +205,84 @@ body::before {
 }
 
 .icon {
-    font-size: 50px;
-    animation: bounce 3s infinite;
-    color: var(--navy-blue);
+    font-size: 40px;
     background: var(--white);
-    width: 80px;
-    height: 80px;
+    color: var(--navy-blue);
+    width: 70px;
+    height: 70px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 10px auto;
     border: 3px solid var(--orange);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
 }
 
-/* Contact Box */
+/* ================= CONTACT ================= */
 .contact-box {
     background: var(--white);
     color: #333;
     padding: 25px;
     border-radius: 20px;
     margin-bottom: 25px;
-    animation: slideUp 0.7s ease-out;
-    box-shadow: 0 8px 20px rgba(0, 74, 173, 0.2);
     border: 2px solid var(--green);
-    position: relative;
-    overflow: hidden;
-}
-
-.contact-box::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 4px;
-    background: linear-gradient(90deg, var(--navy-blue), var(--green), var(--orange));
 }
 
 .contact-box h3 {
     color: var(--navy-blue);
-    margin-bottom: 20px;
     text-align: center;
-    font-size: 22px;
-    font-weight: 700;
+    margin-bottom: 20px;
 }
 
 .phone {
     background: #f0f7ff;
-    padding: 20px;
+    padding: 18px;
     border-radius: 12px;
-    text-align: center;
-    font-size: 24px;
+    font-size: 22px;
     font-weight: bold;
+    text-align: center;
     margin-bottom: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 15px;
     color: var(--navy-blue);
     border: 2px solid var(--green);
-    transition: all 0.2s ease;
-    cursor: pointer;
-}
-
-.phone:hover {
-    background: #e6f0ff;
-    transform: translateY(-2px);
 }
 
 .buttons {
     display: flex;
     gap: 15px;
-    margin-bottom: 20px;
     flex-wrap: wrap;
 }
 
 button {
     flex: 1;
     min-width: 180px;
-    padding: 16px;
-    border: none;
+    padding: 14px;
     border-radius: 10px;
-    font-size: 16px;
+    border: none;
     font-weight: 700;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    transition: all 0.2s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .call-btn {
     background: var(--orange);
     color: var(--navy-blue);
-    border: 2px solid var(--orange);
 }
 
 .copy-btn {
     background: var(--navy-blue);
     color: var(--white);
-    border: 2px solid var(--navy-blue);
 }
 
-.warning {
-    background: #fff8e1;
-    border-left: 5px solid var(--orange);
-    padding: 15px;
-    border-radius: 10px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    color: #e65100;
-    animation: pulseWarning 4s infinite;
-    font-weight: 600;
-    margin-bottom: 15px;
-}
-
-/* Info Box */
-.info-box {
-    background: rgba(255, 255, 255, 0.1);
-    padding: 20px;
-    border-radius: 20px;
-    margin-bottom: 25px;
-    animation: fadeIn 0.8s ease-out;
-    border: 2px solid rgba(0, 191, 98, 0.2);
-}
-
-.info-item {
-    display: flex;
-    gap: 15px;
-    margin-bottom: 20px;
-    padding-bottom: 20px;
-    border-bottom: 1px solid rgba(0, 191, 98, 0.2);
-    transition: all 0.2s ease;
-    align-items: flex-start;
-}
-
-.info-item:hover {
-    transform: translateX(5px);
-}
-
-.info-item i {
-    font-size: 28px;
-    color: var(--green);
-    background: rgba(255, 255, 255, 0.1);
-    width: 55px;
-    height: 55px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 2px solid var(--green);
-    flex-shrink: 0;
-}
-
-.info-item h4 {
-    color: var(--orange);
-    margin-bottom: 6px;
-    font-size: 18px;
-    font-weight: 700;
-}
-
-.info-item p {
-    color: #e3f2fd;
-    line-height: 1.5;
-    font-size: 15px;
-}
-
-/* YouTube Box */
-.youtube-box {
-    background: var(--white);
-    color: #333;
-    padding: 25px;
-    border-radius: 20px;
-    text-align: center;
-    margin-bottom: 25px;
-    animation: fadeIn 0.9s ease-out;
-    border: 2px solid #ff0000;
-}
-
-.youtube-box i {
-    font-size: 50px;
-    color: #ff0000;
-    margin-bottom: 12px;
-    display: block;
-}
-
-.youtube-box p {
-    color: #666;
-    font-size: 16px;
-    margin-bottom: 15px;
-    font-weight: 600;
-}
-
-.youtube-box a {
-    display: inline-block;
-    background: #ff0000;
-    color: white;
-    padding: 12px 30px;
-    border-radius: 10px;
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 16px;
-    transition: all 0.2s ease;
-    border: 2px solid #ff0000;
-}
-
-.youtube-box a:hover {
-    background: #cc0000;
-    transform: translateY(-3px);
-}
-
-/* Footer */
+/* ================= FOOTER ================= */
 .footer {
     text-align: center;
     padding: 25px;
     color: #ccc;
-    font-size: 14px;
-    background: rgba(0, 0, 0, 0.15);
+    background: rgba(0,0,0,.15);
     border-radius: 20px;
-    border: 2px solid rgba(0, 191, 98, 0.2);
+    border: 2px solid rgba(0,191,98,.2);
 }
 
-.footer-logo {
-    display: flex;
-    justify-content: center;
-    gap: 8px;
-    margin-bottom: 12px;
-    font-family: 'Montserrat', sans-serif;
-    font-weight: 800;
-    font-size: 1.6rem;
-}
-
-.footer-indian {
-    color: var(--orange);
-}
-
-.footer-public {
-    color: var(--white);
-}
-
-.footer-school {
-    color: var(--green);
-}
-
-.seats {
-    color: var(--orange);
-    font-weight: 600;
-    margin-top: 8px;
-    font-size: 15px;
-}
-
-/* Toast */
+/* ================= TOAST ================= */
 .toast {
     position: fixed;
     bottom: 30px;
@@ -530,15 +293,10 @@ button:hover {
     padding: 15px 30px;
     border-radius: 40px;
     font-weight: bold;
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
     opacity: 0;
-    transition: all 0.3s ease;
+    transition: .3s ease;
     border: 2px solid var(--orange);
-    text-align: center;
-    min-width: 280px;
-    max-width: 90%;
     z-index: 1000;
-    font-size: 15px;
 }
 
 .toast.show {
@@ -546,196 +304,49 @@ button:hover {
     transform: translateX(-50%) translateY(0);
 }
 
-/* Animations */
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-}
-
-@keyframes slideUp {
-    from { 
-        opacity: 0; 
-        transform: translateY(20px); 
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
-
-@keyframes bounce {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-}
-
-@keyframes floatTagline {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-3px); }
-}
-
-@keyframes rotateRing {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-}
-
-@keyframes pulseGlow {
-    0% { opacity: 0.3; }
-    100% { opacity: 0.6; }
-}
-
-@keyframes pulseWarning {
-    0%, 100% { 
-        border-left-color: var(--orange);
-    }
-    50% { 
-        border-left-color: #ffa726;
-    }
-}
-
-/* Responsive Design */
+/* ================= RESPONSIVE ================= */
 @media (max-width: 768px) {
     .header-content {
         flex-direction: column;
         text-align: center;
-        gap: 20px;
-        padding: 20px;
     }
-    
+
     .school-name {
         justify-content: center;
-        gap: 5px;
     }
-    
+
     .indian, .public, .school-text {
         font-size: 2rem;
     }
-    
-    .khandwa {
-        font-size: 1.5rem;
-        padding: 5px 15px;
-    }
-    
+
     .logo-section {
         width: 120px;
         height: 120px;
     }
-    
-    .tagline {
-        font-size: 1.1rem;
-        padding: 8px 18px;
-    }
-    
+
     .buttons {
         flex-direction: column;
-    }
-    
-    button {
-        min-width: 100%;
-    }
-    
-    .phone {
-        font-size: 20px;
-        flex-direction: column;
-        gap: 10px;
-        padding: 15px;
-    }
-    
-    .admission-box h2 {
-        font-size: 20px;
-    }
-    
-    .icon {
-        width: 70px;
-        height: 70px;
-        font-size: 35px;
-    }
-    
-    .info-item {
-        flex-direction: column;
-        text-align: center;
-        align-items: center;
-    }
-    
-    .info-item i {
-        margin-bottom: 10px;
-    }
-    
-    .footer-logo {
-        font-size: 1.4rem;
     }
 }
 
 @media (max-width: 480px) {
-    body {
-        padding: 15px;
-    }
-    
-    .indian, .public, .school-text {
-        font-size: 1.8rem;
-    }
-    
-    .khandwa {
-        font-size: 1.3rem;
-        padding: 4px 12px;
-    }
-    
-    .tagline {
-        font-size: 1rem;
-        padding: 6px 15px;
-    }
-    
     .logo-section {
         width: 100px;
         height: 100px;
     }
-    
-    .logo {
-        border-width: 4px;
-    }
-    
-    .admission-box,
-    .contact-box,
-    .info-box,
-    .youtube-box {
-        padding: 20px;
-        border-radius: 15px;
-    }
-    
-    .phone {
-        font-size: 18px;
-    }
-    
-    button {
-        padding: 14px;
-        font-size: 15px;
-    }
-    
-    .toast {
-        min-width: 250px;
-        padding: 12px 25px;
-        font-size: 14px;
-        bottom: 20px;
+
+    .badge {
+        top: -16px;
+        right: 12px;
+        font-size: 12px;
+        padding: 6px 14px;
     }
 }
 
-/* Reduced motion */
+/* ================= REDUCED MOTION ================= */
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
+    * {
+        animation: none !important;
+        transition: none !important;
     }
-}
-
-/* Performance optimizations */
-.header-content,
-.admission-box,
-.contact-box,
-.info-box,
-.youtube-box,
-.footer {
-    transform: translateZ(0);
-    backface-visibility: hidden;
 }
