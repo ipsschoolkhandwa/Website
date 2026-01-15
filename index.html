@@ -29,34 +29,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
 
-    <!-- Disable selection -->
+    <!-- Rainbow animation styles -->
     <style>
-        * {
-            -webkit-user-select: none;
-            -moz-user-select: none;
-            -ms-user-select: none;
-            user-select: none;
+        /* Rainbow animation for logo ring */
+        @keyframes rainbow {
+            0% { border-color: #ff0000; }
+            16% { border-color: #ff7f00; }
+            33% { border-color: #ffff00; }
+            50% { border-color: #00ff00; }
+            66% { border-color: #0000ff; }
+            83% { border-color: #4b0082; }
+            100% { border-color: #9400d3; }
         }
 
-        .phone, .phone *, .toast {
-            -webkit-user-select: text;
-            -moz-user-select: text;
-            -ms-user-select: text;
-            user-select: text;
-        }
-
-        img {
-            -webkit-user-drag: none;
-            user-drag: none;
-            pointer-events: none;
-        }
-
-        /* Heart icon must be clickable */
-        #heartTrigger {
-            pointer-events: auto !important;
-            cursor: pointer !important;
-            position: relative !important;
-            z-index: 10000 !important;
+        .logo-rainbow {
+            animation: rainbow 2s linear infinite !important;
+            border-width: 3px !important;
         }
     </style>
 </head>
@@ -90,21 +78,8 @@
                              srcset="logo.png 512w, logo-hq.png 1024w"
                              sizes="(max-width: 768px) 140px, 140px">
                     </picture>
-                    <div class="logo-ring"></div>
+                    <div class="logo-ring" id="logoRing"></div>
                     <div class="logo-glow"></div>
-
-                    <!-- Backside of Logo for PWA Install -->
-                    <div class="logo-backside" id="logoBackside">
-                        <div class="logo-back-content">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="#004aad" class="install-icon">
-                                <path d="M19,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12.74,13.31L11.26,12.83L9.2,11.83C9.2,11.83 8.55,11.53 8.35,11.13C8.15,10.73 8.18,10.13 8.62,9.79C9.06,9.45 9.8,9.53 10.31,9.93L12.03,11.26L13.76,9.87C14.27,9.47 15,9.4 15.45,9.76C15.9,10.12 15.97,10.76 15.77,11.17C15.57,11.58 14.93,11.9 14.93,11.9L13.25,12.79L12.74,13.31M14.69,14.34C14.69,14.34 13.74,15.05 12.77,15.11C11.8,15.17 10.84,14.44 10.71,14.32C10.58,14.2 9.55,13.34 8.82,13.39C8.09,13.44 7.34,14.31 7.34,14.31L6.71,16.47C6.71,16.47 8.23,17.59 10.15,17.58C12.07,17.57 13.5,16.45 13.5,16.45L14.69,14.34Z"/>
-                            </svg>
-                            <p class="install-hint">Click to install</p>
-                            <button class="install-btn" id="installBtn">
-                                <i class="fas fa-download"></i> Install Now
-                            </button>
-                        </div>
-                    </div>
                 </div>
                 <div class="school-info">
                     <div class="school-name">
@@ -360,126 +335,166 @@
                 }, 3000);
             }
 
-            // Logo spin and PWA functionality - FIXED: Single smooth spin
+            // Logo click handler - Rainbow effect + PWA install
             const schoolLogo = document.getElementById('schoolLogo');
-            const logoBackside = document.getElementById('logoBackside');
-            const installBtn = document.getElementById('installBtn');
-            let logoFlipped = false;
-            let isAnimating = false;
+            const logoRing = document.getElementById('logoRing');
             let deferredPrompt = null;
+            let isShowingPWA = false;
 
-            if (schoolLogo && logoBackside) {
-                // Fix: Make sure logo is above backside
-                schoolLogo.style.zIndex = '2';
-                logoBackside.style.zIndex = '1';
-
+            if (schoolLogo && logoRing) {
                 schoolLogo.addEventListener('click', function(e) {
                     e.stopPropagation();
                     e.preventDefault();
 
-                    if (isAnimating) return;
-                    isAnimating = true;
+                    // Add rainbow animation to logo ring
+                    logoRing.classList.add('logo-rainbow');
+                    
+                    // Create rainbow burst effect
+                    createRainbowBurst();
 
-                    if (!logoFlipped) {
-                        // First click: Show backside - Single smooth 360 spin
-                        console.log('First click - showing backside');
-
-                        // Add single 360 spin animation
-                        schoolLogo.style.animation = 'singleLogoSpin 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-
+                    // Check if PWA is installable
+                    if (deferredPrompt && !isShowingPWA) {
+                        isShowingPWA = true;
+                        
+                        // Show install toast
                         setTimeout(() => {
-                            // Hide front logo
-                            schoolLogo.style.opacity = '0';
-                            schoolLogo.style.visibility = 'hidden';
-                            schoolLogo.style.animation = '';
+                            showToast('📱 Tap to install the school app!');
+                            showInstallHint();
+                        }, 500);
 
-                            // Show backside
-                            logoBackside.style.opacity = '1';
-                            logoBackside.style.visibility = 'visible';
-                            logoBackside.style.display = 'flex';
-
-                            logoFlipped = true;
-                            isAnimating = false;
-                        }, 800);
-                    } else {
-                        // Second click: Show frontside
-                        flipToFront();
+                        // Trigger PWA install after 1 second
+                        setTimeout(() => {
+                            if (deferredPrompt) {
+                                deferredPrompt.prompt();
+                                deferredPrompt.userChoice.then((choiceResult) => {
+                                    if (choiceResult.outcome === 'accepted') {
+                                        showToast('✅ App installed successfully!');
+                                    }
+                                    deferredPrompt = null;
+                                    isShowingPWA = false;
+                                });
+                            } else {
+                                isShowingPWA = false;
+                            }
+                        }, 1000);
+                    } else if (!deferredPrompt) {
+                        // If no PWA prompt available, just show message
+                        setTimeout(() => {
+                            showToast('⭐ Add to home screen for quick access!');
+                        }, 500);
                     }
+
+                    // Remove rainbow animation after 3 seconds
+                    setTimeout(() => {
+                        logoRing.classList.remove('logo-rainbow');
+                    }, 3000);
                 });
             }
 
-            // Click anywhere to flip back
-            document.addEventListener('click', function(e) {
-                if (logoFlipped && logoBackside && !logoBackside.contains(e.target) && e.target !== schoolLogo && e.target !== installBtn) {
-                    flipToFront();
+            function createRainbowBurst() {
+                const colors = ['#ff0000', '#ff7f00', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#9400d3'];
+                
+                for (let i = 0; i < 12; i++) {
+                    setTimeout(() => {
+                        const burst = document.createElement('div');
+                        burst.style.position = 'fixed';
+                        burst.style.width = '6px';
+                        burst.style.height = '6px';
+                        burst.style.borderRadius = '50%';
+                        burst.style.background = colors[i % colors.length];
+                        burst.style.top = '50%';
+                        burst.style.left = '50%';
+                        burst.style.zIndex = '9999';
+                        burst.style.pointerEvents = 'none';
+                        burst.style.opacity = '0.8';
+                        burst.style.transform = 'translate(-50%, -50%)';
+
+                        document.body.appendChild(burst);
+
+                        const angle = (i * 30) * Math.PI / 180;
+                        const distance = 60 + Math.random() * 40;
+
+                        burst.animate([
+                            { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.8 },
+                            { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0)`, opacity: 0 }
+                        ], {
+                            duration: 800,
+                            easing: 'ease-out'
+                        });
+
+                        setTimeout(() => burst.remove(), 800);
+                    }, i * 50);
                 }
-            });
-
-            function flipToFront() {
-                if (!logoBackside || !schoolLogo || isAnimating) return;
-
-                isAnimating = true;
-                console.log('Flipping to front');
-
-                // Hide backside
-                logoBackside.style.opacity = '0';
-                logoBackside.style.visibility = 'hidden';
-                logoBackside.style.display = 'none';
-
-                // Show front logo with reverse spin
-                schoolLogo.style.animation = 'singleLogoSpinReverse 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
-                setTimeout(() => {
-                    schoolLogo.style.opacity = '1';
-                    schoolLogo.style.visibility = 'visible';
-                    schoolLogo.style.animation = '';
-                    
-                    logoFlipped = false;
-                    isAnimating = false;
-                }, 800);
             }
 
-            // PWA Installation - FIXED: Use browser's native PWA prompt
+            function showInstallHint() {
+                // Create a simple install hint
+                const hint = document.createElement('div');
+                hint.style.position = 'fixed';
+                hint.style.top = '50%';
+                hint.style.left = '50%';
+                hint.style.transform = 'translate(-50%, -50%)';
+                hint.style.background = 'rgba(0, 74, 173, 0.95)';
+                hint.style.color = 'white';
+                hint.style.padding = '20px';
+                hint.style.borderRadius = '15px';
+                hint.style.zIndex = '10000';
+                hint.style.textAlign = 'center';
+                hint.style.border = '3px solid #00bf62';
+                hint.style.boxShadow = '0 10px 30px rgba(0,0,0,0.5)';
+                hint.style.maxWidth = '300px';
+                hint.style.width = '80%';
+                hint.innerHTML = `
+                    <h3 style="margin: 0 0 10px 0;">Install School App</h3>
+                    <p style="margin: 0 0 15px 0; font-size: 14px;">Get quick access on your home screen</p>
+                    <button id="hintInstallBtn" style="background: #efa12e; color: #004aad; border: none; padding: 10px 20px; border-radius: 20px; font-weight: bold; cursor: pointer; margin-bottom: 10px;">
+                        <i class="fas fa-download"></i> Install Now
+                    </button>
+                    <p style="font-size: 12px; opacity: 0.8; margin: 0;">Tap outside to close</p>
+                `;
+
+                document.body.appendChild(hint);
+
+                // Add click event to install button
+                const hintInstallBtn = document.getElementById('hintInstallBtn');
+                if (hintInstallBtn && deferredPrompt) {
+                    hintInstallBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        deferredPrompt.prompt();
+                        document.body.removeChild(hint);
+                    });
+                }
+
+                // Close on click outside
+                setTimeout(() => {
+                    hint.addEventListener('click', function(e) {
+                        if (e.target === hint) {
+                            document.body.removeChild(hint);
+                        }
+                    });
+
+                    document.addEventListener('click', function closeHint(e) {
+                        if (!hint.contains(e.target) && e.target !== schoolLogo) {
+                            document.body.removeChild(hint);
+                            document.removeEventListener('click', closeHint);
+                        }
+                    });
+
+                    // Auto close after 8 seconds
+                    setTimeout(() => {
+                        if (document.body.contains(hint)) {
+                            document.body.removeChild(hint);
+                        }
+                    }, 8000);
+                }, 100);
+            }
+
+            // PWA Installation listener
             window.addEventListener('beforeinstallprompt', function(e) {
                 e.preventDefault();
                 deferredPrompt = e;
                 console.log('✅ PWA install prompt available');
-                
-                // Show install button
-                if (installBtn) {
-                    installBtn.style.display = 'flex';
-                }
             });
-
-            // Install button click handler - FIXED: Trigger native PWA install
-            if (installBtn) {
-                installBtn.addEventListener('click', async function(e) {
-                    e.stopPropagation();
-                    e.preventDefault();
-                    
-                    console.log('📱 Install button clicked');
-                    
-                    if (deferredPrompt) {
-                        console.log('🚀 Triggering native PWA install prompt');
-                        deferredPrompt.prompt();
-                        
-                        const choiceResult = await deferredPrompt.userChoice;
-                        console.log('User choice:', choiceResult.outcome);
-                        
-                        if (choiceResult.outcome === 'accepted') {
-                            showToast('✅ App installed successfully!');
-                        } else {
-                            showToast('❌ App installation cancelled');
-                        }
-                        
-                        deferredPrompt = null;
-                        flipToFront();
-                    } else {
-                        console.log('⚠️ No install prompt available');
-                        showToast('⚠️ Install feature not available in this browser');
-                        flipToFront();
-                    }
-                });
-            }
 
             // Call and copy buttons functionality
             const callBtn = document.getElementById('callBtn');
