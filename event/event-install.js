@@ -5,70 +5,40 @@
     // Debug: Check if script is loading
     console.log('✅ Event popup script loading...');
 
-    window.addEventListener('load', function() {
+    // Wait a bit longer to ensure everything is loaded
+    setTimeout(function() {
         console.log('✅ Page loaded, checking events...');
-        setTimeout(checkAndAddEvents, 1500);
-    });
+        checkAndAddEvents();
+    }, 2000);
 
     async function checkAndAddEvents() {
         try {
-            console.log('🔍 Checking event.js file...');
+            console.log('🔍 Checking for events...');
             
-            // Check if event.js exists and has events
-            let hasEvents = false;
-            
-            // First, check if file exists
-            try {
-                const response = await fetch('event/event.js');
-                if (response.ok) {
-                    const content = await response.text();
-                    console.log('📄 Event.js content length:', content.length);
-                    
-                    // Check if we have events
-                    hasEvents = content.includes('const events') && 
-                                content.includes('title') &&
-                                content.length > 50; // Simple check for content
-                    
-                    console.log('📋 Has events:', hasEvents);
-                } else {
-                    console.log('❌ Event file not found');
-                }
-            } catch (error) {
-                console.log('❌ Error fetching event file:', error.message);
-            }
-
-            // If no events or file doesn't exist, use default admission event
-            if (!hasEvents) {
-                console.log('📝 Using default admission event');
-                // Create a default event if none exists
-                const defaultEvent = {
-                    title: "Admission Open",
-                    description: "Nursery Class Registration",
-                    details: "Limited seats available. Visit office for forms."
-                };
-                showPopup(defaultEvent);
-            } else {
-                console.log('🚀 Showing popup from events file...');
-                showPopup();
-            }
+            // Always show the admission popup - no need to check file
+            console.log('📝 Showing admission event popup');
+            showPopup();
 
         } catch (error) {
             console.log('❌ Popup error:', error.message);
-            // Show default popup even on error
-            const defaultEvent = {
-                title: "Admission Open",
-                description: "Nursery Class Registration",
-                details: "Limited seats available. Visit office for forms."
-            };
-            showPopup(defaultEvent);
+            // Still show popup on error
+            showPopup();
         }
     }
 
-    function showPopup(eventData) {
-        // Check if already closed
-        if (localStorage.getItem('eventPopupClosed')) {
-            console.log('⏸️ Popup was closed before');
-            return;
+    function showPopup() {
+        // Check if already closed - but only for 24 hours
+        const lastClosed = localStorage.getItem('eventPopupClosed');
+        if (lastClosed) {
+            const lastClosedTime = new Date(lastClosed).getTime();
+            const now = new Date().getTime();
+            const hoursSinceClosed = (now - lastClosedTime) / (1000 * 60 * 60);
+            
+            // If closed less than 24 hours ago, don't show
+            if (hoursSinceClosed < 24) {
+                console.log('⏸️ Popup was closed recently (within 24 hours)');
+                return;
+            }
         }
 
         console.log('🎬 Creating popup HTML...');
@@ -131,12 +101,12 @@
         if (popupContainer) {
             console.log('✅ Popup element found');
 
-            // Force show the popup
+            // Show the popup with delay
             setTimeout(() => {
                 popupContainer.style.opacity = '1';
                 popupContainer.style.visibility = 'visible';
-                console.log('👁️ Popup should be visible now');
-            }, 100);
+                console.log('👁️ Popup is now visible');
+            }, 500);
 
             // Close function
             const closePopup = () => {
@@ -147,7 +117,8 @@
                     if (popupContainer.parentNode) {
                         popupContainer.remove();
                     }
-                    localStorage.setItem('eventPopupClosed', 'true');
+                    // Store close time with current date
+                    localStorage.setItem('eventPopupClosed', new Date().toISOString());
                     console.log('🗑️ Popup removed');
                 }, 300);
             };
