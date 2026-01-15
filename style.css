@@ -1,4 +1,4 @@
-/* Performance Optimized CSS - No Scroll Lag */
+    /* Performance Optimized CSS - No Scroll Lag */
 :root {
     --navy-blue: #004aad;
     --navy-light: #0066cc;
@@ -37,13 +37,26 @@
     user-select: text;
 }
 
-/* Disable image dragging */
+/* Disable image dragging but keep clickable */
 img {
     -webkit-user-drag: none;
     user-drag: none;
-    pointer-events: none;
+    /* REMOVED: pointer-events: none; */
 }
 
+/* Make logo clickable */
+.logo, #schoolLogo, .logo img {
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+/* Make buttons and interactive elements clickable */
+button, .phone, .phone *, .toast,
+.heart-icon, #heartTrigger,
+.logo, #schoolLogo,
+.popup-close-x, .popup-action-button {
+    pointer-events: auto !important;
+    cursor: pointer;
+}
 /* Base styles */
 body {
     background: #004aad;
@@ -979,94 +992,94 @@ button:hover {
         gap: 20px;
         padding: 20px;
     }
-    
+
     .school-name {
         justify-content: center;
         gap: 5px;
     }
-    
+
     .indian, .public, .school-text {
         font-size: 2rem;
     }
-    
+
     .khandwa {
         font-size: 1.5rem;
         padding: 5px 15px;
     }
-    
+
     .logo-section {
         width: 120px;
         height: 120px;
     }
-    
+
     .tagline {
         font-size: 1.1rem;
         padding: 8px 18px;
     }
-    
+
     .badge-top-content {
         font-size: 16px;
         flex-direction: column;
         gap: 8px;
     }
-    
+
     .buttons {
         flex-direction: column;
     }
-    
+
     button {
         min-width: 100%;
     }
-    
+
     .phone {
         font-size: 20px;
         flex-direction: column;
         gap: 10px;
         padding: 15px;
     }
-    
+
     .admission-box h2 {
         font-size: 20px;
     }
-    
+
     .icon {
         width: 70px;
         height: 70px;
         font-size: 35px;
     }
-    
+
     .info-item {
         flex-direction: column;
         text-align: center;
         align-items: center;
     }
-    
+
     .info-item i {
         margin-bottom: 10px;
     }
-    
+
     .footer-logo {
         font-size: 1.4rem;
     }
-    
+
     .logo-backside h3 {
         font-size: 14px;
     }
-    
+
     .logo-backside p {
         font-size: 11px;
     }
-    
+
     .install-btn {
         padding: 6px 12px;
         font-size: 11px;
     }
-    
+
     .heart-icon {
         padding: 8px !important;
         margin: -8px !important;
     }
-    
+
     .falling-heart {
         animation-duration: 4s !important;
         font-size: 20px !important;
@@ -1077,33 +1090,33 @@ button:hover {
     body {
         padding: 15px;
     }
-    
+
     .indian, .public, .school-text {
         font-size: 1.8rem;
     }
-    
+
     .khandwa {
         font-size: 1.3rem;
         padding: 4px 12px;
     }
-    
+
     .logo-section {
         width: 100px;
         height: 100px;
     }
-    
+
     .logo {
         border-width: 4px;
     }
-    
+
     .admission-top-badge {
         padding: 12px 20px;
     }
-    
+
     .badge-top-content {
         font-size: 14px;
     }
-    
+
     .admission-box,
     .contact-box,
     .info-box,
@@ -1111,27 +1124,27 @@ button:hover {
         padding: 20px;
         border-radius: 15px;
     }
-    
+
     .phone {
         font-size: 18px;
     }
-    
+
     button {
         padding: 14px;
         font-size: 15px;
     }
-    
+
     .toast {
         min-width: 250px;
         padding: 12px 25px;
         font-size: 14px;
         bottom: 20px;
     }
-    
+
     .logo-backside h3 {
         font-size: 12px;
     }
-    
+
     .logo-backside p {
         font-size: 10px;
     }
