@@ -14,7 +14,7 @@
         try {
             console.log('🔍 Checking event.js file...');
             const response = await fetch('event/event.js');
-            
+
             if (!response.ok) {
                 console.log('❌ Event file not found');
                 return;
@@ -27,7 +27,7 @@
             const hasEvents = content.includes('const events') && 
                              !content.includes('const events = []') &&
                              !content.includes('const events=[]');
-            
+
             console.log('📋 Has events:', hasEvents);
 
             if (!hasEvents) {
@@ -53,40 +53,40 @@
         console.log('🎬 Creating popup HTML...');
 
         const popupHTML = `
-            <div class="event-popup-main" id="eventPopupMain">
-                <div class="event-popup-content">
+            <div class="event-popup-container" id="eventPopupContainer">
+                <div class="event-popup-card">
                     <!-- Top-right close X -->
-                    <div class="popup-x-close" id="popupXClose">
+                    <div class="event-popup-close-btn" id="eventPopupCloseBtn">
                         <svg width="14" height="14" viewBox="0 0 24 24">
                             <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
                         </svg>
                     </div>
                     
                     <!-- Icon -->
-                    <div class="popup-icon-main">
+                    <div class="event-popup-icon">
                         <i class="fas fa-bullhorn"></i>
                     </div>
                     
                     <!-- Title -->
-                    <h3 class="popup-title-main">Admission Open</h3>
+                    <h3 class="event-popup-title">Admission Open</h3>
                     
                     <!-- Message -->
-                    <div class="popup-message-main">
-                        <p class="popup-strong">Nursery Class Registration</p>
-                        <p class="popup-text">Limited seats available. Visit office for forms.</p>
-                        <div class="popup-time">
+                    <div class="event-popup-message">
+                        <p class="event-popup-strong-text">Nursery Class Registration</p>
+                        <p class="event-popup-normal-text">Limited seats available. Visit office for forms.</p>
+                        <div class="event-popup-time-info">
                             <i class="fas fa-clock"></i>
                             <span>9 AM - 12 Noon</span>
                         </div>
                     </div>
                     
                     <!-- Buttons -->
-                    <div class="popup-buttons-main">
-                        <a href="tel:+917333574759" class="popup-btn call-popup-btn">
+                    <div class="event-popup-buttons-container">
+                        <a href="tel:+917333574759" class="event-popup-call-btn" id="eventPopupCallBtn">
                             <i class="fas fa-phone"></i>
                             <span>Call Now</span>
                         </a>
-                        <div class="popup-btn close-popup-btn" id="popupCloseMain">
+                        <div class="event-popup-close-main-btn" id="eventPopupCloseMainBtn">
                             <span>Close</span>
                         </div>
                     </div>
@@ -96,34 +96,35 @@
 
         // Add CSS FIRST
         addPopupCSS();
-        
+
         // Then add HTML
         document.body.insertAdjacentHTML('beforeend', popupHTML);
-        
+
         console.log('✅ Popup HTML added');
 
-        const popup = document.getElementById('eventPopupMain');
-        const closeBtn = document.getElementById('popupCloseMain');
-        const closeX = document.getElementById('popupXClose');
+        const popupContainer = document.getElementById('eventPopupContainer');
+        const closeMainBtn = document.getElementById('eventPopupCloseMainBtn');
+        const closeXBtn = document.getElementById('eventPopupCloseBtn');
+        const callBtn = document.getElementById('eventPopupCallBtn');
 
-        if (popup) {
+        if (popupContainer) {
             console.log('✅ Popup element found');
-            
+
             // Force show the popup
             setTimeout(() => {
-                popup.style.opacity = '1';
-                popup.style.visibility = 'visible';
+                popupContainer.style.opacity = '1';
+                popupContainer.style.visibility = 'visible';
                 console.log('👁️ Popup should be visible now');
             }, 100);
 
             // Close function
             const closePopup = () => {
                 console.log('🔴 Closing popup');
-                popup.style.opacity = '0';
-                popup.style.visibility = 'hidden';
+                popupContainer.style.opacity = '0';
+                popupContainer.style.visibility = 'hidden';
                 setTimeout(() => {
-                    if (popup.parentNode) {
-                        popup.remove();
+                    if (popupContainer.parentNode) {
+                        popupContainer.remove();
                     }
                     localStorage.setItem('eventPopupClosed', 'true');
                     console.log('🗑️ Popup removed');
@@ -131,19 +132,29 @@
             };
 
             // Add click events
-            if (closeBtn) {
-                closeBtn.addEventListener('click', closePopup);
+            if (closeMainBtn) {
+                closeMainBtn.addEventListener('click', closePopup);
                 console.log('✅ Close button listener added');
             }
-            
-            if (closeX) {
-                closeX.addEventListener('click', closePopup);
+
+            if (closeXBtn) {
+                closeXBtn.addEventListener('click', closePopup);
                 console.log('✅ X button listener added');
             }
 
+            // Call button functionality
+            if (callBtn) {
+                callBtn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    console.log('📞 Call button clicked');
+                    // The link will handle the call
+                    setTimeout(closePopup, 100);
+                });
+            }
+
             // Close on overlay click
-            popup.addEventListener('click', function(e) {
-                if (e.target === popup) {
+            popupContainer.addEventListener('click', function(e) {
+                if (e.target === popupContainer) {
                     closePopup();
                 }
             });
@@ -159,7 +170,7 @@
     }
 
     function addPopupCSS() {
-        if (document.getElementById('popup-main-css')) {
+        if (document.getElementById('event-popup-styles')) {
             console.log('✅ CSS already added');
             return;
         }
@@ -167,10 +178,10 @@
         console.log('🎨 Adding popup CSS...');
 
         const style = document.createElement('style');
-        style.id = 'popup-main-css';
+        style.id = 'event-popup-styles';
         style.textContent = `
-            /* ========== POPUP STYLES ========== */
-            .event-popup-main {
+            /* ========== POPUP CONTAINER ========== */
+            .event-popup-container {
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
@@ -188,7 +199,8 @@
                 pointer-events: auto !important;
             }
             
-            .event-popup-content {
+            /* ========== POPUP CARD ========== */
+            .event-popup-card {
                 background: linear-gradient(135deg, #004aad, #0066cc) !important;
                 border-radius: 15px !important;
                 padding: 30px 25px 25px !important;
@@ -197,11 +209,11 @@
                 border: 3px solid #00bf62 !important;
                 box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
                 position: relative !important;
-                animation: popupShow 0.4s ease !important;
+                animation: eventPopupShow 0.4s ease !important;
                 pointer-events: auto !important;
             }
             
-            @keyframes popupShow {
+            @keyframes eventPopupShow {
                 from {
                     transform: translateY(-20px);
                     opacity: 0;
@@ -212,8 +224,8 @@
                 }
             }
             
-            /* Close X */
-            .popup-x-close {
+            /* ========== CLOSE X BUTTON ========== */
+            .event-popup-close-btn {
                 position: absolute !important;
                 top: -15px !important;
                 right: -15px !important;
@@ -231,13 +243,13 @@
                 box-shadow: 0 5px 20px rgba(255, 71, 87, 0.5) !important;
             }
             
-            .popup-x-close:hover {
+            .event-popup-close-btn:hover {
                 background: #ff6b81 !important;
                 transform: rotate(90deg) scale(1.1) !important;
             }
             
-            /* Icon */
-            .popup-icon-main {
+            /* ========== ICON ========== */
+            .event-popup-icon {
                 width: 65px !important;
                 height: 65px !important;
                 background: linear-gradient(135deg, #00bf62, #00d46e) !important;
@@ -249,13 +261,13 @@
                 border: 3px solid white !important;
             }
             
-            .popup-icon-main i {
+            .event-popup-icon i {
                 font-size: 26px !important;
                 color: white !important;
             }
             
-            /* Title */
-            .popup-title-main {
+            /* ========== TITLE ========== */
+            .event-popup-title {
                 color: white !important;
                 font-size: 24px !important;
                 font-weight: 700 !important;
@@ -264,8 +276,8 @@
                 font-family: 'Poppins', sans-serif !important;
             }
             
-            /* Message */
-            .popup-message-main {
+            /* ========== MESSAGE ========== */
+            .event-popup-message {
                 background: rgba(255, 255, 255, 0.1) !important;
                 border-radius: 12px !important;
                 padding: 20px !important;
@@ -273,7 +285,7 @@
                 border: 1px solid rgba(255, 255, 255, 0.2) !important;
             }
             
-            .popup-strong {
+            .event-popup-strong-text {
                 color: #ffb74d !important;
                 font-size: 17px !important;
                 font-weight: 700 !important;
@@ -281,7 +293,7 @@
                 font-family: 'Poppins', sans-serif !important;
             }
             
-            .popup-text {
+            .event-popup-normal-text {
                 color: white !important;
                 font-size: 15px !important;
                 line-height: 1.5 !important;
@@ -289,7 +301,7 @@
                 font-family: 'Poppins', sans-serif !important;
             }
             
-            .popup-time {
+            .event-popup-time-info {
                 display: flex !important;
                 align-items: center !important;
                 gap: 10px !important;
@@ -298,14 +310,19 @@
                 font-family: 'Poppins', sans-serif !important;
             }
             
-            /* Buttons */
-            .popup-buttons-main {
+            /* ========== BUTTONS CONTAINER ========== */
+            .event-popup-buttons-container {
                 display: flex !important;
                 gap: 15px !important;
                 width: 100% !important;
             }
             
-            .popup-btn {
+            /* ========== CALL BUTTON (65%) ========== */
+            .event-popup-call-btn {
+                flex: 0 0 65% !important;
+                background: linear-gradient(135deg, #00bf62, #00d46e) !important;
+                color: white !important;
+                border: 2px solid #00bf62 !important;
                 border-radius: 10px !important;
                 min-height: 52px !important;
                 display: flex !important;
@@ -316,69 +333,82 @@
                 font-family: 'Poppins', sans-serif !important;
                 cursor: pointer !important;
                 transition: all 0.3s ease !important;
-                border: 2px solid transparent !important;
                 text-decoration: none !important;
                 pointer-events: auto !important;
-            }
-            
-            .call-popup-btn {
-                flex: 0 0 65% !important;
-                background: linear-gradient(135deg, #00bf62, #00d46e) !important;
-                color: white !important;
-                border-color: #00bf62 !important;
                 gap: 10px !important;
             }
             
-            .call-popup-btn:hover {
+            .event-popup-call-btn:hover {
                 background: linear-gradient(135deg, #00d46e, #00bf62) !important;
                 transform: translateY(-3px) !important;
                 box-shadow: 0 8px 20px rgba(0, 191, 98, 0.5) !important;
             }
             
-            .close-popup-btn {
+            /* ========== CLOSE BUTTON (35%) ========== */
+            .event-popup-close-main-btn {
                 flex: 0 0 35% !important;
                 background: #ff4757 !important;
                 color: white !important;
-                border-color: #ff4757 !important;
+                border: 2px solid #ff4757 !important;
+                border-radius: 10px !important;
+                min-height: 52px !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                font-weight: 700 !important;
+                font-size: 16px !important;
+                font-family: 'Poppins', sans-serif !important;
+                cursor: pointer !important;
+                transition: all 0.3s ease !important;
+                pointer-events: auto !important;
             }
             
-            .close-popup-btn:hover {
+            .event-popup-close-main-btn:hover {
                 background: #ff6b81 !important;
                 border-color: #ff6b81 !important;
                 transform: translateY(-3px) !important;
                 box-shadow: 0 8px 20px rgba(255, 107, 129, 0.5) !important;
             }
             
-            /* Mobile */
+            /* ========== MOBILE RESPONSIVE ========== */
             @media (max-width: 480px) {
-                .event-popup-content {
+                .event-popup-card {
                     max-width: 320px !important;
                     padding: 25px 20px 20px !important;
                 }
                 
-                .popup-x-close {
+                .event-popup-close-btn {
                     top: -12px !important;
                     right: -12px !important;
                     width: 36px !important;
                     height: 36px !important;
                 }
                 
-                .popup-icon-main {
+                .event-popup-icon {
                     width: 60px !important;
                     height: 60px !important;
                 }
                 
-                .popup-title-main {
+                .event-popup-title {
                     font-size: 22px !important;
                 }
                 
-                .popup-buttons-main {
+                .event-popup-buttons-container {
                     gap: 12px !important;
                 }
                 
-                .popup-btn {
+                .event-popup-call-btn,
+                .event-popup-close-main-btn {
                     min-height: 48px !important;
                     font-size: 15px !important;
+                }
+                
+                .event-popup-call-btn {
+                    flex: 0 0 65% !important;
+                }
+                
+                .event-popup-close-main-btn {
+                    flex: 0 0 35% !important;
                 }
             }
         `;
