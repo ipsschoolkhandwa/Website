@@ -1,4 +1,4 @@
-// event/event-install.js - FIXED WITH UNIQUE CLASSES
+// event/event-install.js - NEW CLOSE BUTTON NEXT TO CALL BUTTON
 (function() {
     'use strict';
 
@@ -29,34 +29,31 @@
         if (localStorage.getItem('eventPopupClosed')) return;
 
         const popupHTML = `
-            <div class="ips-event-popup-overlay" id="ipsEventPopup">
-                <div class="ips-popup-card">
-                    <div class="ips-popup-close-btn" id="ipsPopupClose">
-                        <svg width="14" height="14" viewBox="0 0 24 24">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                        </svg>
-                    </div>
+            <div class="event-popup-main" id="eventPopupMain">
+                <div class="event-popup-card">
+                    <!-- NO CIRCULAR CLOSE BUTTON HERE -->
                     
-                    <div class="ips-popup-icon">
+                    <div class="popup-main-icon">
                         <i class="fas fa-bullhorn"></i>
                     </div>
                     
-                    <h3 class="ips-popup-title">Admission Open</h3>
+                    <h3 class="popup-main-title">Admission Open</h3>
                     
-                    <div class="ips-popup-content">
+                    <div class="popup-main-content">
                         <p><strong>Nursery Class Registration</strong></p>
                         <p>Limited seats available. Visit office for forms.</p>
-                        <div class="ips-popup-note">
+                        <div class="popup-time-note">
                             <i class="fas fa-clock"></i>
                             <span>9 AM - 12 Noon</span>
                         </div>
                     </div>
                     
-                    <div class="ips-popup-actions">
-                        <div class="ips-popup-action-btn ips-call-btn" id="ipsPopupCall">
+                    <!-- NEW BUTTONS LAYOUT -->
+                    <div class="popup-action-row">
+                        <div class="action-call-button" id="actionCallBtn">
                             <i class="fas fa-phone"></i> Call Now
                         </div>
-                        <div class="ips-popup-action-btn ips-close-btn" id="ipsPopupCloseBtn">
+                        <div class="action-close-button" id="actionCloseBtn">
                             Close
                         </div>
                     </div>
@@ -67,16 +64,15 @@
         addPopupCSS();
         document.body.insertAdjacentHTML('beforeend', popupHTML);
 
-        const popup = document.getElementById('ipsEventPopup');
-        const closeBtn = document.getElementById('ipsPopupCloseBtn');
-        const xBtn = document.getElementById('ipsPopupClose');
-        const callBtn = document.getElementById('ipsPopupCall');
+        const popup = document.getElementById('eventPopupMain');
+        const closeBtn = document.getElementById('actionCloseBtn');
+        const callBtn = document.getElementById('actionCallBtn');
 
         if (popup) {
-            setTimeout(() => popup.classList.add('ips-show'), 50);
+            setTimeout(() => popup.classList.add('show-popup'), 50);
 
             const closePopup = () => {
-                popup.classList.remove('ips-show');
+                popup.classList.remove('show-popup');
                 setTimeout(() => {
                     popup.remove();
                     localStorage.setItem('eventPopupClosed', 'true');
@@ -84,7 +80,6 @@
             };
 
             if (closeBtn) closeBtn.addEventListener('click', closePopup);
-            if (xBtn) xBtn.addEventListener('click', closePopup);
 
             if (callBtn) {
                 callBtn.addEventListener('click', function() {
@@ -106,16 +101,13 @@
     }
 
     function addPopupCSS() {
-        if (document.getElementById('ips-popup-css')) return;
+        if (document.getElementById('new-popup-css')) return;
 
         const style = document.createElement('style');
-        style.id = 'ips-popup-css';
+        style.id = 'new-popup-css';
         style.textContent = `
-            /* ========== COMPLETELY NEW UNIQUE CLASSES ========== */
-            /* Your global button styles CANNOT affect these */
-            
-            /* Popup Overlay */
-            .ips-event-popup-overlay {
+            /* New Popup - No conflicting classes */
+            .event-popup-main {
                 position: fixed;
                 top: 0;
                 left: 0;
@@ -129,64 +121,27 @@
                 opacity: 0;
                 visibility: hidden;
                 transition: opacity 0.3s ease;
-                padding: 15px;
+                padding: 20px;
             }
             
-            .ips-event-popup-overlay.ips-show {
+            .event-popup-main.show-popup {
                 opacity: 1;
                 visibility: visible;
             }
             
-            /* Popup Card */
-            .ips-popup-card {
+            .event-popup-card {
                 background: linear-gradient(135deg, #004aad, #0066cc);
                 border-radius: 15px;
-                padding: 30px 25px 25px;
+                padding: 25px;
                 width: 100%;
                 max-width: 350px;
-                position: relative;
                 border: 3px solid #00bf62;
                 box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+                position: relative;
             }
             
-            /* ========== PERFECT CIRCLE CLOSE BUTTON ========== */
-            /* Using DIV instead of BUTTON to avoid your global styles */
-            .ips-popup-close-btn {
-                position: absolute;
-                top: -15px;
-                right: -15px;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                background: #ff6b6b;
-                border: 3px solid white;
-                color: white;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                padding: 0;
-                margin: 0;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                z-index: 1000;
-                box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
-                overflow: visible;
-            }
-            
-            .ips-popup-close-btn:hover {
-                background: #ff4757;
-                transform: rotate(90deg) scale(1.1);
-                box-shadow: 0 8px 20px rgba(255, 71, 87, 0.5);
-            }
-            
-            .ips-popup-close-btn svg {
-                width: 16px;
-                height: 16px;
-                transition: inherit;
-            }
-            
-            /* Popup Icon */
-            .ips-popup-icon {
+            /* Main Icon */
+            .popup-main-icon {
                 width: 60px;
                 height: 60px;
                 background: linear-gradient(135deg, #00bf62, #00d46e);
@@ -198,13 +153,13 @@
                 border: 3px solid white;
             }
             
-            .ips-popup-icon i {
+            .popup-main-icon i {
                 font-size: 24px;
                 color: white;
             }
             
             /* Title */
-            .ips-popup-title {
+            .popup-main-title {
                 color: white;
                 font-size: 22px;
                 text-align: center;
@@ -214,14 +169,14 @@
             }
             
             /* Content */
-            .ips-popup-content {
+            .popup-main-content {
                 background: rgba(255, 255, 255, 0.1);
                 border-radius: 10px;
                 padding: 15px;
                 margin-bottom: 20px;
             }
             
-            .ips-popup-content p {
+            .popup-main-content p {
                 color: white;
                 margin: 0 0 10px 0;
                 line-height: 1.5;
@@ -229,14 +184,14 @@
                 font-family: 'Poppins', sans-serif;
             }
             
-            .ips-popup-content p strong {
+            .popup-main-content p strong {
                 color: #ffb74d;
                 display: block;
                 margin-bottom: 5px;
                 font-weight: 700;
             }
             
-            .ips-popup-note {
+            .popup-time-note {
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -246,105 +201,119 @@
                 font-family: 'Poppins', sans-serif;
             }
             
-            /* Popup Actions - Using DIV instead of BUTTON */
-            .ips-popup-actions {
+            /* ========== NEW BUTTONS LAYOUT ========== */
+            .popup-action-row {
                 display: flex;
                 gap: 12px;
+                align-items: stretch; /* Make buttons same height */
             }
             
-            .ips-popup-action-btn {
-                flex: 1;
-                padding: 12px;
+            /* Call Button (Green) */
+            .action-call-button {
+                flex: 2; /* Takes more space */
+                background: linear-gradient(135deg, #00bf62, #00d46e);
+                color: white;
+                border: 2px solid #00bf62;
                 border-radius: 10px;
-                font-size: 15px;
-                font-weight: 600;
+                padding: 14px 5px;
+                font-size: 16px;
+                font-weight: 700;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 8px;
-                transition: all 0.2s ease;
+                transition: all 0.3s ease;
                 font-family: 'Poppins', sans-serif;
                 text-align: center;
-                user-select: none;
+                min-height: 50px;
             }
             
-            .ips-call-btn {
-                background: linear-gradient(135deg, #00bf62, #00d46e);
-                color: white;
-                border: 2px solid #00bf62;
-            }
-            
-            .ips-call-btn:hover {
+            .action-call-button:hover {
                 background: linear-gradient(135deg, #00d46e, #00bf62);
                 transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.3);
+                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.4);
             }
             
-            .ips-close-btn {
-                background: rgba(255, 255, 255, 0.15);
+            /* Close Button (Red) - NEXT TO CALL BUTTON */
+            .action-close-button {
+                flex: 1.2; /* More than half of call button width */
+                background: #ff4757;
                 color: white;
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                border: 2px solid #ff4757;
+                border-radius: 10px;
+                padding: 14px 5px;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                font-family: 'Poppins', sans-serif;
+                text-align: center;
+                min-height: 50px; /* Same height as call button */
             }
             
-            .ips-close-btn:hover {
-                background: rgba(255, 255, 255, 0.25);
+            .action-close-button:hover {
+                background: #ff6b81;
+                border-color: #ff6b81;
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(255, 107, 129, 0.4);
             }
             
             /* Mobile Responsive */
             @media (max-width: 480px) {
-                .ips-popup-card {
+                .event-popup-card {
                     max-width: 300px;
-                    padding: 25px 20px 20px;
-                    border-radius: 12px;
+                    padding: 20px;
                 }
                 
-                .ips-popup-close-btn {
-                    top: -12px;
-                    right: -12px;
-                    width: 36px;
-                    height: 36px;
-                    border-width: 2.5px;
-                }
-                
-                .ips-popup-close-btn svg {
-                    width: 14px;
-                    height: 14px;
-                }
-                
-                .ips-popup-icon {
+                .popup-main-icon {
                     width: 55px;
                     height: 55px;
                 }
                 
-                .ips-popup-icon i {
+                .popup-main-icon i {
                     font-size: 22px;
                 }
                 
-                .ips-popup-title {
+                .popup-main-title {
                     font-size: 20px;
                 }
                 
-                .ips-popup-content p {
+                .popup-main-content p {
                     font-size: 14px;
                 }
                 
-                .ips-popup-action-btn {
-                    padding: 10px;
-                    font-size: 14px;
+                .popup-action-row {
+                    flex-direction: column;
+                    gap: 10px;
+                }
+                
+                .action-call-button,
+                .action-close-button {
+                    width: 100%;
+                    padding: 12px;
+                    font-size: 15px;
+                    min-height: 45px;
                 }
             }
             
-            /* Force override any potential conflicts */
-            .ips-popup-close-btn,
-            .ips-popup-action-btn {
+            /* Force reset any inherited styles */
+            .action-call-button,
+            .action-close-button {
                 all: initial;
                 font-family: inherit;
+                display: flex !important;
             }
             
-            .ips-popup-close-btn *,
-            .ips-popup-action-btn * {
+            /* Ensure no button styles affect these */
+            .event-popup-main button,
+            .event-popup-main input,
+            .event-popup-main textarea {
                 all: unset;
+                font-family: inherit;
             }
         `;
 
