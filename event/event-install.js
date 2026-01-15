@@ -13,37 +13,58 @@
     async function checkAndAddEvents() {
         try {
             console.log('🔍 Checking event.js file...');
-            const response = await fetch('event/event.js');
-
-            if (!response.ok) {
-                console.log('❌ Event file not found');
-                return;
+            
+            // Check if event.js exists and has events
+            let hasEvents = false;
+            
+            // First, check if file exists
+            try {
+                const response = await fetch('event/event.js');
+                if (response.ok) {
+                    const content = await response.text();
+                    console.log('📄 Event.js content length:', content.length);
+                    
+                    // Check if we have events
+                    hasEvents = content.includes('const events') && 
+                                content.includes('title') &&
+                                content.length > 50; // Simple check for content
+                    
+                    console.log('📋 Has events:', hasEvents);
+                } else {
+                    console.log('❌ Event file not found');
+                }
+            } catch (error) {
+                console.log('❌ Error fetching event file:', error.message);
             }
 
-            const content = await response.text();
-            console.log('📄 Event.js content length:', content.length);
-
-            // Check if we have events
-            const hasEvents = content.includes('const events') && 
-                             !content.includes('const events = []') &&
-                             !content.includes('const events=[]');
-
-            console.log('📋 Has events:', hasEvents);
-
+            // If no events or file doesn't exist, use default admission event
             if (!hasEvents) {
-                console.log('⏸️ No events found, skipping popup');
-                return;
+                console.log('📝 Using default admission event');
+                // Create a default event if none exists
+                const defaultEvent = {
+                    title: "Admission Open",
+                    description: "Nursery Class Registration",
+                    details: "Limited seats available. Visit office for forms."
+                };
+                showPopup(defaultEvent);
+            } else {
+                console.log('🚀 Showing popup from events file...');
+                showPopup();
             }
-
-            console.log('🚀 Showing popup...');
-            showPopup();
 
         } catch (error) {
             console.log('❌ Popup error:', error.message);
+            // Show default popup even on error
+            const defaultEvent = {
+                title: "Admission Open",
+                description: "Nursery Class Registration",
+                details: "Limited seats available. Visit office for forms."
+            };
+            showPopup(defaultEvent);
         }
     }
 
-    function showPopup() {
+    function showPopup(eventData) {
         // Check if already closed
         if (localStorage.getItem('eventPopupClosed')) {
             console.log('⏸️ Popup was closed before');
