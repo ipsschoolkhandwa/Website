@@ -1,4 +1,4 @@
-// event/event-install.js - FIXED CLOSE BUTTON WITH CIRCLE
+// event/event-install.js - PERFECT CIRCLE CLOSE BUTTON
 (function() {
     'use strict';
 
@@ -32,8 +32,8 @@
             <div class="event-popup" id="eventPopup">
                 <div class="popup-card">
                     <button class="popup-close" id="popupClose" aria-label="Close popup">
-                        <svg width="14" height="14" viewBox="0 0 24 24" class="close-icon">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
                         </svg>
                     </button>
                     
@@ -99,10 +99,10 @@
     }
 
     function addPopupCSS() {
-        if (document.getElementById('fixed-popup-css')) return;
+        if (document.getElementById('perfect-popup-css')) return;
 
         const style = document.createElement('style');
-        style.id = 'fixed-popup-css';
+        style.id = 'perfect-popup-css';
         style.textContent = `
             /* Popup Overlay */
             .event-popup {
@@ -127,7 +127,7 @@
                 visibility: visible;
             }
             
-            /* Popup Card - More Compact */
+            /* Popup Card */
             .popup-card {
                 background: linear-gradient(135deg, #004aad, #0066cc);
                 border-radius: 12px;
@@ -139,43 +139,42 @@
                 box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
             }
             
-            /* FIXED: Perfect Circle Close Button */
+            /* PERFECT CIRCLE Close Button - Like your design */
             .popup-close {
                 position: absolute;
-                top: -10px;
-                right: -10px;
-                width: 32px;
-                height: 32px;
+                top: -12px;
+                right: -12px;
+                width: 36px;
+                height: 36px;
                 border-radius: 50%;
-                background: #efa12e;
-                border: 2px solid white;
+                background: #ff6b6b;
+                border: 3px solid white;
                 color: white;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
                 padding: 0;
-                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                transition: all 0.3s ease;
                 z-index: 100;
-                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+                box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
             }
             
             .popup-close:hover {
-                background: #ff8c00;
-                transform: scale(1.1);
-                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                background: #ff4757;
+                transform: rotate(90deg) scale(1.1);
+                box-shadow: 0 6px 15px rgba(255, 71, 87, 0.5);
             }
             
-            .popup-close:hover .close-icon {
-                transform: rotate(90deg);
-            }
-            
-            .close-icon {
+            .popup-close svg {
                 width: 14px;
                 height: 14px;
-                color: white;
-                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                stroke: currentColor;
+                transition: transform 0.3s ease;
+            }
+            
+            /* Remove the hover rotation from SVG, rotate the whole button */
+            .popup-close:hover svg {
+                transform: rotate(0deg);
             }
             
             /* Popup Icon */
@@ -205,7 +204,7 @@
                 font-weight: 700;
             }
             
-            /* Content - Shorter */
+            /* Content */
             .popup-content {
                 background: rgba(255, 255, 255, 0.08);
                 border-radius: 8px;
@@ -284,14 +283,14 @@
                 }
                 
                 .popup-close {
-                    top: -8px;
-                    right: -8px;
-                    width: 28px;
-                    height: 28px;
-                    border-width: 1.5px;
+                    top: -10px;
+                    right: -10px;
+                    width: 32px;
+                    height: 32px;
+                    border-width: 2px;
                 }
                 
-                .close-icon {
+                .popup-close svg {
                     width: 12px;
                     height: 12px;
                 }
