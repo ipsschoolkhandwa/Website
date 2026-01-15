@@ -1,4 +1,4 @@
-// events/event.js
+// event/event.js
 // This file contains events data. When empty, no events section will show.
 
 const events = [
@@ -19,9 +19,3 @@ const events = [
     //     important: false
     // }
 ];
-
-// IMPORTANT: Keep this line only if you want to use Node.js module system
-// Remove it for pure front-end use
-// if (typeof module !== 'undefined' && module.exports) {
-//     module.exports = { events };
-// }
