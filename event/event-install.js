@@ -1,39 +1,39 @@
-// event/event-install.js - FIXED CLOSE BUTTON
+// event/event-install.js - FIXED CLOSE BUTTON WITH CIRCLE
 (function() {
     'use strict';
-    
+
     window.addEventListener('load', function() {
         setTimeout(checkAndAddEvents, 1000);
     });
-    
+
     async function checkAndAddEvents() {
         try {
             const response = await fetch('event/event.js');
             if (!response.ok) return;
-            
+
             const content = await response.text();
             if (!content.includes('const events') || 
                 content.includes('const events = []') ||
                 content.includes('const events=[]')) {
                 return;
             }
-            
+
             showPopup();
-            
+
         } catch (error) {
             console.log('Popup error:', error.message);
         }
     }
-    
+
     function showPopup() {
         if (localStorage.getItem('eventPopupClosed')) return;
-        
+
         const popupHTML = `
             <div class="event-popup" id="eventPopup">
                 <div class="popup-card">
-                    <button class="popup-close" id="popupClose">
-                        <svg width="16" height="16" viewBox="0 0 24 24">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
+                    <button class="popup-close" id="popupClose" aria-label="Close popup">
+                        <svg width="14" height="14" viewBox="0 0 24 24" class="close-icon">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </button>
                     
@@ -63,18 +63,18 @@
                 </div>
             </div>
         `;
-        
+
         addPopupCSS();
         document.body.insertAdjacentHTML('beforeend', popupHTML);
-        
+
         const popup = document.getElementById('eventPopup');
         const closeBtn = document.getElementById('popupCloseBtn');
         const xBtn = document.getElementById('popupClose');
         const callBtn = document.getElementById('popupCall');
-        
+
         if (popup) {
             setTimeout(() => popup.classList.add('show'), 50);
-            
+
             const closePopup = () => {
                 popup.classList.remove('show');
                 setTimeout(() => {
@@ -82,25 +82,25 @@
                     localStorage.setItem('eventPopupClosed', 'true');
                 }, 200);
             };
-            
+
             if (closeBtn) closeBtn.addEventListener('click', closePopup);
             if (xBtn) xBtn.addEventListener('click', closePopup);
-            
+
             if (callBtn) {
                 callBtn.addEventListener('click', function() {
                     window.location.href = 'tel:+917333574759';
                 });
             }
-            
+
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closePopup();
             });
         }
     }
-    
+
     function addPopupCSS() {
         if (document.getElementById('fixed-popup-css')) return;
-        
+
         const style = document.createElement('style');
         style.id = 'fixed-popup-css';
         style.textContent = `
@@ -131,7 +131,7 @@
             .popup-card {
                 background: linear-gradient(135deg, #004aad, #0066cc);
                 border-radius: 12px;
-                padding: 20px;
+                padding: 25px 20px 20px;
                 width: 100%;
                 max-width: 320px;
                 position: relative;
@@ -139,35 +139,43 @@
                 box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
             }
             
-            /* FIXED: Proper Circle Close Button */
+            /* FIXED: Perfect Circle Close Button */
             .popup-close {
                 position: absolute;
-                top: 10px;
-                right: 10px;
-                width: 28px;
-                height: 28px;
+                top: -10px;
+                right: -10px;
+                width: 32px;
+                height: 32px;
                 border-radius: 50%;
                 background: #efa12e;
-                border: none;
+                border: 2px solid white;
                 color: white;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
                 padding: 0;
-                transition: all 0.3s ease;
-                z-index: 10;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 100;
+                box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             }
             
             .popup-close:hover {
                 background: #ff8c00;
+                transform: scale(1.1);
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            }
+            
+            .popup-close:hover .close-icon {
                 transform: rotate(90deg);
             }
             
-            .popup-close svg {
-                width: 12px;
-                height: 12px;
-                transition: transform 0.3s ease;
+            .close-icon {
+                width: 14px;
+                height: 14px;
+                color: white;
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                stroke: currentColor;
             }
             
             /* Popup Icon */
@@ -272,19 +280,20 @@
             @media (max-width: 480px) {
                 .popup-card {
                     max-width: 280px;
-                    padding: 15px;
+                    padding: 20px 15px 15px;
                 }
                 
                 .popup-close {
-                    top: 8px;
-                    right: 8px;
-                    width: 24px;
-                    height: 24px;
+                    top: -8px;
+                    right: -8px;
+                    width: 28px;
+                    height: 28px;
+                    border-width: 1.5px;
                 }
                 
-                .popup-close svg {
-                    width: 10px;
-                    height: 10px;
+                .close-icon {
+                    width: 12px;
+                    height: 12px;
                 }
                 
                 .popup-icon {
@@ -310,7 +319,7 @@
                 }
             }
         `;
-        
+
         document.head.appendChild(style);
     }
 })();
