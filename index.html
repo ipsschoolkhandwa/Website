@@ -31,6 +31,32 @@
 
     <!-- Rainbow animation styles -->
     <style>
+/* Remove blue highlight/outline on logo click */
+.logo:focus,
+.logo:active,
+#schoolLogo:focus,
+#schoolLogo:active {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Remove default tap highlight on mobile */
+.logo {
+    -webkit-tap-highlight-color: transparent !important;
+    tap-highlight-color: transparent !important;
+}
+
+/* Ensure logo ring doesn't get blue outline */
+.logo-ring:focus,
+.logo-ring:active {
+    outline: none !important;
+}
+
+/* Remove any default browser styles on click */
+.logo-section *:focus,
+.logo-section *:active {
+    outline: none !important;
+}
         /* Rainbow animation for logo ring */
         @keyframes rainbow {
             0% { border-color: #ff0000; }
