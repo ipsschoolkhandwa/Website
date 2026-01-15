@@ -5,7 +5,7 @@
 <h1 align="center">Indian Public School Khandwa – Admissions Website</h1>
 
 <p align="center">
-  Official admissions website for <strong>Indian Public School, Khandwa</strong>
+  Unofficial admissions website for <strong>Indian Public School, Khandwa</strong>
 </p>
 
 ---
