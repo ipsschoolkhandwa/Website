@@ -60,177 +60,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // ========== PUSH NOTIFICATION SYSTEM ==========
-    const VAPID_PUBLIC_KEY = 'BCqyvwEdH6jLlMn5j_HNrcXhU1zX1v1v-Q4YV2ScH2DTSm71qz_mgQh8Uq3Pm4BItGjhNp3c0nSlVJq8NnGgDGs';
-
-    // Convert VAPID key for browser
-    function urlBase64ToUint8Array(base64String) {
-        const padding = '='.repeat((4 - base64String.length % 4) % 4);
-        const base64 = (base64String + padding)
-            .replace(/-/g, '+')
-            .replace(/_/g, '/');
-        const rawData = window.atob(base64);
-        const outputArray = new Uint8Array(rawData.length);
-        for (let i = 0; i < rawData.length; ++i) {
-            outputArray[i] = rawData.charCodeAt(i);
-        }
-        return outputArray;
-    }
-
-    // Subscribe to push notifications
-    async function subscribeToPush() {
-        if (!('serviceWorker' in navigator)) {
-            showToast('Push notifications not supported in your browser.');
-            return false;
-        }
-
-        try {
-            // Get service worker registration
-            const registration = await navigator.serviceWorker.ready;
-            
-            // Check existing subscription
-            let subscription = await registration.pushManager.getSubscription();
-            
-            if (subscription) {
-                showToast('✓ You are already subscribed to updates!');
-                updateSubscribeButton(true);
-                return subscription;
-            }
-            
-            // Request permission
-            const permission = await Notification.requestPermission();
-            
-            if (permission !== 'granted') {
-                showToast('Please allow notifications to receive school updates.');
-                return false;
-            }
-            
-            // Subscribe with VAPID key
-            subscription = await registration.pushManager.subscribe({
-                userVisibleOnly: true,
-                applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY)
-            });
-            
-            // Display success
-            showToast('✅ Successfully subscribed! You will now receive school updates.');
-            updateSubscribeButton(true);
-            
-            // Log subscription (for now - later send to backend)
-            console.log('Push Subscription:', JSON.stringify(subscription));
-            saveSubscriptionLocal(subscription);
-            
-            return subscription;
-            
-        } catch (error) {
-            console.error('Push subscription error:', error);
-            showToast('Failed to subscribe: ' + error.message);
-            return false;
-        }
-    }
-
-    // Save subscription locally
-    function saveSubscriptionLocal(subscription) {
-        try {
-            localStorage.setItem('pushSubscription', JSON.stringify(subscription));
-            localStorage.setItem('pushSubscribedAt', new Date().toISOString());
-        } catch (e) {
-            console.log('Local save failed:', e);
-        }
-    }
-
-    // Update button state
-    function updateSubscribeButton(isSubscribed) {
-        const btn = document.getElementById('subscribeNotifications');
-        if (!btn) return;
-        
-        if (isSubscribed) {
-            btn.innerHTML = '<i class="fas fa-bell-slash"></i> Unsubscribe';
-            btn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-            btn.onclick = unsubscribeFromPush;
-        } else {
-            btn.innerHTML = '<i class="fas fa-bell"></i> Get School Updates';
-            btn.style.background = 'linear-gradient(135deg, #efa12e, #ff9800)';
-            btn.onclick = subscribeToPush;
-        }
-    }
-
-    // Unsubscribe from push
-    async function unsubscribeFromPush() {
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
-            
-            if (subscription) {
-                await subscription.unsubscribe();
-                localStorage.removeItem('pushSubscription');
-                localStorage.removeItem('pushSubscribedAt');
-                
-                showToast('Unsubscribed from notifications.');
-                updateSubscribeButton(false);
-            }
-        } catch (error) {
-            console.error('Unsubscribe error:', error);
-            showToast('Failed to unsubscribe.');
-        }
-    }
-
-    // Check subscription status on load
-    async function checkPushSubscription() {
-        if (!('serviceWorker' in navigator) || !Notification.permission) return;
-        
-        try {
-            const registration = await navigator.serviceWorker.ready;
-            const subscription = await registration.pushManager.getSubscription();
-            
-            if (subscription && Notification.permission === 'granted') {
-                updateSubscribeButton(true);
-            } else {
-                updateSubscribeButton(false);
-            }
-        } catch (error) {
-            console.log('Subscription check failed:', error);
-        }
-    }
-
-    // Initialize push notifications
-    function initPushNotifications() {
-        const subscribeBtn = document.getElementById('subscribeNotifications');
-        
-        if (!subscribeBtn) {
-            console.error('❌ Push button not found! Check HTML id="subscribeNotifications"');
-            return;
-        }
-        
-        console.log('✅ Push button found, adding click handler...');
-        
-        // Add click handler
-        subscribeBtn.addEventListener('click', subscribeToPush);
-        
-        // Set initial button state
-        if (Notification.permission === 'granted') {
-            checkPushSubscription();
-        } else if (Notification.permission === 'denied') {
-            subscribeBtn.disabled = true;
-            subscribeBtn.innerHTML = '<i class="fas fa-bell-slash"></i> Notifications Blocked';
-            subscribeBtn.style.background = '#cccccc';
-        }
-    }
-
-    // Test notification manually
-    function testNotificationManually() {
-        if (Notification.permission === 'granted') {
-            new Notification('IPS Khandwa Test', {
-                body: '✅ School update notification is working!',
-                icon: './logo.png',
-                badge: './logo.png',
-                vibrate: [100, 50, 100]
-            });
-        } else {
-            showToast('Please allow notifications first.');
-        }
-    }
-    // ========== END PUSH NOTIFICATION SYSTEM ==========
-
     // Initialize all functions
     function initAll() {
         autoOptimize();
@@ -239,9 +68,6 @@ document.addEventListener('DOMContentLoaded', function() {
         initAppDownloadAlert();
         initServiceWorker();
         checkOfficeHours();
-        
-        // 🚨 ADD THIS LINE - MOST IMPORTANT!
-        initPushNotifications();
 
         // Add floating animation to school name
         const schoolNameWords = document.querySelectorAll('.indian, .public, .school-text');
@@ -513,7 +339,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function showToast(message) {
         if (!toast) return;
-       toast.textContent = message;
+        toast.textContent = message;
         toast.classList.add('show');
 
         setTimeout(() => {
@@ -558,8 +384,78 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function optimizeScrolling() {
-        // Force GPU acceleration
-                        if (isIOS) {
+        // Force GPU acceleration for smoother scrolling
+        const elements = document.querySelectorAll('.header-content, .admission-box, .contact-box, .info-box, .youtube-box, .footer');
+        elements.forEach(el => {
+            el.style.transform = 'translateZ(0)';
+            el.style.backfaceVisibility = 'hidden';
+        });
+    }
+
+    function initAppDownloadAlert() {
+        // Only show if not already installed and not shown before
+        if (localStorage.getItem('appInstalled') === 'true' || localStorage.getItem('appAlertShown')) {
+            return;
+        }
+
+        // Check if user is on mobile
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        if (!isMobile) return;
+
+        const appAlertHTML = `
+            <div class="app-download-alert" id="appDownloadAlert">
+                <div class="app-alert-content">
+                    <button class="app-alert-close" id="appAlertClose">&times;</button>
+                    <div class="app-alert-icon">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <h3>Install School App</h3>
+                    <p>Get quick access to school information, admission updates, and contact details right from your home screen!</p>
+                    <button class="install-btn" id="appInstallPrompt">
+                        <i class="fas fa-download"></i> Install Now
+                    </button>
+                </div>
+            </div>
+        `;
+
+        document.body.insertAdjacentHTML('beforeend', appAlertHTML);
+
+        const appAlert = document.getElementById('appDownloadAlert');
+        const closeBtn = document.getElementById('appAlertClose');
+        const installPromptBtn = document.getElementById('appInstallPrompt');
+
+        // Show alert
+        setTimeout(() => {
+            appAlert.classList.add('show');
+            localStorage.setItem('appAlertShown', 'true');
+        }, 3000);
+
+        // Close button
+        const closeAlert = () => {
+            appAlert.classList.remove('show');
+            setTimeout(() => {
+                if (appAlert.parentNode) {
+                    appAlert.remove();
+                }
+            }, 300);
+        };
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', closeAlert);
+        }
+
+        // Install button
+        if (installPromptBtn) {
+            installPromptBtn.addEventListener('click', () => {
+                // Trigger PWA install prompt
+                const installEvent = new Event('beforeinstallprompt');
+                window.dispatchEvent(installEvent);
+
+                // Show instructions
+                const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+                const isAndroid = /Android/i.test(navigator.userAgent);
+
+                if (isIOS) {
                     showToast('For iOS: Tap Share → Add to Home Screen');
                 } else if (isAndroid) {
                     showToast('For Android: Tap Menu (⋮) → Install App');
@@ -567,8 +463,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     showToast('Check browser menu (⋮ or ⋯) → "Install App"');
                 }
                 closeAlert();
-            }
-        });
+            });
+        }
 
         // Listen for successful installation
         window.addEventListener('appinstalled', () => {
