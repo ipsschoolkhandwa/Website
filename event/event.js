@@ -1,5 +1,5 @@
 // event/event.js
-// This file contains events data. When empty, no events section will show.
+// This file contains events data for the popup
 
 const events = [
     {
@@ -19,3 +19,8 @@ const events = [
     //     important: false
     // }
 ];
+
+// Export for use in other files if needed
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = { events };
+}
