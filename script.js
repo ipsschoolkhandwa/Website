@@ -8,7 +8,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const phone = document.querySelector('.phone');
     const toast = document.getElementById('toast');
     const warning = document.getElementById('officeHours');
-    const logo = document.querySelector('.logo');
     const youtubeLink = document.getElementById('youtubeLink');
 
     const phoneNumber = '+91 7333574759';
@@ -41,18 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
         showToast('Office hours: 9 AM to 12 Noon only');
     });
 
-    // 6. Logo animation
-    logo.addEventListener('click', function() {
-        this.style.transform = 'scale(1.05) rotate(360deg)';
-        this.style.transition = 'transform 0.6s';
-
-        createColorBurst();
-
-        setTimeout(() => {
-            this.style.transform = 'scale(1)';
-        }, 600);
-    });
-
     // 7. YouTube link confirmation
     youtubeLink.addEventListener('click', function(e) {
         if (!confirm('Opening YouTube channel in new tab. Continue?')) {
@@ -65,7 +52,6 @@ document.addEventListener('DOMContentLoaded', function() {
         autoOptimize();
         optimizeScrolling();
         fixAdmissionOverflow();
-        initAppDownloadAlert();
         initServiceWorker();
         checkOfficeHours();
 
@@ -116,77 +102,6 @@ document.addEventListener('DOMContentLoaded', function() {
             @keyframes floatWord {
                 0%, 100% { transform: translateY(0); }
                 50% { transform: translateY(-3px); }
-            }
-            
-            /* App Alert Styles */
-            .app-download-alert {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.9);
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                z-index: 9999;
-                opacity: 0;
-                visibility: hidden;
-                transition: all 0.3s ease;
-            }
-            
-            .app-download-alert.show {
-                opacity: 1;
-                visibility: visible;
-            }
-            
-            .app-alert-content {
-                background: linear-gradient(135deg, #004aad, #0066cc);
-                border-radius: 20px;
-                padding: 25px;
-                max-width: 380px;
-                width: 90%;
-                text-align: center;
-                position: relative;
-                border: 3px solid #00bf62;
-                box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
-                animation: alertPop 0.4s ease-out;
-            }
-            
-            @keyframes alertPop {
-                0% { transform: scale(0.9); opacity: 0; }
-                100% { transform: scale(1); opacity: 1; }
-            }
-            
-            .app-alert-close {
-                position: absolute;
-                top: 10px;
-                right: 15px;
-                background: none;
-                border: none;
-                color: white;
-                font-size: 28px;
-                cursor: pointer;
-                line-height: 1;
-                padding: 5px;
-            }
-            
-            .app-alert-icon {
-                font-size: 50px;
-                color: #00bf62;
-                margin-bottom: 10px;
-            }
-            
-            .app-alert-content h3 {
-                color: white;
-                margin-bottom: 10px;
-                font-size: 22px;
-            }
-            
-            .app-alert-content p {
-                color: #e0e0e0;
-                margin-bottom: 20px;
-                line-height: 1.5;
             }
             
             /* Performance optimizations */
@@ -347,42 +262,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 2500);
     }
 
-    function createColorBurst() {
-        const colors = ['#efa12e', '#00bf62', '#004aad', '#ffffff'];
-
-        for (let i = 0; i < 6; i++) {
-            setTimeout(() => {
-                const burst = document.createElement('div');
-                burst.style.position = 'fixed';
-                burst.style.width = '8px';
-                burst.style.height = '8px';
-                burst.style.borderRadius = '50%';
-                burst.style.background = colors[i % colors.length];
-                burst.style.top = '50%';
-                burst.style.left = '50%';
-                burst.style.zIndex = '9999';
-                burst.style.pointerEvents = 'none';
-                burst.style.opacity = '0.7';
-                burst.style.transform = 'translate(-50%, -50%)';
-
-                document.body.appendChild(burst);
-
-                const angle = Math.random() * Math.PI * 2;
-                const distance = 40 + Math.random() * 60;
-
-                burst.animate([
-                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 0.7 },
-                    { transform: `translate(calc(-50% + ${Math.cos(angle) * distance}px), calc(-50% + ${Math.sin(angle) * distance}px)) scale(0)`, opacity: 0 }
-                ], {
-                    duration: 500,
-                    easing: 'ease-out'
-                });
-
-                setTimeout(() => burst.remove(), 500);
-            }, i * 80);
-        }
-    }
-
     function optimizeScrolling() {
         // Force GPU acceleration for smoother scrolling
         const elements = document.querySelectorAll('.header-content, .admission-box, .contact-box, .info-box, .youtube-box, .footer');
@@ -390,95 +269,6 @@ document.addEventListener('DOMContentLoaded', function() {
             el.style.transform = 'translateZ(0)';
             el.style.backfaceVisibility = 'hidden';
         });
-    }
-
-    function initAppDownloadAlert() {
-        // Only show if not already installed and not shown before
-        if (localStorage.getItem('appInstalled') === 'true' || localStorage.getItem('appAlertShown')) {
-            return;
-        }
-
-        // Check if user is on mobile
-        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-        if (!isMobile) return;
-
-        const appAlertHTML = `
-            <div class="app-download-alert" id="appDownloadAlert">
-                <div class="app-alert-content">
-                    <button class="app-alert-close" id="appAlertClose">&times;</button>
-                    <div class="app-alert-icon">
-                        <i class="fas fa-mobile-alt"></i>
-                    </div>
-                    <h3>Install School App</h3>
-                    <p>Get quick access to school information, admission updates, and contact details right from your home screen!</p>
-                    <button class="install-btn" id="appInstallPrompt">
-                        <i class="fas fa-download"></i> Install Now
-                    </button>
-                </div>
-            </div>
-        `;
-
-        document.body.insertAdjacentHTML('beforeend', appAlertHTML);
-
-        const appAlert = document.getElementById('appDownloadAlert');
-        const closeBtn = document.getElementById('appAlertClose');
-        const installPromptBtn = document.getElementById('appInstallPrompt');
-
-        // Show alert
-        setTimeout(() => {
-            appAlert.classList.add('show');
-            localStorage.setItem('appAlertShown', 'true');
-        }, 3000);
-
-        // Close button
-        const closeAlert = () => {
-            appAlert.classList.remove('show');
-            setTimeout(() => {
-                if (appAlert.parentNode) {
-                    appAlert.remove();
-                }
-            }, 300);
-        };
-
-        if (closeBtn) {
-            closeBtn.addEventListener('click', closeAlert);
-        }
-
-        // Install button
-        if (installPromptBtn) {
-            installPromptBtn.addEventListener('click', () => {
-                // Trigger PWA install prompt
-                const installEvent = new Event('beforeinstallprompt');
-                window.dispatchEvent(installEvent);
-
-                // Show instructions
-                const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-                const isAndroid = /Android/i.test(navigator.userAgent);
-
-                if (isIOS) {
-                    showToast('For iOS: Tap Share → Add to Home Screen');
-                } else if (isAndroid) {
-                    showToast('For Android: Tap Menu (⋮) → Install App');
-                } else {
-                    showToast('Check browser menu (⋮ or ⋯) → "Install App"');
-                }
-                closeAlert();
-            });
-        }
-
-        // Listen for successful installation
-        window.addEventListener('appinstalled', () => {
-            console.log('PWA successfully installed');
-            localStorage.setItem('appInstalled', 'true');
-            localStorage.setItem('installTime', new Date().toISOString());
-        });
-
-        // Auto-close after 15 seconds
-        setTimeout(() => {
-            if (appAlert.parentNode) {
-                closeAlert();
-            }
-        }, 15000);
     }
 
     // Service Worker Registration
