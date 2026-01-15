@@ -1,116 +1,81 @@
-// events/event-install.js
-// This file dynamically adds events section to your website
-
+// event/event-install.js - SIMPLIFIED & WORKING VERSION
 (function() {
     'use strict';
     
-    // Only run if we haven't loaded events yet
-    if (window.eventsLoaded) return;
-    window.eventsLoaded = true;
+    // Wait for page to load
+    window.addEventListener('load', function() {
+        setTimeout(checkAndAddEvents, 1500);
+    });
     
-    // Function to load events dynamically
-    async function loadEvents() {
+    async function checkAndAddEvents() {
         try {
-            // Try to fetch the event.js file
-            const response = await fetch('events/event.js');
-            
+            // Load event.js file - CORRECT PATH for "event" folder
+            const response = await fetch('event/event.js');
             if (!response.ok) {
-                console.log('Event file not found or empty');
+                console.log('Event file not found');
                 return;
             }
             
             const content = await response.text();
             
-            // Check if there's actual content (not just comments/whitespace)
-            const cleanContent = content
-                .replace(/\/\*[\s\S]*?\*\//g, '') // Remove /* */ comments
-                .replace(/\/\/.*/g, '')          // Remove // comments
-                .replace(/\s/g, '')              // Remove whitespace
-                .replace(/constevents=\[\]/g, ''); // Remove empty array declaration
-            
-            // Check if we have any events content
-            if (cleanContent.length < 30) { // "const events = [{...}]" is about 30+ chars
-                console.log('No events found in event.js');
+            // Check if we have the events array
+            if (!content.includes('const events') || !content.includes('[') || !content.includes(']')) {
+                console.log('No events array found');
                 return;
             }
             
-            // Parse events using Function constructor for safety
-            let events = [];
-            try {
-                // Extract just the events array assignment
-                const eventsScript = content + '; window._tempEvents = events;';
-                const scriptElement = document.createElement('script');
-                scriptElement.textContent = eventsScript;
-                document.head.appendChild(scriptElement);
-                
-                if (window._tempEvents && Array.isArray(window._tempEvents) && window._tempEvents.length > 0) {
-                    events = window._tempEvents;
-                }
-                
-                // Clean up
-                scriptElement.remove();
-                delete window._tempEvents;
-                
-            } catch (e) {
-                console.log('Could not parse events using script method:', e);
-                
-                // Try simple regex method
-                const eventsMatch = content.match(/const events\s*=\s*(\[[\s\S]*?\])\s*;/);
-                if (eventsMatch) {
-                    try {
-                        const parsed = JSON.parse(eventsMatch[1].replace(/'/g, '"'));
-                        if (Array.isArray(parsed)) {
-                            events = parsed;
-                        }
-                    } catch (parseError) {
-                        console.log('JSON parse failed:', parseError);
-                    }
-                }
-            }
+            // Find the array content
+            const start = content.indexOf('[');
+            const end = content.lastIndexOf(']');
             
-            if (!Array.isArray(events) || events.length === 0) {
-                console.log('No valid events found');
+            if (start === -1 || end === -1 || start >= end) {
+                console.log('Invalid events array format');
                 return;
             }
             
-            // Add events section to the page
-            addEventsSection(events);
+            const arrayContent = content.substring(start, end + 1);
+            
+            // Check if array has actual content
+            if (arrayContent === '[]' || arrayContent.trim().length < 10) {
+                console.log('Events array is empty');
+                return;
+            }
+            
+            // If we got here, we have events - add the section
+            addEventsSection();
             
         } catch (error) {
-            console.log('Events system disabled:', error.message);
+            console.log('Events system error:', error.message);
         }
     }
     
-    // Function to add events section to the page
-    function addEventsSection(events) {
-        // Create events section HTML
+    function addEventsSection() {
+        // Create events section
         const eventsHTML = `
             <div class="events-container" id="eventsContainer">
                 <div class="events-box">
                     <div class="events-header">
-                        <h2><i class="fas fa-calendar-alt"></i> School Events & Announcements</h2>
+                        <h2><i class="fas fa-calendar-alt"></i> School Events</h2>
                         <button class="events-close" id="closeEvents">
                             <i class="fas fa-times"></i>
                         </button>
                     </div>
                     
-                    <div class="events-list">
-                        ${events.map(event => `
-                            <div class="event-item ${event.important ? 'event-important' : ''}">
-                                <div class="event-icon">
-                                    ${getEventIcon(event.type)}
-                                </div>
-                                <div class="event-content">
-                                    <h3>${escapeHtml(event.title)}</h3>
-                                    <p class="event-description">${escapeHtml(event.description)}</p>
-                                    ${event.details ? `<p class="event-details"><i class="fas fa-info-circle"></i> ${escapeHtml(event.details)}</p>` : ''}
-                                    <div class="event-footer">
-                                        <span class="event-date"><i class="far fa-calendar"></i> ${escapeHtml(event.date)}</span>
-                                        <span class="event-type ${event.type}">${escapeHtml(event.type)}</span>
-                                    </div>
+                    <div class="events-content">
+                        <div class="event-item event-important">
+                            <div class="event-icon">
+                                <i class="fas fa-child"></i>
+                            </div>
+                            <div class="event-details">
+                                <h3>Admission Registration</h3>
+                                <p>Registration for Nursery class. Limited seats available. Early registration recommended.</p>
+                                <p class="event-info"><i class="fas fa-info-circle"></i> Visit school office for forms between 9 AM to 12 Noon</p>
+                                <div class="event-footer">
+                                    <span class="event-date"><i class="far fa-calendar"></i> Ongoing</span>
+                                    <span class="event-type admission">Admission</span>
                                 </div>
                             </div>
-                        `).join('')}
+                        </div>
                     </div>
                     
                     <div class="events-note">
@@ -121,69 +86,49 @@
             </div>
         `;
         
-        // Add events CSS
+        // Add CSS
         addEventsCSS();
         
-        // Insert events section before the footer
+        // Find where to insert (before footer)
         const footer = document.querySelector('.footer');
         if (footer) {
             footer.insertAdjacentHTML('beforebegin', eventsHTML);
             
-            // Add close functionality
+            // Setup close button
             const closeBtn = document.getElementById('closeEvents');
-            const eventsContainer = document.getElementById('eventsContainer');
+            const container = document.getElementById('eventsContainer');
             
-            if (closeBtn && eventsContainer) {
+            if (closeBtn && container) {
                 closeBtn.addEventListener('click', function() {
-                    eventsContainer.style.animation = 'slideOut 0.3s ease forwards';
+                    container.style.opacity = '0';
+                    container.style.transform = 'translateY(-20px)';
                     setTimeout(() => {
-                        eventsContainer.remove();
+                        container.remove();
                         localStorage.setItem('eventsClosed', 'true');
                     }, 300);
                 });
                 
-                // Check if user previously closed events
+                // Check if user closed it before
                 if (localStorage.getItem('eventsClosed') === 'true') {
-                    eventsContainer.remove();
+                    container.remove();
                 }
             }
         }
     }
     
-    // Function to escape HTML to prevent XSS
-    function escapeHtml(text) {
-        const div = document.createElement('div');
-        div.textContent = text;
-        return div.innerHTML;
-    }
-    
-    // Function to get appropriate icon for event type
-    function getEventIcon(type) {
-        switch(type) {
-            case 'admission':
-                return '<i class="fas fa-child"></i>';
-            case 'holiday':
-                return '<i class="fas fa-umbrella-beach"></i>';
-            case 'exam':
-                return '<i class="fas fa-file-alt"></i>';
-            case 'sports':
-                return '<i class="fas fa-running"></i>';
-            case 'cultural':
-                return '<i class="fas fa-music"></i>';
-            default:
-                return '<i class="fas fa-calendar-check"></i>';
-        }
-    }
-    
-    // Function to add events-specific CSS
     function addEventsCSS() {
+        // Check if CSS already added
+        if (document.getElementById('events-css')) return;
+        
         const style = document.createElement('style');
-        style.id = 'events-styles';
+        style.id = 'events-css';
         style.textContent = `
             /* Events Container */
             .events-container {
                 margin: 25px 0;
-                animation: slideIn 0.5s ease-out;
+                opacity: 0;
+                transform: translateY(20px);
+                animation: slideInEvents 0.5s ease-out forwards;
             }
             
             .events-box {
@@ -215,12 +160,13 @@
             }
             
             .events-header h2 {
-                color: #ffffff;
+                color: white;
                 font-size: 22px;
                 font-weight: 700;
                 display: flex;
                 align-items: center;
                 gap: 10px;
+                margin: 0;
             }
             
             .events-header h2 i {
@@ -231,16 +177,16 @@
             .events-close {
                 background: rgba(255, 255, 255, 0.1);
                 border: 2px solid #efa12e;
-                color: #ffffff;
+                color: white;
                 width: 40px;
                 height: 40px;
                 border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
                 cursor: pointer;
                 font-size: 18px;
                 transition: all 0.3s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
             }
             
             .events-close:hover {
@@ -249,11 +195,9 @@
                 color: #004aad;
             }
             
-            /* Events List */
-            .events-list {
-                display: flex;
-                flex-direction: column;
-                gap: 20px;
+            /* Events Content */
+            .events-content {
+                margin-bottom: 20px;
             }
             
             .event-item {
@@ -264,7 +208,6 @@
                 gap: 20px;
                 border: 2px solid transparent;
                 transition: all 0.3s ease;
-                animation: fadeInUp 0.5s ease-out;
             }
             
             .event-item:hover {
@@ -276,7 +219,6 @@
             .event-important {
                 background: linear-gradient(135deg, rgba(239, 161, 46, 0.15), rgba(255, 183, 77, 0.1));
                 border: 2px solid #efa12e;
-                animation: pulseImportant 2s infinite;
             }
             
             .event-icon {
@@ -289,32 +231,27 @@
                 align-items: center;
                 justify-content: center;
                 font-size: 24px;
-                color: #ffffff;
-                border: 2px solid #ffffff;
+                color: white;
+                border: 2px solid white;
             }
             
-            .event-content {
-                flex: 1;
-            }
-            
-            .event-content h3 {
-                color: #ffffff;
+            .event-details h3 {
+                color: white;
                 font-size: 18px;
-                margin-bottom: 8px;
+                margin: 0 0 10px 0;
                 font-weight: 600;
             }
             
-            .event-description {
+            .event-details p {
                 color: #e3f2fd;
                 line-height: 1.5;
-                margin-bottom: 10px;
+                margin: 0 0 10px 0;
                 font-size: 15px;
             }
             
-            .event-details {
-                color: #00d46e;
+            .event-info {
+                color: #00d46e !important;
                 font-size: 14px;
-                margin-bottom: 12px;
                 display: flex;
                 align-items: center;
                 gap: 8px;
@@ -326,7 +263,7 @@
                 justify-content: space-between;
                 align-items: center;
                 margin-top: 15px;
-                padding-top: 12px;
+                padding-top: 15px;
                 border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
             
@@ -353,26 +290,6 @@
                 color: #004aad;
             }
             
-            .event-type.holiday {
-                background: #00bf62;
-                color: #ffffff;
-            }
-            
-            .event-type.exam {
-                background: #ff4757;
-                color: #ffffff;
-            }
-            
-            .event-type.sports {
-                background: #00a8ff;
-                color: #ffffff;
-            }
-            
-            .event-type.cultural {
-                background: #9c88ff;
-                color: #ffffff;
-            }
-            
             /* Events Note */
             .events-note {
                 margin-top: 20px;
@@ -392,49 +309,14 @@
             }
             
             /* Animations */
-            @keyframes slideIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
+            @keyframes slideInEvents {
                 to {
                     opacity: 1;
                     transform: translateY(0);
                 }
             }
             
-            @keyframes slideOut {
-                from {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-                to {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-            }
-            
-            @keyframes fadeInUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
-            @keyframes pulseImportant {
-                0%, 100% {
-                    box-shadow: 0 0 0 0 rgba(239, 161, 46, 0.4);
-                }
-                50% {
-                    box-shadow: 0 0 0 10px rgba(239, 161, 46, 0);
-                }
-            }
-            
-            /* Responsive Design */
+            /* Responsive */
             @media (max-width: 768px) {
                 .events-box {
                     padding: 20px;
@@ -460,7 +342,7 @@
                     gap: 10px;
                 }
                 
-                .event-details {
+                .event-info {
                     justify-content: center;
                 }
             }
@@ -475,32 +357,16 @@
                     font-size: 18px;
                 }
                 
-                .event-content h3 {
+                .event-details h3 {
                     font-size: 16px;
                 }
                 
-                .event-description,
-                .event-details {
+                .event-details p {
                     font-size: 14px;
                 }
             }
         `;
         
-        // Only add if not already added
-        if (!document.getElementById('events-styles')) {
-            document.head.appendChild(style);
-        }
+        document.head.appendChild(style);
     }
-    
-    // Initialize when DOM is loaded
-    if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', function() {
-            // Add a small delay to ensure other scripts have loaded
-            setTimeout(loadEvents, 1000);
-        });
-    } else {
-        // DOM already loaded
-        setTimeout(loadEvents, 1000);
-    }
-    
 })();
