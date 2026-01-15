@@ -1,4 +1,4 @@
-// event/event-install.js - COMPLETE WITH INLINE CSS
+// event/event-install.js - FIXED WITH UNIQUE CLASSES
 (function() {
     'use strict';
 
@@ -28,299 +28,55 @@
     function showPopup() {
         if (localStorage.getItem('eventPopupClosed')) return;
 
-        // INLINE STYLES - Will override everything
         const popupHTML = `
-            <div class="event-popup" id="eventPopup" style="
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.75);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 99999;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.2s ease;
-                padding: 15px;
-                box-sizing: border-box;
-            ">
-                <div class="popup-card" style="
-                    background: linear-gradient(135deg, #004aad, #0066cc);
-                    border-radius: 12px;
-                    padding: 25px 20px 20px;
-                    width: 100%;
-                    max-width: 320px;
-                    position: relative;
-                    border: 2px solid #00bf62;
-                    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
-                    box-sizing: border-box;
-                ">
-                    <!-- PERFECT CIRCLE CLOSE BUTTON -->
-                    <button class="popup-close" id="popupClose" aria-label="Close popup" style="
-                        position: absolute;
-                        top: -15px;
-                        right: -15px;
-                        width: 36px;
-                        height: 36px;
-                        border-radius: 50%;
-                        background: #ff6b6b;
-                        border: 3px solid white;
-                        color: white;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        cursor: pointer;
-                        padding: 0;
-                        margin: 0;
-                        transition: all 0.3s ease;
-                        z-index: 100;
-                        box-shadow: 0 4px 10px rgba(255, 107, 107, 0.4);
-                        overflow: visible;
-                        box-sizing: border-box;
-                        font-family: inherit;
-                        line-height: 1;
-                        text-align: center;
-                        text-decoration: none;
-                        vertical-align: middle;
-                        user-select: none;
-                    ">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" style="
-                            display: block;
-                            flex-shrink: 0;
-                            transition: transform 0.3s ease;
-                        ">
+            <div class="ips-event-popup-overlay" id="ipsEventPopup">
+                <div class="ips-popup-card">
+                    <div class="ips-popup-close-btn" id="ipsPopupClose">
+                        <svg width="14" height="14" viewBox="0 0 24 24">
                             <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
                         </svg>
-                    </button>
-                    
-                    <div class="popup-icon" style="
-                        width: 50px;
-                        height: 50px;
-                        background: linear-gradient(135deg, #00bf62, #00d46e);
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin: 0 auto 12px;
-                        border: 2px solid white;
-                        box-sizing: border-box;
-                    ">
-                        <i class="fas fa-bullhorn" style="
-                            font-size: 20px;
-                            color: white;
-                        "></i>
                     </div>
                     
-                    <h3 style="
-                        color: white;
-                        font-size: 18px;
-                        text-align: center;
-                        margin: 0 0 12px 0;
-                        font-weight: 700;
-                        font-family: 'Poppins', sans-serif;
-                    ">Admission Open</h3>
+                    <div class="ips-popup-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
                     
-                    <div class="popup-content" style="
-                        background: rgba(255, 255, 255, 0.08);
-                        border-radius: 8px;
-                        padding: 12px;
-                        margin-bottom: 15px;
-                        box-sizing: border-box;
-                    ">
-                        <p style="
-                            color: white;
-                            margin: 0 0 8px 0;
-                            line-height: 1.4;
-                            font-size: 14px;
-                            font-family: 'Poppins', sans-serif;
-                        "><strong style="
-                            color: #ffb74d;
-                            display: block;
-                            margin-bottom: 4px;
-                            font-weight: 700;
-                        ">Nursery Class Registration</strong></p>
-                        <p style="
-                            color: white;
-                            margin: 0 0 8px 0;
-                            line-height: 1.4;
-                            font-size: 14px;
-                            font-family: 'Poppins', sans-serif;
-                        ">Limited seats available. Visit office for forms.</p>
-                        <div class="popup-note" style="
-                            display: flex;
-                            align-items: center;
-                            gap: 6px;
-                            color: #00d46e;
-                            font-size: 12px;
-                            margin-top: 8px;
-                            font-family: 'Poppins', sans-serif;
-                        ">
+                    <h3 class="ips-popup-title">Admission Open</h3>
+                    
+                    <div class="ips-popup-content">
+                        <p><strong>Nursery Class Registration</strong></p>
+                        <p>Limited seats available. Visit office for forms.</p>
+                        <div class="ips-popup-note">
                             <i class="fas fa-clock"></i>
                             <span>9 AM - 12 Noon</span>
                         </div>
                     </div>
                     
-                    <div class="popup-buttons" style="
-                        display: flex;
-                        gap: 10px;
-                    ">
-                        <button class="popup-btn call-btn" id="popupCall" style="
-                            flex: 1;
-                            padding: 10px;
-                            border: none;
-                            border-radius: 8px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 6px;
-                            transition: all 0.2s ease;
-                            background: linear-gradient(135deg, #00bf62, #00d46e);
-                            color: white;
-                            border: 1px solid #00bf62;
-                            box-sizing: border-box;
-                            font-family: 'Poppins', sans-serif;
-                            margin: 0;
-                            line-height: 1;
-                        ">
+                    <div class="ips-popup-actions">
+                        <div class="ips-popup-action-btn ips-call-btn" id="ipsPopupCall">
                             <i class="fas fa-phone"></i> Call Now
-                        </button>
-                        <button class="popup-btn close-btn" id="popupCloseBtn" style="
-                            flex: 1;
-                            padding: 10px;
-                            border: none;
-                            border-radius: 8px;
-                            font-size: 14px;
-                            font-weight: 600;
-                            cursor: pointer;
-                            display: flex;
-                            align-items: center;
-                            justify-content: center;
-                            gap: 6px;
-                            transition: all 0.2s ease;
-                            background: rgba(255, 255, 255, 0.1);
-                            color: white;
-                            border: 1px solid rgba(255, 255, 255, 0.3);
-                            box-sizing: border-box;
-                            font-family: 'Poppins', sans-serif;
-                            margin: 0;
-                            line-height: 1;
-                        ">
+                        </div>
+                        <div class="ips-popup-action-btn ips-close-btn" id="ipsPopupCloseBtn">
                             Close
-                        </button>
+                        </div>
                     </div>
                 </div>
             </div>
         `;
 
-        // Add dynamic CSS for animations and hover effects
-        const style = document.createElement('style');
-        style.id = 'popup-inline-css';
-        style.textContent = `
-            /* Override everything with !important */
-            #eventPopup {
-                opacity: 1 !important;
-                visibility: visible !important;
-                animation: popupFadeIn 0.3s ease !important;
-            }
-            
-            @keyframes popupFadeIn {
-                from { opacity: 0; }
-                to { opacity: 1; }
-            }
-            
-            /* PERFECT CIRCLE with hover effect */
-            #popupClose {
-                transform-origin: center center !important;
-            }
-            
-            #popupClose:hover {
-                background: #ff4757 !important;
-                transform: rotate(90deg) scale(1.1) !important;
-                box-shadow: 0 6px 15px rgba(255, 71, 87, 0.5) !important;
-            }
-            
-            #popupClose:hover svg {
-                transform: none !important;
-            }
-            
-            /* Button hover effects */
-            #popupCall:hover {
-                background: linear-gradient(135deg, #00d46e, #00bf62) !important;
-                transform: translateY(-2px) !important;
-            }
-            
-            #popupCloseBtn:hover {
-                background: rgba(255, 255, 255, 0.2) !important;
-            }
-            
-            /* Mobile responsive */
-            @media (max-width: 480px) {
-                .popup-card {
-                    max-width: 280px !important;
-                    padding: 20px 15px 15px !important;
-                }
-                
-                #popupClose {
-                    top: -12px !important;
-                    right: -12px !important;
-                    width: 32px !important;
-                    height: 32px !important;
-                    border-width: 2px !important;
-                }
-                
-                #popupClose svg {
-                    width: 12px !important;
-                    height: 12px !important;
-                }
-                
-                .popup-icon {
-                    width: 45px !important;
-                    height: 45px !important;
-                }
-                
-                .popup-icon i {
-                    font-size: 18px !important;
-                }
-                
-                h3 {
-                    font-size: 16px !important;
-                }
-                
-                .popup-content p {
-                    font-size: 13px !important;
-                }
-                
-                .popup-btn {
-                    padding: 8px !important;
-                    font-size: 13px !important;
-                }
-            }
-        `;
-        document.head.appendChild(style);
-
+        addPopupCSS();
         document.body.insertAdjacentHTML('beforeend', popupHTML);
 
-        const popup = document.getElementById('eventPopup');
-        const closeBtn = document.getElementById('popupCloseBtn');
-        const xBtn = document.getElementById('popupClose');
-        const callBtn = document.getElementById('popupCall');
+        const popup = document.getElementById('ipsEventPopup');
+        const closeBtn = document.getElementById('ipsPopupCloseBtn');
+        const xBtn = document.getElementById('ipsPopupClose');
+        const callBtn = document.getElementById('ipsPopupCall');
 
         if (popup) {
-            // Show with fade in
-            setTimeout(() => {
-                popup.style.opacity = '1';
-                popup.style.visibility = 'visible';
-            }, 50);
+            setTimeout(() => popup.classList.add('ips-show'), 50);
 
             const closePopup = () => {
-                popup.style.opacity = '0';
-                popup.style.visibility = 'hidden';
+                popup.classList.remove('ips-show');
                 setTimeout(() => {
                     popup.remove();
                     localStorage.setItem('eventPopupClosed', 'true');
@@ -346,21 +102,252 @@
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closePopup();
             });
-
-            // Add hover effect for close button
-            if (xBtn) {
-                xBtn.addEventListener('mouseenter', function() {
-                    this.style.background = '#ff4757';
-                    this.style.transform = 'rotate(90deg) scale(1.1)';
-                    this.style.boxShadow = '0 6px 15px rgba(255, 71, 87, 0.5)';
-                });
-                
-                xBtn.addEventListener('mouseleave', function() {
-                    this.style.background = '#ff6b6b';
-                    this.style.transform = 'rotate(0deg) scale(1)';
-                    this.style.boxShadow = '0 4px 10px rgba(255, 107, 107, 0.4)';
-                });
-            }
         }
+    }
+
+    function addPopupCSS() {
+        if (document.getElementById('ips-popup-css')) return;
+
+        const style = document.createElement('style');
+        style.id = 'ips-popup-css';
+        style.textContent = `
+            /* ========== COMPLETELY NEW UNIQUE CLASSES ========== */
+            /* Your global button styles CANNOT affect these */
+            
+            /* Popup Overlay */
+            .ips-event-popup-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.75);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 99999;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease;
+                padding: 15px;
+            }
+            
+            .ips-event-popup-overlay.ips-show {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            /* Popup Card */
+            .ips-popup-card {
+                background: linear-gradient(135deg, #004aad, #0066cc);
+                border-radius: 15px;
+                padding: 30px 25px 25px;
+                width: 100%;
+                max-width: 350px;
+                position: relative;
+                border: 3px solid #00bf62;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            }
+            
+            /* ========== PERFECT CIRCLE CLOSE BUTTON ========== */
+            /* Using DIV instead of BUTTON to avoid your global styles */
+            .ips-popup-close-btn {
+                position: absolute;
+                top: -15px;
+                right: -15px;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                background: #ff6b6b;
+                border: 3px solid white;
+                color: white;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                padding: 0;
+                margin: 0;
+                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                z-index: 1000;
+                box-shadow: 0 5px 15px rgba(255, 107, 107, 0.4);
+                overflow: visible;
+            }
+            
+            .ips-popup-close-btn:hover {
+                background: #ff4757;
+                transform: rotate(90deg) scale(1.1);
+                box-shadow: 0 8px 20px rgba(255, 71, 87, 0.5);
+            }
+            
+            .ips-popup-close-btn svg {
+                width: 16px;
+                height: 16px;
+                transition: inherit;
+            }
+            
+            /* Popup Icon */
+            .ips-popup-icon {
+                width: 60px;
+                height: 60px;
+                background: linear-gradient(135deg, #00bf62, #00d46e);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 15px;
+                border: 3px solid white;
+            }
+            
+            .ips-popup-icon i {
+                font-size: 24px;
+                color: white;
+            }
+            
+            /* Title */
+            .ips-popup-title {
+                color: white;
+                font-size: 22px;
+                text-align: center;
+                margin: 0 0 15px 0;
+                font-weight: 700;
+                font-family: 'Poppins', sans-serif;
+            }
+            
+            /* Content */
+            .ips-popup-content {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 10px;
+                padding: 15px;
+                margin-bottom: 20px;
+            }
+            
+            .ips-popup-content p {
+                color: white;
+                margin: 0 0 10px 0;
+                line-height: 1.5;
+                font-size: 15px;
+                font-family: 'Poppins', sans-serif;
+            }
+            
+            .ips-popup-content p strong {
+                color: #ffb74d;
+                display: block;
+                margin-bottom: 5px;
+                font-weight: 700;
+            }
+            
+            .ips-popup-note {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                color: #00d46e;
+                font-size: 14px;
+                margin-top: 10px;
+                font-family: 'Poppins', sans-serif;
+            }
+            
+            /* Popup Actions - Using DIV instead of BUTTON */
+            .ips-popup-actions {
+                display: flex;
+                gap: 12px;
+            }
+            
+            .ips-popup-action-btn {
+                flex: 1;
+                padding: 12px;
+                border-radius: 10px;
+                font-size: 15px;
+                font-weight: 600;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 8px;
+                transition: all 0.2s ease;
+                font-family: 'Poppins', sans-serif;
+                text-align: center;
+                user-select: none;
+            }
+            
+            .ips-call-btn {
+                background: linear-gradient(135deg, #00bf62, #00d46e);
+                color: white;
+                border: 2px solid #00bf62;
+            }
+            
+            .ips-call-btn:hover {
+                background: linear-gradient(135deg, #00d46e, #00bf62);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.3);
+            }
+            
+            .ips-close-btn {
+                background: rgba(255, 255, 255, 0.15);
+                color: white;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .ips-close-btn:hover {
+                background: rgba(255, 255, 255, 0.25);
+            }
+            
+            /* Mobile Responsive */
+            @media (max-width: 480px) {
+                .ips-popup-card {
+                    max-width: 300px;
+                    padding: 25px 20px 20px;
+                    border-radius: 12px;
+                }
+                
+                .ips-popup-close-btn {
+                    top: -12px;
+                    right: -12px;
+                    width: 36px;
+                    height: 36px;
+                    border-width: 2.5px;
+                }
+                
+                .ips-popup-close-btn svg {
+                    width: 14px;
+                    height: 14px;
+                }
+                
+                .ips-popup-icon {
+                    width: 55px;
+                    height: 55px;
+                }
+                
+                .ips-popup-icon i {
+                    font-size: 22px;
+                }
+                
+                .ips-popup-title {
+                    font-size: 20px;
+                }
+                
+                .ips-popup-content p {
+                    font-size: 14px;
+                }
+                
+                .ips-popup-action-btn {
+                    padding: 10px;
+                    font-size: 14px;
+                }
+            }
+            
+            /* Force override any potential conflicts */
+            .ips-popup-close-btn,
+            .ips-popup-action-btn {
+                all: initial;
+                font-family: inherit;
+            }
+            
+            .ips-popup-close-btn *,
+            .ips-popup-action-btn * {
+                all: unset;
+            }
+        `;
+
+        document.head.appendChild(style);
     }
 })();
