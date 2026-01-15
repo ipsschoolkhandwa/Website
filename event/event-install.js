@@ -1,174 +1,162 @@
-// event/event-install.js - WORKING VERSION
 (function() {
     'use strict';
 
-    // Debug: Check if script is loading
-    console.log('✅ Event popup script loading...');
-
-    // Wait a bit longer to ensure everything is loaded
-    setTimeout(function() {
-        console.log('✅ Page loaded, checking events...');
-        checkAndAddEvents();
-    }, 2000);
-
-    async function checkAndAddEvents() {
-        try {
-            console.log('🔍 Checking for events...');
-            
-            // Always show the admission popup - no need to check file
-            console.log('📝 Showing admission event popup');
-            showPopup();
-
-        } catch (error) {
-            console.log('❌ Popup error:', error.message);
-            // Still show popup on error
-            showPopup();
-        }
-    }
+    console.log('🎯 Event popup script STARTED');
+    
+    // Load only after everything is ready
+    window.addEventListener('load', function() {
+        console.log('✅ Page fully loaded, showing popup');
+        setTimeout(showPopup, 1000);
+    });
 
     function showPopup() {
+        console.log('🔄 Checking if should show popup');
+        
         // Check if already closed - but only for 24 hours
         const lastClosed = localStorage.getItem('eventPopupClosed');
         if (lastClosed) {
             const lastClosedTime = new Date(lastClosed).getTime();
             const now = new Date().getTime();
             const hoursSinceClosed = (now - lastClosedTime) / (1000 * 60 * 60);
-            
+
             // If closed less than 24 hours ago, don't show
             if (hoursSinceClosed < 24) {
-                console.log('⏸️ Popup was closed recently (within 24 hours)');
+                console.log('⏸️ Popup was closed recently');
                 return;
             }
         }
-
-        console.log('🎬 Creating popup HTML...');
-
-        const popupHTML = `
-            <div class="event-popup-container" id="eventPopupContainer">
-                <div class="event-popup-card">
-                    <!-- Top-right close X -->
-                    <div class="event-popup-close-btn" id="eventPopupCloseBtn">
-                        <svg width="14" height="14" viewBox="0 0 24 24">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
-                        </svg>
-                    </div>
-                    
-                    <!-- Icon -->
-                    <div class="event-popup-icon">
-                        <i class="fas fa-bullhorn"></i>
-                    </div>
-                    
-                    <!-- Title -->
-                    <h3 class="event-popup-title">Admission Open</h3>
-                    
-                    <!-- Message -->
-                    <div class="event-popup-message">
-                        <p class="event-popup-strong-text">Nursery Class Registration</p>
-                        <p class="event-popup-normal-text">Limited seats available. Visit office for forms.</p>
-                        <div class="event-popup-time-info">
-                            <i class="fas fa-clock"></i>
-                            <span>9 AM - 12 Noon</span>
+        
+        console.log('🚀 Creating popup...');
+        
+        // FIRST: Add CSS
+        addPopupCSS();
+        
+        // Wait a bit for CSS to apply
+        setTimeout(function() {
+            // Create popup HTML
+            const popupHTML = `
+                <div class="event-popup-container" id="eventPopupContainer" style="opacity: 0; visibility: hidden;">
+                    <div class="event-popup-card">
+                        <!-- Top-right close X -->
+                        <div class="event-popup-close-btn" id="eventPopupCloseBtn">
+                            <svg width="14" height="14" viewBox="0 0 24 24">
+                                <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            </svg>
                         </div>
-                    </div>
-                    
-                    <!-- Buttons -->
-                    <div class="event-popup-buttons-container">
-                        <a href="tel:+917333574759" class="event-popup-call-btn" id="eventPopupCallBtn">
-                            <i class="fas fa-phone"></i>
-                            <span>Call Now</span>
-                        </a>
-                        <div class="event-popup-close-main-btn" id="eventPopupCloseMainBtn">
-                            <span>Close</span>
+                        
+                        <!-- Icon -->
+                        <div class="event-popup-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        
+                        <!-- Title -->
+                        <h3 class="event-popup-title">Admission Open</h3>
+                        
+                        <!-- Message -->
+                        <div class="event-popup-message">
+                            <p class="event-popup-strong-text">Nursery Class Registration</p>
+                            <p class="event-popup-normal-text">Limited seats available. Visit office for forms.</p>
+                            <div class="event-popup-time-info">
+                                <i class="fas fa-clock"></i>
+                                <span>9 AM - 12 Noon</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Buttons -->
+                        <div class="event-popup-buttons-container">
+                            <a href="tel:+917333574759" class="event-popup-call-btn" id="eventPopupCallBtn">
+                                <i class="fas fa-phone"></i>
+                                <span>Call Now</span>
+                            </a>
+                            <div class="event-popup-close-main-btn" id="eventPopupCloseMainBtn">
+                                <span>Close</span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        `;
+            `;
+            
+            // Add to body
+            document.body.insertAdjacentHTML('beforeend', popupHTML);
+            
+            // Setup event listeners
+            setTimeout(setupPopupEvents, 100);
+        }, 50);
+    }
 
-        // Add CSS FIRST
-        addPopupCSS();
-
-        // Then add HTML
-        document.body.insertAdjacentHTML('beforeend', popupHTML);
-
-        console.log('✅ Popup HTML added');
-
+    function setupPopupEvents() {
         const popupContainer = document.getElementById('eventPopupContainer');
+        if (!popupContainer) {
+            console.error('❌ Popup container not found!');
+            return;
+        }
+        
+        console.log('✅ Popup element created, setting up events');
+        
         const closeMainBtn = document.getElementById('eventPopupCloseMainBtn');
         const closeXBtn = document.getElementById('eventPopupCloseBtn');
         const callBtn = document.getElementById('eventPopupCallBtn');
-
-        if (popupContainer) {
-            console.log('✅ Popup element found');
-
-            // Show the popup with delay
+        
+        // Show popup with animation
+        setTimeout(() => {
+            popupContainer.style.opacity = '1';
+            popupContainer.style.visibility = 'visible';
+            console.log('👁️ Popup visible');
+        }, 100);
+        
+        // Close function
+        const closePopup = () => {
+            console.log('🔴 Closing popup');
+            popupContainer.style.opacity = '0';
+            popupContainer.style.visibility = 'hidden';
             setTimeout(() => {
-                popupContainer.style.opacity = '1';
-                popupContainer.style.visibility = 'visible';
-                console.log('👁️ Popup is now visible');
-            }, 500);
-
-            // Close function
-            const closePopup = () => {
-                console.log('🔴 Closing popup');
-                popupContainer.style.opacity = '0';
-                popupContainer.style.visibility = 'hidden';
-                setTimeout(() => {
-                    if (popupContainer.parentNode) {
-                        popupContainer.remove();
-                    }
-                    // Store close time with current date
-                    localStorage.setItem('eventPopupClosed', new Date().toISOString());
-                    console.log('🗑️ Popup removed');
-                }, 300);
-            };
-
-            // Add click events
-            if (closeMainBtn) {
-                closeMainBtn.addEventListener('click', closePopup);
-                console.log('✅ Close button listener added');
-            }
-
-            if (closeXBtn) {
-                closeXBtn.addEventListener('click', closePopup);
-                console.log('✅ X button listener added');
-            }
-
-            // Call button functionality
-            if (callBtn) {
-                callBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    console.log('📞 Call button clicked');
-                    // The link will handle the call
-                    setTimeout(closePopup, 100);
-                });
-            }
-
-            // Close on overlay click
-            popupContainer.addEventListener('click', function(e) {
-                if (e.target === popupContainer) {
-                    closePopup();
+                if (popupContainer && popupContainer.parentNode) {
+                    popupContainer.remove();
                 }
-            });
-
-            // Close on ESC
-            document.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') closePopup();
-            });
-
-        } else {
-            console.log('❌ Popup element NOT found!');
+                // Store close time
+                localStorage.setItem('eventPopupClosed', new Date().toISOString());
+                console.log('🗑️ Popup removed');
+            }, 300);
+        };
+        
+        // Event listeners
+        if (closeMainBtn) {
+            closeMainBtn.addEventListener('click', closePopup);
         }
+        
+        if (closeXBtn) {
+            closeXBtn.addEventListener('click', closePopup);
+        }
+        
+        if (callBtn) {
+            callBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                console.log('📞 Call button clicked');
+                setTimeout(closePopup, 100);
+            });
+        }
+        
+        // Close on overlay click
+        popupContainer.addEventListener('click', function(e) {
+            if (e.target === popupContainer) {
+                closePopup();
+            }
+        });
+        
+        // Close on ESC
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') closePopup();
+        });
     }
 
     function addPopupCSS() {
         if (document.getElementById('event-popup-styles')) {
-            console.log('✅ CSS already added');
+            console.log('✅ CSS already exists');
             return;
         }
-
+        
         console.log('🎨 Adding popup CSS...');
-
+        
         const style = document.createElement('style');
         style.id = 'event-popup-styles';
         style.textContent = `
@@ -184,11 +172,8 @@
                 align-items: center !important;
                 justify-content: center !important;
                 z-index: 999999 !important;
-                opacity: 0 !important;
-                visibility: hidden !important;
                 transition: opacity 0.3s ease !important;
                 padding: 20px !important;
-                pointer-events: auto !important;
             }
             
             /* ========== POPUP CARD ========== */
@@ -202,7 +187,6 @@
                 box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
                 position: relative !important;
                 animation: eventPopupShow 0.4s ease !important;
-                pointer-events: auto !important;
             }
             
             @keyframes eventPopupShow {
@@ -326,7 +310,6 @@
                 cursor: pointer !important;
                 transition: all 0.3s ease !important;
                 text-decoration: none !important;
-                pointer-events: auto !important;
                 gap: 10px !important;
             }
             
@@ -352,7 +335,6 @@
                 font-family: 'Poppins', sans-serif !important;
                 cursor: pointer !important;
                 transition: all 0.3s ease !important;
-                pointer-events: auto !important;
             }
             
             .event-popup-close-main-btn:hover {
@@ -404,10 +386,10 @@
                 }
             }
         `;
-
+        
         document.head.appendChild(style);
         console.log('✅ CSS added to head');
     }
-
+    
     console.log('✅ Event popup script ready');
 })();
