@@ -1,28 +1,23 @@
-// event/event-install.js - COMPACT POPUP
+// event/event-install.js - FIXED CLOSE BUTTON
 (function() {
     'use strict';
     
-    // Wait for page to load
     window.addEventListener('load', function() {
-        setTimeout(checkAndAddEvents, 1500);
+        setTimeout(checkAndAddEvents, 1000);
     });
     
     async function checkAndAddEvents() {
         try {
-            // Load event.js file
             const response = await fetch('event/event.js');
             if (!response.ok) return;
             
             const content = await response.text();
-            
-            // Quick check for events
             if (!content.includes('const events') || 
                 content.includes('const events = []') ||
                 content.includes('const events=[]')) {
                 return;
             }
             
-            // Show popup
             showPopup();
             
         } catch (error) {
@@ -31,16 +26,14 @@
     }
     
     function showPopup() {
-        // Check if already closed
         if (localStorage.getItem('eventPopupClosed')) return;
         
-        // Create compact popup
         const popupHTML = `
             <div class="event-popup" id="eventPopup">
                 <div class="popup-card">
                     <button class="popup-close" id="popupClose">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                            <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        <svg width="16" height="16" viewBox="0 0 24 24">
+                            <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         </svg>
                     </button>
                     
@@ -52,10 +45,10 @@
                     
                     <div class="popup-content">
                         <p><strong>Nursery Class Registration</strong></p>
-                        <p>Limited seats available. Early registration recommended.</p>
+                        <p>Limited seats available. Visit office for forms.</p>
                         <div class="popup-note">
                             <i class="fas fa-clock"></i>
-                            <span>Office hours: 9 AM - 12 Noon</span>
+                            <span>9 AM - 12 Noon</span>
                         </div>
                     </div>
                     
@@ -74,37 +67,31 @@
         addPopupCSS();
         document.body.insertAdjacentHTML('beforeend', popupHTML);
         
-        // Setup interactions
         const popup = document.getElementById('eventPopup');
         const closeBtn = document.getElementById('popupCloseBtn');
         const xBtn = document.getElementById('popupClose');
         const callBtn = document.getElementById('popupCall');
         
         if (popup) {
-            // Show with fade in
             setTimeout(() => popup.classList.add('show'), 50);
             
-            // Close functions
             const closePopup = () => {
                 popup.classList.remove('show');
                 setTimeout(() => {
                     popup.remove();
                     localStorage.setItem('eventPopupClosed', 'true');
-                }, 300);
+                }, 200);
             };
             
-            // Close buttons
             if (closeBtn) closeBtn.addEventListener('click', closePopup);
             if (xBtn) xBtn.addEventListener('click', closePopup);
             
-            // Call button
             if (callBtn) {
                 callBtn.addEventListener('click', function() {
                     window.location.href = 'tel:+917333574759';
                 });
             }
             
-            // Close on ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closePopup();
             });
@@ -112,27 +99,27 @@
     }
     
     function addPopupCSS() {
-        if (document.getElementById('compact-popup-css')) return;
+        if (document.getElementById('fixed-popup-css')) return;
         
         const style = document.createElement('style');
-        style.id = 'compact-popup-css';
+        style.id = 'fixed-popup-css';
         style.textContent = `
-            /* Compact Popup */
+            /* Popup Overlay */
             .event-popup {
                 position: fixed;
                 top: 0;
                 left: 0;
                 width: 100%;
                 height: 100%;
-                background: rgba(0, 0, 0, 0.7);
+                background: rgba(0, 0, 0, 0.75);
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 z-index: 99999;
                 opacity: 0;
                 visibility: hidden;
-                transition: opacity 0.3s ease;
-                padding: 20px;
+                transition: opacity 0.2s ease;
+                padding: 15px;
             }
             
             .event-popup.show {
@@ -140,172 +127,186 @@
                 visibility: visible;
             }
             
-            /* Popup Card */
+            /* Popup Card - More Compact */
             .popup-card {
                 background: linear-gradient(135deg, #004aad, #0066cc);
-                border-radius: 16px;
-                padding: 25px;
+                border-radius: 12px;
+                padding: 20px;
                 width: 100%;
-                max-width: 380px;
+                max-width: 320px;
                 position: relative;
-                border: 3px solid #00bf62;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-                transform: translateY(20px);
-                transition: transform 0.3s ease;
+                border: 2px solid #00bf62;
+                box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
             }
             
-            .event-popup.show .popup-card {
-                transform: translateY(0);
-            }
-            
-            /* Close Button */
+            /* FIXED: Proper Circle Close Button */
             .popup-close {
                 position: absolute;
-                top: 15px;
-                right: 15px;
-                width: 36px;
-                height: 36px;
+                top: 10px;
+                right: 10px;
+                width: 28px;
+                height: 28px;
                 border-radius: 50%;
-                background: rgba(255, 255, 255, 0.1);
-                border: 2px solid #efa12e;
+                background: #efa12e;
+                border: none;
                 color: white;
                 display: flex;
                 align-items: center;
                 justify-content: center;
                 cursor: pointer;
-                transition: all 0.3s ease;
                 padding: 0;
+                transition: all 0.3s ease;
+                z-index: 10;
             }
             
             .popup-close:hover {
-                background: #efa12e;
-            }
-            
-            .popup-close:hover svg {
+                background: #ff8c00;
                 transform: rotate(90deg);
             }
             
             .popup-close svg {
+                width: 12px;
+                height: 12px;
                 transition: transform 0.3s ease;
-                width: 16px;
-                height: 16px;
             }
             
             /* Popup Icon */
             .popup-icon {
-                width: 60px;
-                height: 60px;
+                width: 50px;
+                height: 50px;
                 background: linear-gradient(135deg, #00bf62, #00d46e);
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                margin: 0 auto 15px;
+                margin: 0 auto 12px;
                 border: 2px solid white;
             }
             
             .popup-icon i {
-                font-size: 24px;
+                font-size: 20px;
                 color: white;
             }
             
-            /* Popup Title */
+            /* Title */
             .popup-card h3 {
                 color: white;
-                font-size: 22px;
+                font-size: 18px;
                 text-align: center;
-                margin: 0 0 15px 0;
+                margin: 0 0 12px 0;
                 font-weight: 700;
             }
             
-            /* Popup Content */
+            /* Content - Shorter */
             .popup-content {
                 background: rgba(255, 255, 255, 0.08);
-                border-radius: 12px;
-                padding: 15px;
-                margin-bottom: 20px;
+                border-radius: 8px;
+                padding: 12px;
+                margin-bottom: 15px;
             }
             
             .popup-content p {
                 color: white;
-                margin: 0 0 10px 0;
-                line-height: 1.5;
-                font-size: 15px;
+                margin: 0 0 8px 0;
+                line-height: 1.4;
+                font-size: 14px;
             }
             
             .popup-content p strong {
                 color: #ffb74d;
+                display: block;
+                margin-bottom: 4px;
             }
             
             .popup-note {
                 display: flex;
                 align-items: center;
-                gap: 8px;
+                gap: 6px;
                 color: #00d46e;
-                font-size: 14px;
-                margin-top: 10px;
+                font-size: 12px;
+                margin-top: 8px;
             }
             
-            /* Popup Buttons */
+            /* Buttons */
             .popup-buttons {
                 display: flex;
-                gap: 12px;
+                gap: 10px;
             }
             
             .popup-btn {
                 flex: 1;
-                padding: 12px;
+                padding: 10px;
                 border: none;
-                border-radius: 10px;
-                font-size: 15px;
+                border-radius: 8px;
+                font-size: 14px;
                 font-weight: 600;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: center;
-                gap: 8px;
+                gap: 6px;
                 transition: all 0.2s ease;
             }
             
             .call-btn {
                 background: linear-gradient(135deg, #00bf62, #00d46e);
                 color: white;
-                border: 2px solid #00bf62;
+                border: 1px solid #00bf62;
             }
             
             .call-btn:hover {
                 background: linear-gradient(135deg, #00d46e, #00bf62);
-                transform: translateY(-2px);
             }
             
             .close-btn {
                 background: rgba(255, 255, 255, 0.1);
                 color: white;
-                border: 2px solid rgba(255, 255, 255, 0.3);
+                border: 1px solid rgba(255, 255, 255, 0.3);
             }
             
             .close-btn:hover {
                 background: rgba(255, 255, 255, 0.2);
             }
             
-            /* Responsive */
+            /* Mobile */
             @media (max-width: 480px) {
                 .popup-card {
-                    padding: 20px;
-                    max-width: 320px;
+                    max-width: 280px;
+                    padding: 15px;
+                }
+                
+                .popup-close {
+                    top: 8px;
+                    right: 8px;
+                    width: 24px;
+                    height: 24px;
+                }
+                
+                .popup-close svg {
+                    width: 10px;
+                    height: 10px;
+                }
+                
+                .popup-icon {
+                    width: 45px;
+                    height: 45px;
+                }
+                
+                .popup-icon i {
+                    font-size: 18px;
                 }
                 
                 .popup-card h3 {
-                    font-size: 20px;
+                    font-size: 16px;
                 }
                 
                 .popup-content p {
-                    font-size: 14px;
+                    font-size: 13px;
                 }
                 
                 .popup-btn {
-                    padding: 10px;
-                    font-size: 14px;
+                    padding: 8px;
+                    font-size: 13px;
                 }
             }
         `;
