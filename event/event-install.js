@@ -1,4 +1,4 @@
-// event/event-install.js - NEW CLOSE BUTTON NEXT TO CALL BUTTON
+// event/event-install.js - FINAL VERSION WITH PERFECT BUTTONS
 (function() {
     'use strict';
 
@@ -28,292 +28,339 @@
     function showPopup() {
         if (localStorage.getItem('eventPopupClosed')) return;
 
+        // Create popup with DIV elements instead of BUTTON elements
         const popupHTML = `
-            <div class="event-popup-main" id="eventPopupMain">
-                <div class="event-popup-card">
-                    <!-- NO CIRCULAR CLOSE BUTTON HERE -->
-                    
-                    <div class="popup-main-icon">
-                        <i class="fas fa-bullhorn"></i>
+            <div class="final-popup-overlay" id="finalPopup">
+                <div class="final-popup-box">
+                    <!-- Title Section -->
+                    <div class="popup-title-section">
+                        <div class="title-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h2 class="popup-heading">Admission Open</h2>
                     </div>
                     
-                    <h3 class="popup-main-title">Admission Open</h3>
-                    
-                    <div class="popup-main-content">
-                        <p><strong>Nursery Class Registration</strong></p>
-                        <p>Limited seats available. Visit office for forms.</p>
-                        <div class="popup-time-note">
+                    <!-- Content Section -->
+                    <div class="popup-info-box">
+                        <p class="info-title">Nursery Class Registration</p>
+                        <p class="info-desc">Limited seats available. Visit office for forms.</p>
+                        <div class="info-time">
                             <i class="fas fa-clock"></i>
                             <span>9 AM - 12 Noon</span>
                         </div>
                     </div>
                     
-                    <!-- NEW BUTTONS LAYOUT -->
-                    <div class="popup-action-row">
-                        <div class="action-call-button" id="actionCallBtn">
-                            <i class="fas fa-phone"></i> Call Now
+                    <!-- Action Buttons - Using DIVs to avoid CSS conflicts -->
+                    <div class="popup-action-container">
+                        <div class="action-item call-action" id="finalCallBtn">
+                            <div class="action-content">
+                                <i class="fas fa-phone"></i>
+                                <span>Call Now</span>
+                            </div>
                         </div>
-                        <div class="action-close-button" id="actionCloseBtn">
-                            Close
+                        <div class="action-item close-action" id="finalCloseBtn">
+                            <div class="action-content">
+                                <span>Close</span>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         `;
 
-        addPopupCSS();
+        addFinalCSS();
         document.body.insertAdjacentHTML('beforeend', popupHTML);
 
-        const popup = document.getElementById('eventPopupMain');
-        const closeBtn = document.getElementById('actionCloseBtn');
-        const callBtn = document.getElementById('actionCallBtn');
+        const popup = document.getElementById('finalPopup');
+        const closeBtn = document.getElementById('finalCloseBtn');
+        const callBtn = document.getElementById('finalCallBtn');
 
         if (popup) {
-            setTimeout(() => popup.classList.add('show-popup'), 50);
+            // Show popup
+            setTimeout(() => {
+                popup.style.opacity = '1';
+                popup.style.visibility = 'visible';
+                popup.style.pointerEvents = 'auto';
+            }, 50);
 
+            // Close function
             const closePopup = () => {
-                popup.classList.remove('show-popup');
+                popup.style.opacity = '0';
+                popup.style.visibility = 'hidden';
                 setTimeout(() => {
-                    popup.remove();
+                    if (popup.parentNode) {
+                        popup.remove();
+                    }
                     localStorage.setItem('eventPopupClosed', 'true');
-                }, 200);
+                }, 300);
             };
 
-            if (closeBtn) closeBtn.addEventListener('click', closePopup);
+            // Add click events
+            if (closeBtn) {
+                closeBtn.onclick = closePopup;
+            }
 
             if (callBtn) {
-                callBtn.addEventListener('click', function() {
+                callBtn.onclick = function() {
                     window.location.href = 'tel:+917333574759';
-                });
+                };
             }
 
             // Close on overlay click
-            popup.addEventListener('click', function(e) {
+            popup.onclick = function(e) {
                 if (e.target === popup) {
                     closePopup();
                 }
-            });
+            };
 
+            // Close on ESC
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape') closePopup();
             });
         }
     }
 
-    function addPopupCSS() {
-        if (document.getElementById('new-popup-css')) return;
+    function addFinalCSS() {
+        if (document.getElementById('final-popup-styles')) return;
 
         const style = document.createElement('style');
-        style.id = 'new-popup-css';
+        style.id = 'final-popup-styles';
         style.textContent = `
-            /* New Popup - No conflicting classes */
-            .event-popup-main {
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.75);
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                z-index: 99999;
-                opacity: 0;
-                visibility: hidden;
-                transition: opacity 0.3s ease;
-                padding: 20px;
+            /* ========== FINAL POPUP STYLES ========== */
+            /* Using !important to override everything */
+            
+            /* Overlay */
+            .final-popup-overlay {
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0, 0, 0, 0.8) !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                z-index: 999999 !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+                transition: opacity 0.3s ease !important;
+                padding: 20px !important;
+                pointer-events: none !important;
             }
             
-            .event-popup-main.show-popup {
-                opacity: 1;
-                visibility: visible;
+            /* Popup Box */
+            .final-popup-box {
+                background: linear-gradient(135deg, #004aad, #0066cc) !important;
+                border-radius: 15px !important;
+                padding: 25px !important;
+                width: 100% !important;
+                max-width: 350px !important;
+                border: 3px solid #00bf62 !important;
+                box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5) !important;
+                position: relative !important;
+                animation: popupAppear 0.4s ease !important;
             }
             
-            .event-popup-card {
-                background: linear-gradient(135deg, #004aad, #0066cc);
-                border-radius: 15px;
-                padding: 25px;
-                width: 100%;
-                max-width: 350px;
-                border: 3px solid #00bf62;
-                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
-                position: relative;
+            @keyframes popupAppear {
+                from {
+                    transform: translateY(20px) scale(0.95);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateY(0) scale(1);
+                    opacity: 1;
+                }
             }
             
-            /* Main Icon */
-            .popup-main-icon {
-                width: 60px;
-                height: 60px;
-                background: linear-gradient(135deg, #00bf62, #00d46e);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin: 0 auto 15px;
-                border: 3px solid white;
+            /* Title Section */
+            .popup-title-section {
+                text-align: center !important;
+                margin-bottom: 20px !important;
             }
             
-            .popup-main-icon i {
-                font-size: 24px;
-                color: white;
+            .title-icon {
+                width: 60px !important;
+                height: 60px !important;
+                background: linear-gradient(135deg, #00bf62, #00d46e) !important;
+                border-radius: 50% !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                margin: 0 auto 15px !important;
+                border: 3px solid white !important;
             }
             
-            /* Title */
-            .popup-main-title {
-                color: white;
-                font-size: 22px;
-                text-align: center;
-                margin: 0 0 15px 0;
-                font-weight: 700;
-                font-family: 'Poppins', sans-serif;
+            .title-icon i {
+                font-size: 24px !important;
+                color: white !important;
             }
             
-            /* Content */
-            .popup-main-content {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 10px;
-                padding: 15px;
-                margin-bottom: 20px;
+            .popup-heading {
+                color: white !important;
+                font-size: 22px !important;
+                font-weight: 700 !important;
+                margin: 0 !important;
+                font-family: 'Poppins', sans-serif !important;
             }
             
-            .popup-main-content p {
-                color: white;
-                margin: 0 0 10px 0;
-                line-height: 1.5;
-                font-size: 15px;
-                font-family: 'Poppins', sans-serif;
+            /* Info Box */
+            .popup-info-box {
+                background: rgba(255, 255, 255, 0.1) !important;
+                border-radius: 10px !important;
+                padding: 18px !important;
+                margin-bottom: 25px !important;
+                border: 1px solid rgba(255, 255, 255, 0.2) !important;
             }
             
-            .popup-main-content p strong {
-                color: #ffb74d;
-                display: block;
-                margin-bottom: 5px;
-                font-weight: 700;
+            .info-title {
+                color: #ffb74d !important;
+                font-size: 16px !important;
+                font-weight: 700 !important;
+                margin: 0 0 10px 0 !important;
+                font-family: 'Poppins', sans-serif !important;
             }
             
-            .popup-time-note {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                color: #00d46e;
-                font-size: 14px;
-                margin-top: 10px;
-                font-family: 'Poppins', sans-serif;
+            .info-desc {
+                color: white !important;
+                font-size: 14px !important;
+                line-height: 1.5 !important;
+                margin: 0 0 15px 0 !important;
+                font-family: 'Poppins', sans-serif !important;
             }
             
-            /* ========== NEW BUTTONS LAYOUT ========== */
-            .popup-action-row {
-                display: flex;
-                gap: 12px;
-                align-items: stretch; /* Make buttons same height */
+            .info-time {
+                display: flex !important;
+                align-items: center !important;
+                gap: 8px !important;
+                color: #00d46e !important;
+                font-size: 13px !important;
+                font-family: 'Poppins', sans-serif !important;
             }
             
-            /* Call Button (Green) */
-            .action-call-button {
-                flex: 2; /* Takes more space */
-                background: linear-gradient(135deg, #00bf62, #00d46e);
-                color: white;
-                border: 2px solid #00bf62;
-                border-radius: 10px;
-                padding: 14px 5px;
-                font-size: 16px;
-                font-weight: 700;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 8px;
-                transition: all 0.3s ease;
-                font-family: 'Poppins', sans-serif;
-                text-align: center;
-                min-height: 50px;
+            /* ========== PERFECT BUTTONS LAYOUT ========== */
+            .popup-action-container {
+                display: flex !important;
+                gap: 12px !important;
+                width: 100% !important;
             }
             
-            .action-call-button:hover {
-                background: linear-gradient(135deg, #00d46e, #00bf62);
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.4);
+            /* Action Items (DIVs styled as buttons) */
+            .action-item {
+                border-radius: 10px !important;
+                cursor: pointer !important;
+                transition: all 0.3s ease !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                min-height: 50px !important;
+                border: 2px solid transparent !important;
+                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2) !important;
             }
             
-            /* Close Button (Red) - NEXT TO CALL BUTTON */
-            .action-close-button {
-                flex: 1.2; /* More than half of call button width */
-                background: #ff4757;
-                color: white;
-                border: 2px solid #ff4757;
-                border-radius: 10px;
-                padding: 14px 5px;
-                font-size: 16px;
-                font-weight: 700;
-                cursor: pointer;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                transition: all 0.3s ease;
-                font-family: 'Poppins', sans-serif;
-                text-align: center;
-                min-height: 50px; /* Same height as call button */
+            .action-content {
+                display: flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                gap: 8px !important;
+                font-weight: 700 !important;
+                font-size: 15px !important;
+                font-family: 'Poppins', sans-serif !important;
+                padding: 5px !important;
             }
             
-            .action-close-button:hover {
-                background: #ff6b81;
-                border-color: #ff6b81;
-                transform: translateY(-2px);
-                box-shadow: 0 5px 15px rgba(255, 107, 129, 0.4);
+            /* Call Button - 65% width */
+            .call-action {
+                flex: 0 0 65% !important; /* 65% width */
+                background: linear-gradient(135deg, #00bf62, #00d46e) !important;
+                color: white !important;
+                border-color: #00bf62 !important;
+            }
+            
+            .call-action:hover {
+                background: linear-gradient(135deg, #00d46e, #00bf62) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 15px rgba(0, 191, 98, 0.4) !important;
+            }
+            
+            /* Close Button - 35% width */
+            .close-action {
+                flex: 0 0 35% !important; /* 35% width */
+                background: #ff4757 !important;
+                color: white !important;
+                border-color: #ff4757 !important;
+            }
+            
+            .close-action:hover {
+                background: #ff6b81 !important;
+                border-color: #ff6b81 !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 6px 15px rgba(255, 107, 129, 0.4) !important;
             }
             
             /* Mobile Responsive */
             @media (max-width: 480px) {
-                .event-popup-card {
-                    max-width: 300px;
-                    padding: 20px;
+                .final-popup-box {
+                    max-width: 300px !important;
+                    padding: 20px !important;
                 }
                 
-                .popup-main-icon {
-                    width: 55px;
-                    height: 55px;
+                .title-icon {
+                    width: 55px !important;
+                    height: 55px !important;
                 }
                 
-                .popup-main-icon i {
-                    font-size: 22px;
+                .title-icon i {
+                    font-size: 22px !important;
                 }
                 
-                .popup-main-title {
-                    font-size: 20px;
+                .popup-heading {
+                    font-size: 20px !important;
                 }
                 
-                .popup-main-content p {
-                    font-size: 14px;
+                .info-title {
+                    font-size: 15px !important;
                 }
                 
-                .popup-action-row {
-                    flex-direction: column;
-                    gap: 10px;
+                .info-desc {
+                    font-size: 13px !important;
                 }
                 
-                .action-call-button,
-                .action-close-button {
-                    width: 100%;
-                    padding: 12px;
-                    font-size: 15px;
-                    min-height: 45px;
+                .popup-action-container {
+                    flex-direction: row !important; /* Keep side by side on mobile too */
+                    gap: 10px !important;
+                }
+                
+                .action-item {
+                    min-height: 45px !important;
+                }
+                
+                .action-content {
+                    font-size: 14px !important;
+                }
+                
+                .call-action {
+                    flex: 0 0 65% !important;
+                }
+                
+                .close-action {
+                    flex: 0 0 35% !important;
                 }
             }
             
-            /* Force reset any inherited styles */
-            .action-call-button,
-            .action-close-button {
-                all: initial;
-                font-family: inherit;
+            /* Force remove any inherited styles */
+            .final-popup-overlay * {
+                box-sizing: border-box !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            /* Ensure no button styles affect our DIVs */
+            .action-item {
+                all: initial !important;
+                font-family: 'Poppins', sans-serif !important;
                 display: flex !important;
-            }
-            
-            /* Ensure no button styles affect these */
-            .event-popup-main button,
-            .event-popup-main input,
-            .event-popup-main textarea {
-                all: unset;
-                font-family: inherit;
+                align-items: center !important;
+                justify-content: center !important;
             }
         `;
 
