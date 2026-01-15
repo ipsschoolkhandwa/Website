@@ -1,26 +1,22 @@
-// event/event-install.js - SIMPLIFIED & WORKING VERSION
+// event/event-install.js - POPUP VERSION
 (function() {
     'use strict';
     
     // Wait for page to load
     window.addEventListener('load', function() {
-        setTimeout(checkAndAddEvents, 1500);
+        setTimeout(checkAndAddEvents, 2000); // 2 second delay for popup
     });
     
     async function checkAndAddEvents() {
         try {
-            // Load event.js file - CORRECT PATH for "event" folder
+            // Load event.js file
             const response = await fetch('event/event.js');
-            if (!response.ok) {
-                console.log('Event file not found');
-                return;
-            }
+            if (!response.ok) return;
             
             const content = await response.text();
             
-            // Check if we have the events array
+            // Check if we have events
             if (!content.includes('const events') || !content.includes('[') || !content.includes(']')) {
-                console.log('No events array found');
                 return;
             }
             
@@ -28,340 +24,467 @@
             const start = content.indexOf('[');
             const end = content.lastIndexOf(']');
             
-            if (start === -1 || end === -1 || start >= end) {
-                console.log('Invalid events array format');
-                return;
-            }
+            if (start === -1 || end === -1 || start >= end) return;
             
             const arrayContent = content.substring(start, end + 1);
             
             // Check if array has actual content
-            if (arrayContent === '[]' || arrayContent.trim().length < 10) {
-                console.log('Events array is empty');
-                return;
-            }
+            if (arrayContent === '[]' || arrayContent.trim().length < 10) return;
             
-            // If we got here, we have events - add the section
-            addEventsSection();
+            // If we got here, we have events - show popup
+            showEventsPopup();
             
         } catch (error) {
-            console.log('Events system error:', error.message);
+            console.log('Events popup error:', error.message);
         }
     }
     
-    function addEventsSection() {
-        // Create events section
-        const eventsHTML = `
-            <div class="events-container" id="eventsContainer">
-                <div class="events-box">
-                    <div class="events-header">
-                        <h2><i class="fas fa-calendar-alt"></i> School Events</h2>
-                        <button class="events-close" id="closeEvents">
-                            <i class="fas fa-times"></i>
-                        </button>
+    function showEventsPopup() {
+        // Check if user closed popup before
+        if (localStorage.getItem('eventsPopupClosed') === 'true') {
+            return;
+        }
+        
+        // Create popup overlay
+        const popupHTML = `
+            <div class="events-popup-overlay" id="eventsPopup">
+                <div class="events-popup-box">
+                    <button class="popup-close" id="popupCloseBtn">
+                        <i class="fas fa-times"></i>
+                    </button>
+                    
+                    <div class="popup-header">
+                        <div class="popup-icon">
+                            <i class="fas fa-bullhorn"></i>
+                        </div>
+                        <h2>Important Announcement</h2>
                     </div>
                     
-                    <div class="events-content">
-                        <div class="event-item event-important">
-                            <div class="event-icon">
+                    <div class="popup-content">
+                        <div class="popup-event">
+                            <div class="event-icon-popup">
                                 <i class="fas fa-child"></i>
                             </div>
-                            <div class="event-details">
+                            <div class="event-details-popup">
                                 <h3>Admission Registration</h3>
-                                <p>Registration for Nursery class. Limited seats available. Early registration recommended.</p>
+                                <p class="event-desc">Registration for Nursery class. Limited seats available. Early registration recommended.</p>
                                 <p class="event-info"><i class="fas fa-info-circle"></i> Visit school office for forms between 9 AM to 12 Noon</p>
-                                <div class="event-footer">
-                                    <span class="event-date"><i class="far fa-calendar"></i> Ongoing</span>
-                                    <span class="event-type admission">Admission</span>
+                                
+                                <div class="event-footer-popup">
+                                    <div class="event-status">
+                                        <i class="fas fa-circle"></i> Ongoing
+                                    </div>
+                                    <div class="event-tag">
+                                        Admission
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </div>
                     
-                    <div class="events-note">
-                        <i class="fas fa-exclamation-circle"></i>
-                        <p>Check this section regularly for updates</p>
+                    <div class="popup-actions">
+                        <button class="popup-action-btn action-close" id="closePopup">
+                            Close
+                        </button>
+                        <button class="popup-action-btn action-call" id="callFromPopup">
+                            <i class="fas fa-phone"></i> Call Now
+                        </button>
                     </div>
                 </div>
             </div>
         `;
         
         // Add CSS
-        addEventsCSS();
+        addPopupCSS();
         
-        // Find where to insert (before footer)
-        const footer = document.querySelector('.footer');
-        if (footer) {
-            footer.insertAdjacentHTML('beforebegin', eventsHTML);
+        // Insert popup at the end of body
+        document.body.insertAdjacentHTML('beforeend', popupHTML);
+        
+        // Setup close functionality
+        const popup = document.getElementById('eventsPopup');
+        const closeBtn = document.getElementById('closePopup');
+        const popupCloseBtn = document.getElementById('popupCloseBtn');
+        const callBtn = document.getElementById('callFromPopup');
+        
+        if (popup) {
+            // Show popup with animation
+            setTimeout(() => {
+                popup.classList.add('active');
+            }, 100);
             
-            // Setup close button
-            const closeBtn = document.getElementById('closeEvents');
-            const container = document.getElementById('eventsContainer');
-            
-            if (closeBtn && container) {
+            // Close button
+            if (closeBtn) {
                 closeBtn.addEventListener('click', function() {
-                    container.style.opacity = '0';
-                    container.style.transform = 'translateY(-20px)';
-                    setTimeout(() => {
-                        container.remove();
-                        localStorage.setItem('eventsClosed', 'true');
-                    }, 300);
+                    closePopup(popup);
                 });
-                
-                // Check if user closed it before
-                if (localStorage.getItem('eventsClosed') === 'true') {
-                    container.remove();
-                }
             }
+            
+            // X button
+            if (popupCloseBtn) {
+                popupCloseBtn.addEventListener('click', function() {
+                    closePopup(popup);
+                });
+            }
+            
+            // Call button
+            if (callBtn) {
+                callBtn.addEventListener('click', function() {
+                    window.location.href = 'tel:+917333574759';
+                });
+            }
+            
+            // Close on overlay click
+            popup.addEventListener('click', function(e) {
+                if (e.target === popup) {
+                    closePopup(popup);
+                }
+            });
+            
+            // Prevent closing for 3 seconds
+            setTimeout(() => {
+                window.addEventListener('keydown', function(e) {
+                    if (e.key === 'Escape') {
+                        closePopup(popup);
+                    }
+                });
+            }, 3000);
         }
     }
     
-    function addEventsCSS() {
+    function closePopup(popup) {
+        if (!popup) return;
+        
+        popup.classList.remove('active');
+        popup.classList.add('closing');
+        
+        setTimeout(() => {
+            popup.remove();
+            localStorage.setItem('eventsPopupClosed', 'true');
+        }, 300);
+    }
+    
+    function addPopupCSS() {
         // Check if CSS already added
-        if (document.getElementById('events-css')) return;
+        if (document.getElementById('popup-css')) return;
         
         const style = document.createElement('style');
-        style.id = 'events-css';
+        style.id = 'popup-css';
         style.textContent = `
-            /* Events Container */
-            .events-container {
-                margin: 25px 0;
-                opacity: 0;
-                transform: translateY(20px);
-                animation: slideInEvents 0.5s ease-out forwards;
-            }
-            
-            .events-box {
-                background: linear-gradient(135deg, #004aad, #0066cc);
-                padding: 25px;
-                border-radius: 20px;
-                border: 3px solid #00bf62;
-                box-shadow: 0 8px 25px rgba(0, 74, 173, 0.3);
-                position: relative;
-                overflow: hidden;
-            }
-            
-            .events-box::before {
-                content: '';
-                position: absolute;
+            /* Popup Overlay */
+            .events-popup-overlay {
+                position: fixed;
                 top: 0;
                 left: 0;
-                right: 0;
-                height: 4px;
-                background: linear-gradient(90deg, #efa12e, #00bf62, #004aad);
-            }
-            
-            /* Events Header */
-            .events-header {
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.85);
                 display: flex;
-                justify-content: space-between;
                 align-items: center;
-                margin-bottom: 25px;
+                justify-content: center;
+                z-index: 99999;
+                opacity: 0;
+                visibility: hidden;
+                transition: all 0.3s ease;
+                padding: 20px;
+                backdrop-filter: blur(5px);
             }
             
-            .events-header h2 {
+            .events-popup-overlay.active {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .events-popup-overlay.closing {
+                opacity: 0;
+            }
+            
+            /* Popup Box */
+            .events-popup-box {
+                background: linear-gradient(135deg, #004aad, #0066cc);
+                border-radius: 25px;
+                padding: 30px;
+                max-width: 500px;
+                width: 100%;
+                position: relative;
+                border: 4px solid #00bf62;
+                box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+                transform: scale(0.9);
+                transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            
+            .events-popup-overlay.active .events-popup-box {
+                transform: scale(1);
+            }
+            
+            .events-popup-overlay.closing .events-popup-box {
+                transform: scale(0.9);
+            }
+            
+            /* Close Button (Top Right) */
+            .popup-close {
+                position: absolute;
+                top: 15px;
+                right: 15px;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                background: rgba(255, 255, 255, 0.15);
+                border: 2px solid #efa12e;
+                color: white;
+                font-size: 20px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: all 0.3s ease;
+                z-index: 10;
+            }
+            
+            .popup-close:hover {
+                background: #efa12e;
+                transform: rotate(90deg) scale(1.1);
+                color: #004aad;
+                box-shadow: 0 0 15px rgba(239, 161, 46, 0.5);
+            }
+            
+            /* Popup Header */
+            .popup-header {
+                text-align: center;
+                margin-bottom: 25px;
+                padding-bottom: 20px;
+                border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            }
+            
+            .popup-icon {
+                width: 70px;
+                height: 70px;
+                background: linear-gradient(135deg, #00bf62, #00d46e);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 15px;
+                border: 3px solid white;
+                box-shadow: 0 0 20px rgba(0, 191, 98, 0.5);
+            }
+            
+            .popup-icon i {
+                font-size: 32px;
+                color: white;
+            }
+            
+            .popup-header h2 {
+                color: white;
+                font-size: 26px;
+                margin: 0;
+                font-weight: 700;
+                text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+            }
+            
+            /* Popup Content */
+            .popup-event {
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 20px;
+                padding: 25px;
+                margin-bottom: 25px;
+                border: 2px solid rgba(239, 161, 46, 0.3);
+                animation: pulseBorder 2s infinite;
+            }
+            
+            @keyframes pulseBorder {
+                0%, 100% { border-color: rgba(239, 161, 46, 0.3); }
+                50% { border-color: rgba(239, 161, 46, 0.7); }
+            }
+            
+            .event-icon-popup {
+                width: 80px;
+                height: 80px;
+                background: linear-gradient(135deg, #efa12e, #ffb74d);
+                border-radius: 20px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                margin: 0 auto 20px;
+                border: 3px solid white;
+                box-shadow: 0 5px 15px rgba(239, 161, 46, 0.4);
+            }
+            
+            .event-icon-popup i {
+                font-size: 36px;
+                color: white;
+            }
+            
+            .event-details-popup h3 {
                 color: white;
                 font-size: 22px;
+                margin: 0 0 15px 0;
+                text-align: center;
                 font-weight: 700;
-                display: flex;
-                align-items: center;
-                gap: 10px;
-                margin: 0;
             }
             
-            .events-header h2 i {
-                color: #efa12e;
-                font-size: 24px;
-            }
-            
-            .events-close {
-                background: rgba(255, 255, 255, 0.1);
-                border: 2px solid #efa12e;
-                color: white;
-                width: 40px;
-                height: 40px;
-                border-radius: 50%;
-                cursor: pointer;
-                font-size: 18px;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
-            .events-close:hover {
-                background: #efa12e;
-                transform: rotate(90deg);
-                color: #004aad;
-            }
-            
-            /* Events Content */
-            .events-content {
-                margin-bottom: 20px;
-            }
-            
-            .event-item {
-                background: rgba(255, 255, 255, 0.1);
-                border-radius: 15px;
-                padding: 20px;
-                display: flex;
-                gap: 20px;
-                border: 2px solid transparent;
-                transition: all 0.3s ease;
-            }
-            
-            .event-item:hover {
-                transform: translateY(-3px);
-                border-color: #00bf62;
-                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.2);
-            }
-            
-            .event-important {
-                background: linear-gradient(135deg, rgba(239, 161, 46, 0.15), rgba(255, 183, 77, 0.1));
-                border: 2px solid #efa12e;
-            }
-            
-            .event-icon {
-                flex-shrink: 0;
-                width: 60px;
-                height: 60px;
-                background: #00bf62;
-                border-radius: 12px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                font-size: 24px;
-                color: white;
-                border: 2px solid white;
-            }
-            
-            .event-details h3 {
-                color: white;
-                font-size: 18px;
-                margin: 0 0 10px 0;
-                font-weight: 600;
-            }
-            
-            .event-details p {
+            .event-desc {
                 color: #e3f2fd;
-                line-height: 1.5;
-                margin: 0 0 10px 0;
-                font-size: 15px;
+                line-height: 1.6;
+                margin: 0 0 15px 0;
+                text-align: center;
+                font-size: 16px;
             }
             
             .event-info {
                 color: #00d46e !important;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                font-style: italic;
-            }
-            
-            .event-footer {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-top: 15px;
-                padding-top: 15px;
-                border-top: 1px solid rgba(255, 255, 255, 0.1);
-            }
-            
-            .event-date {
-                color: #ffb74d;
-                font-size: 14px;
-                display: flex;
-                align-items: center;
-                gap: 6px;
-            }
-            
-            .event-type {
-                background: rgba(255, 255, 255, 0.15);
-                padding: 4px 12px;
-                border-radius: 20px;
-                font-size: 12px;
-                font-weight: 600;
-                text-transform: uppercase;
-                letter-spacing: 0.5px;
-            }
-            
-            .event-type.admission {
-                background: #efa12e;
-                color: #004aad;
-            }
-            
-            /* Events Note */
-            .events-note {
-                margin-top: 20px;
-                padding: 15px;
                 background: rgba(0, 191, 98, 0.15);
-                border-radius: 12px;
+                padding: 12px;
+                border-radius: 10px;
+                margin: 0 0 20px 0;
+                font-size: 15px;
                 display: flex;
                 align-items: center;
-                gap: 12px;
-                color: #00d46e;
-                font-size: 14px;
+                justify-content: center;
+                gap: 10px;
                 border: 1px solid rgba(0, 191, 98, 0.3);
             }
             
-            .events-note i {
-                font-size: 18px;
+            .event-footer-popup {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: 20px;
+                padding-top: 20px;
+                border-top: 1px solid rgba(255, 255, 255, 0.1);
             }
             
-            /* Animations */
-            @keyframes slideInEvents {
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
+            .event-status {
+                color: #ffb74d;
+                font-weight: 600;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                font-size: 14px;
+            }
+            
+            .event-status i {
+                color: #00bf62;
+                font-size: 10px;
+                animation: blinkStatus 1.5s infinite;
+            }
+            
+            @keyframes blinkStatus {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+            
+            .event-tag {
+                background: #efa12e;
+                color: #004aad;
+                padding: 6px 18px;
+                border-radius: 20px;
+                font-weight: 700;
+                font-size: 13px;
+                letter-spacing: 1px;
+                box-shadow: 0 3px 10px rgba(239, 161, 46, 0.3);
+            }
+            
+            /* Popup Actions */
+            .popup-actions {
+                display: flex;
+                gap: 15px;
+                margin-top: 20px;
+            }
+            
+            .popup-action-btn {
+                flex: 1;
+                padding: 16px;
+                border: none;
+                border-radius: 12px;
+                font-size: 16px;
+                font-weight: 700;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 10px;
+                transition: all 0.3s ease;
+            }
+            
+            .action-close {
+                background: rgba(255, 255, 255, 0.15);
+                color: white;
+                border: 2px solid rgba(255, 255, 255, 0.3);
+            }
+            
+            .action-close:hover {
+                background: rgba(255, 255, 255, 0.25);
+                transform: translateY(-2px);
+            }
+            
+            .action-call {
+                background: linear-gradient(135deg, #00bf62, #00d46e);
+                color: white;
+                border: 2px solid #00bf62;
+            }
+            
+            .action-call:hover {
+                background: linear-gradient(135deg, #00d46e, #00bf62);
+                transform: translateY(-2px);
+                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.4);
             }
             
             /* Responsive */
-            @media (max-width: 768px) {
-                .events-box {
-                    padding: 20px;
+            @media (max-width: 600px) {
+                .events-popup-box {
+                    padding: 25px 20px;
+                    border-radius: 20px;
                 }
                 
-                .events-header {
+                .popup-header h2 {
+                    font-size: 22px;
+                }
+                
+                .popup-icon {
+                    width: 60px;
+                    height: 60px;
+                }
+                
+                .popup-icon i {
+                    font-size: 28px;
+                }
+                
+                .event-icon-popup {
+                    width: 70px;
+                    height: 70px;
+                }
+                
+                .event-details-popup h3 {
+                    font-size: 20px;
+                }
+                
+                .event-desc {
+                    font-size: 15px;
+                }
+                
+                .popup-actions {
                     flex-direction: column;
-                    gap: 15px;
-                    text-align: center;
                 }
                 
-                .event-item {
-                    flex-direction: column;
-                    text-align: center;
-                }
-                
-                .event-icon {
-                    margin: 0 auto;
-                }
-                
-                .event-footer {
-                    flex-direction: column;
-                    gap: 10px;
-                }
-                
-                .event-info {
-                    justify-content: center;
+                .popup-action-btn {
+                    padding: 14px;
                 }
             }
             
-            @media (max-width: 480px) {
-                .events-box {
-                    padding: 15px;
-                    border-radius: 15px;
+            @media (max-width: 400px) {
+                .events-popup-box {
+                    padding: 20px 15px;
                 }
                 
-                .events-header h2 {
+                .popup-header h2 {
+                    font-size: 20px;
+                }
+                
+                .event-details-popup h3 {
                     font-size: 18px;
                 }
                 
-                .event-details h3 {
-                    font-size: 16px;
-                }
-                
-                .event-details p {
+                .event-desc, .event-info {
                     font-size: 14px;
                 }
             }
