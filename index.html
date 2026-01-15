@@ -7,28 +7,28 @@
     <meta name="google-site-verification" content="5P7gTd-X7NELQdW50jK26u2PPitEoSKabX-UENcl82I" />
     <meta name="google-site-verification" content="4D-EQu61VEgJCrJE2vWp0HtPpX8aGR2jESoRAeD9ysU" />
     <meta name="description" content="Indian Public School Khandwa – Admissions open for Nursery class. Quality education, experienced teachers, and child-friendly environment in Khandwa.">
-    
+
     <!-- Manifest for PWA -->
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#004aad">
-    
+
     <!-- Apple Touch Icon -->
     <link rel="apple-touch-icon" href="logo-hq.png">
-    
+
     <!-- PWA Mobile Config -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
+
     <!-- Preload HQ logo for better performance -->
     <link rel="preload" href="logo-hq.png" as="image" type="image/png">
     <link rel="preload" href="logo.png" as="image" type="image/png">
     <link rel="preload" href="style.css" as="style">
-    
+
     <!-- Stylesheets -->
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
-    
+
     <!-- Disable selection -->
     <style>
         * {
@@ -37,20 +37,20 @@
             -ms-user-select: none;
             user-select: none;
         }
-        
+
         .phone, .phone *, .toast {
             -webkit-user-select: text;
             -moz-user-select: text;
             -ms-user-select: text;
             user-select: text;
         }
-        
+
         img {
             -webkit-user-drag: none;
             user-drag: none;
             pointer-events: none;
         }
-        
+
         /* Heart icon must be clickable */
         #heartTrigger {
             pointer-events: auto !important;
@@ -63,10 +63,10 @@
 <body>
     <!-- Hearts Container for Animation -->
     <div id="hearts-container"></div>
-    
+
     <!-- Love Filter Overlay -->
     <div id="love-filter"></div>
-    
+
     <div class="container">
         <!-- Header with Logo on left and School Name on right -->
         <div class="header">
@@ -92,19 +92,17 @@
                     </picture>
                     <div class="logo-ring"></div>
                     <div class="logo-glow"></div>
-                    
+
                     <!-- Backside of Logo for PWA Install -->
                     <div class="logo-backside" id="logoBackside">
                         <div class="logo-back-content">
-                            <svg width="60" height="60" viewBox="0 0 24 24" fill="#004aad">
+                            <svg width="60" height="60" viewBox="0 0 24 24" fill="#004aad" class="install-icon">
                                 <path d="M19,3H5C3.89,3 3,3.9 3,5V19A2,2 0 0,0 5,21H19A2,2 0 0,0 21,19V5A2,2 0 0,0 19,3M12.74,13.31L11.26,12.83L9.2,11.83C9.2,11.83 8.55,11.53 8.35,11.13C8.15,10.73 8.18,10.13 8.62,9.79C9.06,9.45 9.8,9.53 10.31,9.93L12.03,11.26L13.76,9.87C14.27,9.47 15,9.4 15.45,9.76C15.9,10.12 15.97,10.76 15.77,11.17C15.57,11.58 14.93,11.9 14.93,11.9L13.25,12.79L12.74,13.31M14.69,14.34C14.69,14.34 13.74,15.05 12.77,15.11C11.8,15.17 10.84,14.44 10.71,14.32C10.58,14.2 9.55,13.34 8.82,13.39C8.09,13.44 7.34,14.31 7.34,14.31L6.71,16.47C6.71,16.47 8.23,17.59 10.15,17.58C12.07,17.57 13.5,16.45 13.5,16.45L14.69,14.34Z"/>
                             </svg>
-                            <h3>Install App</h3>
-                            <p>Get quick access on your home screen</p>
+                            <p class="install-hint">Click to install</p>
                             <button class="install-btn" id="installBtn">
                                 <i class="fas fa-download"></i> Install Now
                             </button>
-                            <p class="install-note">Tap anywhere to go back</p>
                         </div>
                     </div>
                 </div>
@@ -139,7 +137,7 @@
 
         <div class="contact-box">
             <h3><i class="fas fa-phone"></i> Contact for Admission</h3>
-            
+
             <div class="phone">
                 <i class="fas fa-mobile-alt"></i>
                 <span>+91 7333574759</span>
@@ -217,10 +215,10 @@
             });
         }
     </script>
-    
+
     <!-- Main Script -->
     <script src="script.js"></script>
-    
+
     <!-- Inline Script for PWA Installation and Heart Animation -->
     <script>
         // Wait for DOM to be fully loaded
@@ -245,20 +243,20 @@
             heartTrigger.addEventListener('click', function(e) {
                 e.stopPropagation();
                 e.preventDefault();
-                
+
                 if (heartsActive) return;
-                
+
                 heartsActive = true;
-                
+
                 // Create initial love burst
                 createLoveBurst(e.clientX || window.innerWidth/2, e.clientY || window.innerHeight/2);
-                
+
                 // Activate love filter with delay
                 setTimeout(() => {
                     if (loveFilter) loveFilter.classList.add('active');
                     document.body.classList.add('love-mode');
                 }, 100);
-                
+
                 // Create LOTS of hearts - Different sizes and types
                 const heartCount = 150;
                 const heartColors = [
@@ -266,31 +264,31 @@
                     '#f368e0', '#ffcccc', '#ff9999', '#ff6666',
                     '#ff3388', '#ff00aa', '#ff1493', '#ff69b4'
                 ];
-                
+
                 for (let i = 0; i < heartCount; i++) {
                     setTimeout(() => createHeart(i, heartColors), i * 20);
                 }
-                
+
                 // Reset after 6 seconds
                 setTimeout(() => {
                     if (heartsContainer) heartsContainer.innerHTML = '';
                     if (loveFilter) loveFilter.classList.remove('active');
                     document.body.classList.remove('love-mode');
-                    
+
                     heartsActive = false;
                 }, 6000);
             });
 
             function createHeart(index, colors) {
                 if (!heartsContainer) return;
-                
+
                 const heart = document.createElement('div');
                 heart.className = 'falling-heart';
-                
+
                 // Random properties
                 const sizeType = Math.random();
                 let size = 30;
-                
+
                 if (sizeType < 0.3) {
                     size = 20;
                 } else if (sizeType < 0.6) {
@@ -300,16 +298,16 @@
                 } else {
                     size = 60;
                 }
-                
+
                 // Random position
                 const left = Math.random() * 100;
                 const delay = Math.random() * 2;
                 const duration = 3 + Math.random() * 3;
-                
+
                 // Random color
                 const colorIndex = Math.floor(Math.random() * colors.length);
                 const color = colors[colorIndex];
-                
+
                 // Apply styles
                 heart.style.left = `${left}%`;
                 heart.style.animationDelay = `${delay}s`;
@@ -318,12 +316,12 @@
                 heart.style.color = color;
                 heart.style.opacity = '0.9';
                 heart.style.zIndex = '9999';
-                
+
                 // Add heart emoji
                 heart.innerHTML = '❤️';
-                
+
                 heartsContainer.appendChild(heart);
-                
+
                 // Remove heart after animation
                 setTimeout(() => {
                     if (heart.parentNode === heartsContainer) {
@@ -338,9 +336,9 @@
                 burst.style.left = `${x - 50}px`;
                 burst.style.top = `${y - 50}px`;
                 burst.style.position = 'fixed';
-                
+
                 document.body.appendChild(burst);
-                
+
                 setTimeout(() => {
                     if (burst.parentNode) {
                         burst.remove();
@@ -352,52 +350,57 @@
             function showToast(message) {
                 const toast = document.getElementById('toast');
                 if (!toast) return;
-                
+
                 toast.textContent = message;
                 toast.style.background = 'linear-gradient(135deg, #ff6b81, #ff4757)';
                 toast.classList.add('show');
-                
+
                 setTimeout(() => {
                     toast.classList.remove('show');
                 }, 3000);
             }
 
-            // Logo spin and PWA functionality - FIXED
+            // Logo spin and PWA functionality - FIXED: Single smooth spin
             const schoolLogo = document.getElementById('schoolLogo');
             const logoBackside = document.getElementById('logoBackside');
             const installBtn = document.getElementById('installBtn');
             let logoFlipped = false;
+            let isAnimating = false;
             let deferredPrompt;
 
             if (schoolLogo && logoBackside) {
                 // Fix: Make sure logo is above backside
                 schoolLogo.style.zIndex = '2';
                 logoBackside.style.zIndex = '1';
-                
+
                 schoolLogo.addEventListener('click', function(e) {
                     e.stopPropagation();
                     e.preventDefault();
-                    
+
+                    if (isAnimating) return;
+                    isAnimating = true;
+
                     if (!logoFlipped) {
-                        // First click: Show backside
+                        // First click: Show backside - Single smooth 360 spin
                         console.log('First click - showing backside');
-                        
-                        // Add spin animation
-                        schoolLogo.style.animation = 'logoSpin 0.6s ease forwards';
-                        
+
+                        // Add single 360 spin animation
+                        schoolLogo.style.animation = 'singleLogoSpin 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+
                         setTimeout(() => {
                             // Hide front logo
                             schoolLogo.style.opacity = '0';
                             schoolLogo.style.visibility = 'hidden';
-                            
+                            schoolLogo.style.animation = '';
+
                             // Show backside
                             logoBackside.style.opacity = '1';
                             logoBackside.style.visibility = 'visible';
                             logoBackside.style.display = 'flex';
-                            logoBackside.style.transform = 'rotateY(0deg)';
-                            
+
                             logoFlipped = true;
-                        }, 600); // Wait for spin animation to complete
+                            isAnimating = false;
+                        }, 800);
                     } else {
                         // Second click: Show frontside
                         flipToFront();
@@ -407,35 +410,32 @@
 
             // Click anywhere to flip back
             document.addEventListener('click', function(e) {
-                if (logoFlipped && logoBackside && !logoBackside.contains(e.target) && e.target !== schoolLogo) {
+                if (logoFlipped && logoBackside && !logoBackside.contains(e.target) && e.target !== schoolLogo && e.target !== installBtn) {
                     flipToFront();
                 }
             });
 
             function flipToFront() {
-                if (!logoBackside || !schoolLogo) return;
-                
+                if (!logoBackside || !schoolLogo || isAnimating) return;
+
+                isAnimating = true;
                 console.log('Flipping to front');
-                
-                // Add reverse spin animation
-                logoBackside.style.animation = 'logoSpinReverse 0.6s ease forwards';
-                
+
+                // Hide backside
+                logoBackside.style.opacity = '0';
+                logoBackside.style.visibility = 'hidden';
+                logoBackside.style.display = 'none';
+
+                // Show front logo with reverse spin
+                schoolLogo.style.animation = 'singleLogoSpinReverse 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards';
                 setTimeout(() => {
-                    // Hide backside
-                    logoBackside.style.opacity = '0';
-                    logoBackside.style.visibility = 'hidden';
-                    logoBackside.style.display = 'none';
-                    
-                    // Show front logo
-                    schoolLogo.style.animation = 'logoSpinReverse 0.6s ease forwards';
-                    setTimeout(() => {
-                        schoolLogo.style.animation = '';
-                        schoolLogo.style.opacity = '1';
-                        schoolLogo.style.visibility = 'visible';
-                    }, 600);
+                    schoolLogo.style.opacity = '1';
+                    schoolLogo.style.visibility = 'visible';
+                    schoolLogo.style.animation = '';
                     
                     logoFlipped = false;
-                }, 100);
+                    isAnimating = false;
+                }, 800);
             }
 
             // PWA Installation
@@ -448,7 +448,8 @@
             });
 
             if (installBtn) {
-                installBtn.addEventListener('click', async function() {
+                installBtn.addEventListener('click', async function(e) {
+                    e.stopPropagation();
                     if (deferredPrompt) {
                         deferredPrompt.prompt();
                         const { outcome } = await deferredPrompt.userChoice;
@@ -487,7 +488,7 @@
 <script src="//code.tidio.co/k7fzqvwdesmz8nerm3zlgofwutxh0lkq.js" async></script>
     <!-- ... your existing scripts ... -->
     <script src="//code.tidio.co/k7fzqvwdesmz8nerm3zlgofwutxh0lkq.js" async></script>
-    
+
     <!-- Events System (Add this line) -->
     <script src="event/event-install.js" defer></script>
 </body>
