@@ -550,6 +550,8 @@
     <script src="//code.tidio.co/k7fzqvwdesmz8nerm3zlgofwutxh0lkq.js" async></script>
 
     <!-- Events System -->
-    <script src="event/event-install.js" defer></script>
+<!-- Events System - ORDER MATTERS! event.js MUST load first -->
+<script src="event/event.js"></script>
+<script src="event/event-install.js" defer></script>
 </body>
 </html>
