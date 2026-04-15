@@ -3,12 +3,12 @@
 
 const events = [
     {
-        title: "📢 Class 10th & 12th Results Today!",
-        description: "Today is the result day for Class 10th and Class 12th. Best of luck to all students! We wish you pass with a good percentage.",
+        title: "🎓 Class 10th & 12th Results",
+        description: "MPBSE results are out! Check your result now.",
         date: "April 15, 2026",
         type: "result",
         important: true,
-        details: "Results available on school website and notice board. Keep your roll number ready."
+        details: "Check result at: mpbse.nic.in |Results are announced on 15th April at 11:00 Am | Best of luck!"
     }
 ];
 
