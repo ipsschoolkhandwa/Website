@@ -8,7 +8,7 @@ const events = [
         date: "April 15, 2026",
         type: "result",
         important: true,
-        details: "Results will be available on the school website and notice board. Check your roll number ready."
+        details: "Results available on school website and notice board. Keep your roll number ready."
     }
 ];
 
