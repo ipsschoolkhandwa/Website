@@ -36,7 +36,6 @@
             return;
         }
 
-        // No cooldown - shows every time
         console.log('🚀 Creating popup...');
         addPopupCSS();
 
@@ -107,8 +106,8 @@
                 <div class="event-popup-container" id="eventPopupContainer">
                     <div class="event-popup-card">
                         <div class="event-popup-close-btn" id="eventPopupCloseBtn">
-                            <svg width="14" height="14" viewBox="0 0 24 24">
-                                <path d="M18 6L6 18M6 6l12 12" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round">
+                                <path d="M18 6L6 18M6 6l12 12"/>
                             </svg>
                         </div>
                         
@@ -165,7 +164,6 @@
             });
         }
 
-        // Show popup
         setTimeout(() => {
             popupContainer.style.opacity = '1';
             popupContainer.style.visibility = 'visible';
@@ -259,24 +257,31 @@
             
             .event-popup-close-btn {
                 position: absolute !important;
-                top: -12px !important;
-                right: -12px !important;
-                width: 36px !important;
-                height: 36px !important;
+                top: -15px !important;
+                right: -15px !important;
+                width: 40px !important;
+                height: 40px !important;
                 border-radius: 50% !important;
                 background: #ff4757 !important;
-                border: 2px solid white !important;
+                border: 3px solid white !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
                 cursor: pointer !important;
                 transition: all 0.3s ease !important;
-                z-index: 1000 !important;
+                z-index: 1001 !important;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3) !important;
             }
             
             .event-popup-close-btn:hover {
                 background: #ff6b81 !important;
                 transform: rotate(90deg) scale(1.1) !important;
+            }
+            
+            .event-popup-close-btn svg {
+                width: 18px !important;
+                height: 18px !important;
+                display: block !important;
             }
             
             .event-popup-icon {
@@ -440,19 +445,24 @@
                 transform: translateY(-2px) !important;
             }
             
+            /* Mobile Responsive */
             @media (max-width: 480px) {
                 .event-popup-container {
                     padding: 15px !important;
                 }
                 .event-popup-card {
                     max-width: 100% !important;
-                    padding: 20px 18px 18px !important;
+                    padding: 25px 20px 20px !important;
                 }
                 .event-popup-close-btn {
-                    top: -10px !important;
-                    right: -10px !important;
-                    width: 32px !important;
-                    height: 32px !important;
+                    top: -12px !important;
+                    right: -12px !important;
+                    width: 36px !important;
+                    height: 36px !important;
+                }
+                .event-popup-close-btn svg {
+                    width: 14px !important;
+                    height: 14px !important;
                 }
                 .event-popup-icon {
                     width: 50px !important;
