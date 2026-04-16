@@ -3,12 +3,20 @@
 
 const events = [
     {
-        title: "🎓 Class 10th & 12th Results",
-        description: "MPBSE results are out! Check your result now.",
-        date: "April 15, 2026",
-        type: "result",
+        title: "📢 Class 11th Registration Started",
+        description: "All parents are hereby informed that registration for Class 11th has begun. Registration forms will be available at the school from 16/04/2026 (Thursday). Parents are requested to collect the registration form from the school, submit it soon with required documents and fees, and choose their stream to confirm admission.",
+        date: "From April 16, 2026",
+        type: "documents",
         important: true,
-        details: "Check result at: mpbse.nic.in |Results are announced on 15th April at 11:00 Am | Best of luck!"
+        details: "Registration forms available at school office (9 AM to 12 Noon)",
+        documents: [
+            "Aadhar Card (Student)",
+            "Parents' Aadhar Card",
+            "Samagra ID",
+            "Digital Birth Certificate",
+            "10th Marksheet",
+            "Passport Size Photo (2)"
+        ]
     }
 ];
 
