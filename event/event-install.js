@@ -26,8 +26,6 @@
             if (eventsData && eventsData.length > 0) {
                 console.log('📢 Displaying event:', eventsData[0]);
                 showPopup(eventsData[0]);
-            } else {
-                console.error('❌ No events data available');
             }
         }, 500);
     });
@@ -38,17 +36,7 @@
             return;
         }
 
-        const lastClosed = localStorage.getItem('eventPopupClosed');
-        if (lastClosed) {
-            const lastClosedTime = new Date(lastClosed).getTime();
-            const now = new Date().getTime();
-            const hoursSinceClosed = (now - lastClosedTime) / (1000 * 60 * 60);
-            if (hoursSinceClosed < 24) {
-                console.log('⏸️ Popup closed recently');
-                return;
-            }
-        }
-
+        // No cooldown - shows every time
         console.log('🚀 Creating popup...');
         addPopupCSS();
 
@@ -73,23 +61,23 @@
             let documentsHtml = '';
             if (eventData.type === 'documents' && eventData.documents && eventData.documents.length > 0) {
                 let docsListHtml = '';
-                eventData.documents.forEach((doc, index) => {
+                eventData.documents.forEach((doc) => {
                     docsListHtml += `<li style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-file-alt" style="color: #00d46e; font-size: 12px;"></i><span style="font-size: 13px;">${escapeHtml(doc)}</span></li>`;
                 });
                 
                 documentsHtml = `
-                    <div class="event-popup-documents-section" id="eventDocumentsSection">
+                    <div class="event-popup-documents-section">
                         <div class="event-popup-documents-toggle" id="eventDocumentsToggle">
                             <i class="fas fa-paperclip"></i>
-                            <span>📄 आवश्यक दस्तावेज़ (Click to view)</span>
+                            <span>📄 Required Documents (Click to view)</span>
                             <i class="fas fa-chevron-down" id="docsChevron"></i>
                         </div>
                         <div class="event-popup-documents-list" id="eventDocumentsList" style="display: none;">
                             <ul style="list-style: none; padding: 0; margin: 10px 0 0 0;">
                                 ${docsListHtml}
                             </ul>
-                            <div class="event-popup-principal-sign" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); text-align: center; font-size: 12px; color: #ffb74d;">
-                                <i class="fas fa-signature"></i> प्राचार्य<br>इंडियन पब्लिक स्कूल, खंडवा
+                            <div style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); text-align: center; font-size: 12px; color: #ffb74d;">
+                                <i class="fas fa-signature"></i> Principal<br>Indian Public School, Khandwa
                             </div>
                         </div>
                     </div>
@@ -116,7 +104,7 @@
             }
 
             const popupHTML = `
-                <div class="event-popup-container" id="eventPopupContainer" style="opacity: 0; visibility: hidden;">
+                <div class="event-popup-container" id="eventPopupContainer">
                     <div class="event-popup-card">
                         <div class="event-popup-close-btn" id="eventPopupCloseBtn">
                             <svg width="14" height="14" viewBox="0 0 24 24">
@@ -137,10 +125,10 @@
                         <div class="event-popup-buttons-container">
                             <a href="tel:+917333574759" class="event-popup-call-btn" id="eventPopupCallBtn">
                                 <i class="fas fa-phone"></i>
-                                <span>संपर्क करें</span>
+                                <span>Call School</span>
                             </a>
                             <div class="event-popup-close-main-btn" id="eventPopupCloseMainBtn">
-                                <span>बंद करें</span>
+                                <span>Close</span>
                             </div>
                         </div>
                     </div>
@@ -148,38 +136,36 @@
             `;
 
             document.body.insertAdjacentHTML('beforeend', popupHTML);
-            setupPopupEvents(eventData);
+            setupPopupEvents();
         }, 50);
     }
 
-    function setupPopupEvents(eventData) {
+    function setupPopupEvents() {
         const popupContainer = document.getElementById('eventPopupContainer');
         if (!popupContainer) return;
 
         const closeMainBtn = document.getElementById('eventPopupCloseMainBtn');
         const closeXBtn = document.getElementById('eventPopupCloseBtn');
         const callBtn = document.getElementById('eventPopupCallBtn');
-         // Documents toggle functionality
+        
         const docsToggle = document.getElementById('eventDocumentsToggle');
         const docsList = document.getElementById('eventDocumentsList');
         const docsChevron = document.getElementById('docsChevron');
 
         if (docsToggle && docsList) {
-            docsToggle.addEventListener('click', function() {
+            docsToggle.addEventListener('click', function(e) {
+                e.stopPropagation();
                 if (docsList.style.display === 'none') {
                     docsList.style.display = 'block';
-                    if (docsChevron) {
-                        docsChevron.style.transform = 'rotate(180deg)';
-                    }
+                    if (docsChevron) docsChevron.style.transform = 'rotate(180deg)';
                 } else {
                     docsList.style.display = 'none';
-                    if (docsChevron) {
-                        docsChevron.style.transform = 'rotate(0deg)';
-                    }
+                    if (docsChevron) docsChevron.style.transform = 'rotate(0deg)';
                 }
             });
         }
 
+        // Show popup
         setTimeout(() => {
             popupContainer.style.opacity = '1';
             popupContainer.style.visibility = 'visible';
@@ -192,7 +178,6 @@
                 if (popupContainer && popupContainer.parentNode) {
                     popupContainer.remove();
                 }
-                localStorage.setItem('eventPopupClosed', new Date().toISOString());
             }, 300);
         };
 
@@ -224,8 +209,8 @@
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
+                width: 100% !important;
+                height: 100% !important;
                 background: rgba(0, 0, 0, 0.85) !important;
                 display: flex !important;
                 align-items: center !important;
@@ -233,6 +218,9 @@
                 z-index: 999999 !important;
                 transition: opacity 0.3s ease !important;
                 padding: 20px !important;
+                opacity: 0;
+                visibility: hidden;
+                overflow: hidden !important;
             }
             
             .event-popup-card {
@@ -240,17 +228,18 @@
                 border-radius: 15px !important;
                 padding: 30px 25px 25px !important;
                 width: 100% !important;
-                max-width: 450px !important;
+                max-width: 420px !important;
                 border: 3px solid #00bf62 !important;
                 box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
                 position: relative !important;
                 animation: eventPopupShow 0.4s ease !important;
-                max-height: 90vh !important;
+                max-height: 85vh !important;
                 overflow-y: auto !important;
+                overflow-x: hidden !important;
             }
             
             .event-popup-card::-webkit-scrollbar {
-                width: 5px;
+                width: 4px;
             }
             
             .event-popup-card::-webkit-scrollbar-track {
@@ -270,13 +259,13 @@
             
             .event-popup-close-btn {
                 position: absolute !important;
-                top: -15px !important;
-                right: -15px !important;
-                width: 40px !important;
-                height: 40px !important;
+                top: -12px !important;
+                right: -12px !important;
+                width: 36px !important;
+                height: 36px !important;
                 border-radius: 50% !important;
                 background: #ff4757 !important;
-                border: 3px solid white !important;
+                border: 2px solid white !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
@@ -291,8 +280,8 @@
             }
             
             .event-popup-icon {
-                width: 65px !important;
-                height: 65px !important;
+                width: 60px !important;
+                height: 60px !important;
                 background: linear-gradient(135deg, #00bf62, #00d46e) !important;
                 border-radius: 50% !important;
                 display: flex !important;
@@ -303,13 +292,13 @@
             }
             
             .event-popup-icon i {
-                font-size: 26px !important;
+                font-size: 24px !important;
                 color: white !important;
             }
             
             .event-popup-title {
                 color: white !important;
-                font-size: 22px !important;
+                font-size: 20px !important;
                 font-weight: 700 !important;
                 text-align: center !important;
                 margin: 0 0 20px 0 !important;
@@ -319,65 +308,58 @@
             .event-popup-message {
                 background: rgba(255, 255, 255, 0.1) !important;
                 border-radius: 12px !important;
-                padding: 20px !important;
-                margin-bottom: 25px !important;
+                padding: 18px !important;
+                margin-bottom: 20px !important;
                 border: 1px solid rgba(255, 255, 255, 0.2) !important;
             }
             
             .event-popup-strong-text {
                 color: #ffb74d !important;
-                font-size: 18px !important;
+                font-size: 17px !important;
                 font-weight: 700 !important;
-                margin: 0 0 12px 0 !important;
+                margin: 0 0 10px 0 !important;
                 font-family: 'Poppins', sans-serif !important;
             }
             
             .event-popup-normal-text {
                 color: white !important;
                 font-size: 14px !important;
-                line-height: 1.6 !important;
-                margin: 0 0 15px 0 !important;
+                line-height: 1.5 !important;
+                margin: 0 0 12px 0 !important;
                 font-family: 'Poppins', sans-serif !important;
             }
             
             .event-popup-time-info {
                 display: flex !important;
                 align-items: center !important;
-                gap: 10px !important;
+                gap: 8px !important;
                 color: #00d46e !important;
-                font-size: 13px !important;
+                font-size: 12px !important;
                 font-family: 'Poppins', sans-serif !important;
-                margin-bottom: 15px !important;
+                margin-bottom: 10px !important;
             }
             
-            /* Documents Section Styles */
-   .event-popup-documents-section {
+            .event-popup-documents-section {
                 margin-top: 10px;
             }
             
             .event-popup-documents-toggle {
                 background: rgba(239, 161, 46, 0.2);
-                border: 2px solid #efa12e;
-                border-radius: 10px;
-                padding: 12px 15px;
+                border: 1px solid #efa12e;
+                border-radius: 8px;
+                padding: 10px 12px;
                 cursor: pointer;
                 display: flex;
                 align-items: center;
                 justify-content: space-between;
-                gap: 10px;
-                transition: all 0.3s ease;
                 font-weight: 600;
-                font-size: 14px;
+                font-size: 13px;
                 color: #ffb74d;
+                transition: all 0.3s ease;
             }
             
             .event-popup-documents-toggle:hover {
                 background: rgba(239, 161, 46, 0.4);
-                transform: translateY(-2px);
-            }
-            
-            .event-popup-documents-toggle i:first-child {
-                color: #efa12e;
             }
             
             #docsChevron {
@@ -385,62 +367,47 @@
             }
             
             .event-popup-documents-list {
-                margin-top: 15px;
-                padding: 15px;
+                margin-top: 12px;
+                padding: 12px;
                 background: rgba(255, 255, 255, 0.05);
-                border-radius: 10px;
+                border-radius: 8px;
                 animation: slideDown 0.3s ease;
             }
             
             @keyframes slideDown {
-                from {
-                    opacity: 0;
-                    transform: translateY(-10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-            
-            .event-popup-principal-sign {
-                margin-top: 15px;
-                padding-top: 10px;
-                border-top: 1px solid rgba(255,255,255,0.2);
-                text-align: center;
-                font-size: 12px;
-                color: #ffb74d;
+                from { opacity: 0; transform: translateY(-10px); }
+                to { opacity: 1; transform: translateY(0); }
             }
             
             .event-popup-details {
                 display: flex !important;
                 align-items: center !important;
                 gap: 8px !important;
-                margin-top: 12px !important;
-                padding-top: 10px !important;
+                margin-top: 10px !important;
+                padding-top: 8px !important;
                 border-top: 1px solid rgba(255,255,255,0.2) !important;
-                font-size: 12px !important;
-                color: rgba(255,255,255,0.8) !important;
+                font-size: 11px !important;
+                color: rgba(255,255,255,0.7) !important;
             }
             
             .event-popup-buttons-container {
                 display: flex !important;
-                gap: 15px !important;
+                gap: 12px !important;
                 width: 100% !important;
             }
             
             .event-popup-call-btn {
-                flex: 0 0 65% !important;
+                flex: 2 !important;
                 background: linear-gradient(135deg, #00bf62, #00d46e) !important;
                 color: white !important;
-                border: 2px solid #00bf62 !important;
-                border-radius: 10px !important;
-                min-height: 52px !important;
+                border: none !important;
+                border-radius: 8px !important;
+                min-height: 48px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                font-weight: 700 !important;
-                font-size: 15px !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
                 font-family: 'Poppins', sans-serif !important;
                 cursor: pointer !important;
                 text-decoration: none !important;
@@ -448,56 +415,59 @@
             }
             
             .event-popup-call-btn:hover {
-                transform: translateY(-3px) !important;
-                box-shadow: 0 8px 20px rgba(0, 191, 98, 0.5) !important;
+                transform: translateY(-2px) !important;
+                box-shadow: 0 5px 15px rgba(0, 191, 98, 0.4) !important;
             }
             
             .event-popup-close-main-btn {
-                flex: 0 0 35% !important;
+                flex: 1 !important;
                 background: #ff4757 !important;
                 color: white !important;
-                border: 2px solid #ff4757 !important;
-                border-radius: 10px !important;
-                min-height: 52px !important;
+                border: none !important;
+                border-radius: 8px !important;
+                min-height: 48px !important;
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                font-weight: 700 !important;
-                font-size: 15px !important;
+                font-weight: 600 !important;
+                font-size: 14px !important;
                 font-family: 'Poppins', sans-serif !important;
                 cursor: pointer !important;
             }
             
             .event-popup-close-main-btn:hover {
                 background: #ff6b81 !important;
-                transform: translateY(-3px) !important;
+                transform: translateY(-2px) !important;
             }
             
             @media (max-width: 480px) {
+                .event-popup-container {
+                    padding: 15px !important;
+                }
                 .event-popup-card {
-                    max-width: 350px !important;
-                    padding: 25px 20px 20px !important;
+                    max-width: 100% !important;
+                    padding: 20px 18px 18px !important;
                 }
                 .event-popup-close-btn {
-                    top: -12px !important;
-                    right: -12px !important;
-                    width: 36px !important;
-                    height: 36px !important;
+                    top: -10px !important;
+                    right: -10px !important;
+                    width: 32px !important;
+                    height: 32px !important;
                 }
                 .event-popup-icon {
-                    width: 60px !important;
-                    height: 60px !important;
+                    width: 50px !important;
+                    height: 50px !important;
                 }
                 .event-popup-title {
-                    font-size: 20px !important;
+                    font-size: 18px !important;
                 }
                 .event-popup-call-btn,
                 .event-popup-close-main-btn {
-                    min-height: 48px !important;
-                    font-size: 14px !important;
+                    min-height: 44px !important;
+                    font-size: 13px !important;
                 }
                 .event-popup-strong-text {
-                    font-size: 16px !important;
+                    font-size: 15px !important;
                 }
                 .event-popup-normal-text {
                     font-size: 13px !important;
@@ -515,5 +485,5 @@
         return div.innerHTML;
     }
 
-    console.log('✅ Event popup script ready with Documents feature');
+    console.log('✅ Event popup script ready');
 })();
