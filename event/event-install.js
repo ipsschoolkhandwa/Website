@@ -54,7 +54,7 @@
                 popupTitle = '📝 Admission Update';
             } else if (eventData.type === 'documents') {
                 iconHtml = '<i class="fas fa-folder-open"></i>';
-                popupTitle = '📋 Required Documents';
+                popupTitle = 'Admissions Open!';
             }
 
             let documentsHtml = '';
