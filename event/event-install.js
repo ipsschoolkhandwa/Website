@@ -68,7 +68,7 @@
                     <div class="event-popup-documents-section">
                         <div class="event-popup-documents-toggle" id="eventDocumentsToggle">
                             <i class="fas fa-paperclip"></i>
-                            <span>📄 Required Documents (Click to view)</span>
+                            <span>📄 Required Documents</span>
                             <i class="fas fa-chevron-down" id="docsChevron"></i>
                         </div>
                         <div class="event-popup-documents-list" id="eventDocumentsList" style="display: none;">
