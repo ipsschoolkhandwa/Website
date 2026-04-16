@@ -80,13 +80,13 @@
             }
 
             // Determine title based on event type
-            let popupTitle = '📢 Important Update';
+            let popupTitle = 'Important Update';
             if (eventData.type === 'result') {
-                popupTitle = '📊 Result Announcement';
+                popupTitle = 'Result Announcement';
             } else if (eventData.type === 'greeting') {
-                popupTitle = '🎉 Special Greeting';
+                popupTitle = 'Special Greeting';
             } else if (eventData.type === 'admission') {
-                popupTitle = '📝 Admission Update';
+                popupTitle = 'Admission Open';
             }
 
             // Format message
