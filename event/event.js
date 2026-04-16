@@ -20,10 +20,8 @@ const events = [
     }
 ];
 
-// Make it available globally
 window.events = events;
 
-// Export for module use if needed
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = { events };
 }
