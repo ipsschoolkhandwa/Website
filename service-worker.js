@@ -1,8 +1,6 @@
 // Service Worker for Indian Public School Khandwa - v7
 const CACHE_NAME = 'ips-khandwa-v7';
 const urlsToCache = [
-  './',
-  './index.html',
   './style.css',
   './script.js',
   './logo.png',
