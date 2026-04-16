@@ -4,35 +4,25 @@
 
     console.log('🎯 Event popup script STARTED');
 
-    // Global variable to store events
     let eventsData = null;
 
-    // Function to get events from global scope
     function getEventsData() {
-        // Check if events is already defined globally
         if (typeof events !== 'undefined' && Array.isArray(events) && events.length > 0) {
-            console.log('✅ Events found in global scope:', events);
+            console.log('✅ Events found:', events);
             return events;
         }
-        
-        // Try to access from window object
         if (window.events && Array.isArray(window.events) && window.events.length > 0) {
             console.log('✅ Events found in window.events:', window.events);
             return window.events;
         }
-        
-        console.warn('⚠️ No events found in global scope');
+        console.warn('⚠️ No events found');
         return null;
     }
 
-    // Load only after everything is ready
     window.addEventListener('load', function() {
-        console.log('✅ Page fully loaded, checking for events...');
-        
-        // Wait a bit for event.js to load
+        console.log('✅ Page loaded, checking for events...');
         setTimeout(function() {
             eventsData = getEventsData();
-            
             if (eventsData && eventsData.length > 0) {
                 console.log('📢 Displaying event:', eventsData[0]);
                 showPopup(eventsData[0]);
@@ -48,48 +38,64 @@
             return;
         }
 
-        console.log('🔄 Creating popup for:', eventData.title);
-
-        // Check if already closed - but only for 24 hours
         const lastClosed = localStorage.getItem('eventPopupClosed');
         if (lastClosed) {
             const lastClosedTime = new Date(lastClosed).getTime();
             const now = new Date().getTime();
             const hoursSinceClosed = (now - lastClosedTime) / (1000 * 60 * 60);
-
             if (hoursSinceClosed < 24) {
-                console.log('⏸️ Popup was closed recently, not showing');
+                console.log('⏸️ Popup closed recently');
                 return;
             }
         }
 
         console.log('🚀 Creating popup...');
-
-        // Add CSS
         addPopupCSS();
 
         setTimeout(function() {
-            // Determine icon based on event type
             let iconHtml = '<i class="fas fa-bullhorn"></i>';
+            let popupTitle = '📢 Important Update';
+            
             if (eventData.type === 'result') {
                 iconHtml = '<i class="fas fa-chart-line"></i>';
+                popupTitle = '📊 Result Announcement';
             } else if (eventData.type === 'greeting') {
                 iconHtml = '<i class="fas fa-gift"></i>';
+                popupTitle = '🎉 Special Greeting';
             } else if (eventData.type === 'admission') {
                 iconHtml = '<i class="fas fa-graduation-cap"></i>';
+                popupTitle = '📝 Admission Update';
+            } else if (eventData.type === 'documents') {
+                iconHtml = '<i class="fas fa-folder-open"></i>';
+                popupTitle = '📋 Required Documents';
             }
 
-            // Determine title based on event type
-            let popupTitle = 'Important Update';
-            if (eventData.type === 'result') {
-                popupTitle = 'Result Announcement';
-            } else if (eventData.type === 'greeting') {
-                popupTitle = 'Special Greeting';
-            } else if (eventData.type === 'admission') {
-                popupTitle = 'Admission Open';
+            let documentsHtml = '';
+            if (eventData.type === 'documents' && eventData.documents && eventData.documents.length > 0) {
+                let docsListHtml = '';
+                eventData.documents.forEach((doc, index) => {
+                    docsListHtml += `<li style="margin-bottom: 8px; display: flex; align-items: center; gap: 8px;"><i class="fas fa-file-alt" style="color: #00d46e; font-size: 12px;"></i><span style="font-size: 13px;">${escapeHtml(doc)}</span></li>`;
+                });
+                
+                documentsHtml = `
+                    <div class="event-popup-documents-section" id="eventDocumentsSection">
+                        <div class="event-popup-documents-toggle" id="eventDocumentsToggle">
+                            <i class="fas fa-paperclip"></i>
+                            <span>📄 आवश्यक दस्तावेज़ (Click to view)</span>
+                            <i class="fas fa-chevron-down" id="docsChevron"></i>
+                        </div>
+                        <div class="event-popup-documents-list" id="eventDocumentsList" style="display: none;">
+                            <ul style="list-style: none; padding: 0; margin: 10px 0 0 0;">
+                                ${docsListHtml}
+                            </ul>
+                            <div class="event-popup-principal-sign" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.2); text-align: center; font-size: 12px; color: #ffb74d;">
+                                <i class="fas fa-signature"></i> प्राचार्य<br>इंडियन पब्लिक स्कूल, खंडवा
+                            </div>
+                        </div>
+                    </div>
+                `;
             }
 
-            // Format message
             let messageHtml = `
                 <p class="event-popup-strong-text">${escapeHtml(eventData.title)}</p>
                 <p class="event-popup-normal-text">${escapeHtml(eventData.description)}</p>
@@ -97,10 +103,10 @@
                     <i class="fas fa-calendar-alt"></i>
                     <span>${escapeHtml(eventData.date)}</span>
                 </div>
+                ${documentsHtml}
             `;
 
-            // Add details if present
-            if (eventData.details) {
+            if (eventData.details && eventData.type !== 'documents') {
                 messageHtml += `
                     <div class="event-popup-details">
                         <i class="fas fa-info-circle"></i>
@@ -109,7 +115,6 @@
                 `;
             }
 
-            // Create popup HTML
             const popupHTML = `
                 <div class="event-popup-container" id="eventPopupContainer" style="opacity: 0; visibility: hidden;">
                     <div class="event-popup-card">
@@ -132,10 +137,10 @@
                         <div class="event-popup-buttons-container">
                             <a href="tel:+917333574759" class="event-popup-call-btn" id="eventPopupCallBtn">
                                 <i class="fas fa-phone"></i>
-                                <span>Call School</span>
+                                <span>संपर्क करें</span>
                             </a>
                             <div class="event-popup-close-main-btn" id="eventPopupCloseMainBtn">
-                                <span>Close</span>
+                                <span>बंद करें</span>
                             </div>
                         </div>
                     </div>
@@ -143,22 +148,38 @@
             `;
 
             document.body.insertAdjacentHTML('beforeend', popupHTML);
-            setupPopupEvents();
+            setupPopupEvents(eventData);
         }, 50);
     }
 
-    function setupPopupEvents() {
+    function setupPopupEvents(eventData) {
         const popupContainer = document.getElementById('eventPopupContainer');
-        if (!popupContainer) {
-            console.error('❌ Popup container not found');
-            return;
-        }
+        if (!popupContainer) return;
 
         const closeMainBtn = document.getElementById('eventPopupCloseMainBtn');
         const closeXBtn = document.getElementById('eventPopupCloseBtn');
         const callBtn = document.getElementById('eventPopupCallBtn');
+         // Documents toggle functionality
+        const docsToggle = document.getElementById('eventDocumentsToggle');
+        const docsList = document.getElementById('eventDocumentsList');
+        const docsChevron = document.getElementById('docsChevron');
 
-        // Show popup
+        if (docsToggle && docsList) {
+            docsToggle.addEventListener('click', function() {
+                if (docsList.style.display === 'none') {
+                    docsList.style.display = 'block';
+                    if (docsChevron) {
+                        docsChevron.style.transform = 'rotate(180deg)';
+                    }
+                } else {
+                    docsList.style.display = 'none';
+                    if (docsChevron) {
+                        docsChevron.style.transform = 'rotate(0deg)';
+                    }
+                }
+            });
+        }
+
         setTimeout(() => {
             popupContainer.style.opacity = '1';
             popupContainer.style.visibility = 'visible';
@@ -219,11 +240,27 @@
                 border-radius: 15px !important;
                 padding: 30px 25px 25px !important;
                 width: 100% !important;
-                max-width: 380px !important;
+                max-width: 450px !important;
                 border: 3px solid #00bf62 !important;
                 box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6) !important;
                 position: relative !important;
                 animation: eventPopupShow 0.4s ease !important;
+                max-height: 90vh !important;
+                overflow-y: auto !important;
+            }
+            
+            .event-popup-card::-webkit-scrollbar {
+                width: 5px;
+            }
+            
+            .event-popup-card::-webkit-scrollbar-track {
+                background: rgba(255,255,255,0.1);
+                border-radius: 10px;
+            }
+            
+            .event-popup-card::-webkit-scrollbar-thumb {
+                background: #00bf62;
+                border-radius: 10px;
             }
             
             @keyframes eventPopupShow {
@@ -289,7 +326,7 @@
             
             .event-popup-strong-text {
                 color: #ffb74d !important;
-                font-size: 17px !important;
+                font-size: 18px !important;
                 font-weight: 700 !important;
                 margin: 0 0 12px 0 !important;
                 font-family: 'Poppins', sans-serif !important;
@@ -298,7 +335,7 @@
             .event-popup-normal-text {
                 color: white !important;
                 font-size: 14px !important;
-                line-height: 1.5 !important;
+                line-height: 1.6 !important;
                 margin: 0 0 15px 0 !important;
                 font-family: 'Poppins', sans-serif !important;
             }
@@ -310,6 +347,69 @@
                 color: #00d46e !important;
                 font-size: 13px !important;
                 font-family: 'Poppins', sans-serif !important;
+                margin-bottom: 15px !important;
+            }
+            
+            /* Documents Section Styles */
+   .event-popup-documents-section {
+                margin-top: 10px;
+            }
+            
+            .event-popup-documents-toggle {
+                background: rgba(239, 161, 46, 0.2);
+                border: 2px solid #efa12e;
+                border-radius: 10px;
+                padding: 12px 15px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 10px;
+                transition: all 0.3s ease;
+                font-weight: 600;
+                font-size: 14px;
+                color: #ffb74d;
+            }
+            
+            .event-popup-documents-toggle:hover {
+                background: rgba(239, 161, 46, 0.4);
+                transform: translateY(-2px);
+            }
+            
+            .event-popup-documents-toggle i:first-child {
+                color: #efa12e;
+            }
+            
+            #docsChevron {
+                transition: transform 0.3s ease;
+            }
+            
+            .event-popup-documents-list {
+                margin-top: 15px;
+                padding: 15px;
+                background: rgba(255, 255, 255, 0.05);
+                border-radius: 10px;
+                animation: slideDown 0.3s ease;
+            }
+            
+            @keyframes slideDown {
+                from {
+                    opacity: 0;
+                    transform: translateY(-10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+            
+            .event-popup-principal-sign {
+                margin-top: 15px;
+                padding-top: 10px;
+                border-top: 1px solid rgba(255,255,255,0.2);
+                text-align: center;
+                font-size: 12px;
+                color: #ffb74d;
             }
             
             .event-popup-details {
@@ -375,7 +475,7 @@
             
             @media (max-width: 480px) {
                 .event-popup-card {
-                    max-width: 320px !important;
+                    max-width: 350px !important;
                     padding: 25px 20px 20px !important;
                 }
                 .event-popup-close-btn {
@@ -396,6 +496,12 @@
                     min-height: 48px !important;
                     font-size: 14px !important;
                 }
+                .event-popup-strong-text {
+                    font-size: 16px !important;
+                }
+                .event-popup-normal-text {
+                    font-size: 13px !important;
+                }
             }
         `;
 
@@ -409,5 +515,5 @@
         return div.innerHTML;
     }
 
-    console.log('✅ Event popup script ready');
+    console.log('✅ Event popup script ready with Documents feature');
 })();
