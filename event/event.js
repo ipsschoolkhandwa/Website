@@ -3,8 +3,8 @@
 
 const events = [
     {
-        title: "📢 Class 11th Registration Started",
-        description: "All parents are hereby informed that registration for Class 11th has begun. Registration forms will be available at the school from 16/04/2026 (Thursday). Parents are requested to collect the registration form from the school, submit it soon with required documents and fees, and choose their stream to confirm admission.",
+        title: "📢 Class 11th Registrations Started",
+        description: "Class 11th registrations are now open. Register soon to secure your stream.",
         date: "From April 16, 2026",
         type: "documents",
         important: true,
